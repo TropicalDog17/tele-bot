@@ -1,0 +1,273 @@
+package main
+
+import (
+	"fmt"
+	"io/fs"
+	"log"
+	"os"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/TropicalDog17/tele-bot/internal"
+	"github.com/TropicalDog17/tele-bot/internal/handler"
+	"github.com/joho/godotenv"
+	tele "gopkg.in/telebot.v3"
+)
+
+var (
+	selectedToken    string
+	selectedAmount   string
+	recipientAddress string
+	currentStep      string
+	globalMenu       tele.StoredMessage
+	promptMsg        tele.StoredMessage
+)
+
+var (
+	// Universal markup builders.
+	menu          = &tele.ReplyMarkup{ResizeKeyboard: true}
+	menuSendToken = &tele.ReplyMarkup{ResizeKeyboard: true}
+	selector      = &tele.ReplyMarkup{}
+	// Reply buttons.
+	btnViewBalances = menu.Text("ℹ View Balances")
+	btnSettings     = menu.Text("⚙ Settings")
+	btnSendToken    = menu.Text("💸 Send Token")
+	btnShowAccount  = menu.Text("👤 Show Account")
+	btnLimitOrder   = menu.Text("📈 Limit Order")
+	btnSpotOrder    = menu.Text("📊 Spot Order")
+
+	btnInlineAtom        = selector.Data("ATOM", "atom", "atom")
+	btnInlineInj         = selector.Data("INJ", "inj", "inj")
+	btnMenu              = menuSendToken.Data("Menu", "menu")
+	btnTokenSection      = menuSendToken.Data("---Token Section---", "tokenSection")
+	btnAmountSection     = menuSendToken.Data("---Amount Section---", "amountSection")
+	btnRecipientSection  = menuSendToken.Data("Enter Recipient Address:", "recipient", "recipient")
+	btnSend              = menuSendToken.Data("Send", "send", "send")
+	btnTenDollar         = menuSendToken.Data("$10", "btnTenDollar", "10")
+	btnFiftyDollar       = menuSendToken.Data("$50", "btnFiftyDollar", "50")
+	btnHundredDollar     = menuSendToken.Data("$100", "btnHundredDollar", "100")
+	btnTwoHundredDollar  = menuSendToken.Data("$200", "btnTwoHundredDollar", "200")
+	btnFiveHundredDollar = menuSendToken.Data("$500", "btnFiveHundredDollar", "500")
+	btnCustomAmount      = menuSendToken.Data("Custom Amount", "btnCustomAmount", "")
+	btnBack              = menuSendToken.Data("Back", "btnBack")
+)
+
+func main() {
+	client := internal.NewClient()
+	menu.Reply(
+		menu.Row(btnViewBalances, btnSettings),
+		menu.Row(btnSendToken, btnShowAccount),
+		menu.Row(btnLimitOrder, btnSpotOrder),
+	)
+	menuSendToken.Inline(
+		menuSendToken.Row(btnBack, btnMenu),
+		menuSendToken.Row(btnTokenSection),
+		menuSendToken.Row(btnInlineAtom, btnInlineInj),
+		menuSendToken.Row(btnAmountSection),
+		menuSendToken.Row(btnTenDollar, btnFiftyDollar, btnHundredDollar),
+		menuSendToken.Row(btnTwoHundredDollar, btnFiveHundredDollar, btnCustomAmount),
+		menuSendToken.Row(btnRecipientSection),
+		menuSendToken.Row(btnSend),
+	)
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	pref := tele.Settings{
+		Token:  os.Getenv("TOKEN"),
+		Poller: &tele.LongPoller{Timeout: 10 * time.Second},
+	}
+	fmt.Println(pref.Token)
+	b, err := tele.NewBot(pref)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	b.Handle("/start", func(c tele.Context) error {
+		return c.Send("Hello!", menu)
+	})
+	// On reply button pressed (message)
+	b.Handle(&btnViewBalances, func(c tele.Context) error {
+		fmt.Println("Button pressed")
+		balances, err := client.GetBalances("inj1gxv7rs9q60qyjtaxrmu0pgwvatm6smyk4cz9d0", []string{"atom", "inj"})
+		if err != nil {
+			return c.Send("Error fetching balances")
+		}
+		return c.Send(fmt.Sprintf("Balances: %v", balances))
+	})
+
+	b.Handle("/menu", func(c tele.Context) error {
+		return c.Send("Menu", menu)
+	})
+	// Show account
+	b.Handle(&btnShowAccount, func(c tele.Context) error {
+		accountDetails := &tele.ReplyMarkup{}
+		address := client.GetAddress()
+		balances, err := client.GetBalances(address, []string{"atom", "inj"})
+		if err != nil {
+			return c.Send("Error fetching balances")
+		}
+		rows := []tele.Row{}
+		for denom, balance := range balances {
+			rows = append(rows, accountDetails.Row(accountDetails.Data(fmt.Sprintf("%s: %f", denom, balance), "balance", "balance")))
+		}
+		rows = append(rows, accountDetails.Row(accountDetails.Data("Show QR for address", "qr", "qr")))
+		accountDetails.Inline(rows...)
+		// Message contain the account address
+
+		return c.Send("Account: "+address, accountDetails)
+	})
+	handler.HandleAddressQr(b, client)
+	// Handle the "Send Tokens" button click
+	b.Handle(&btnSendToken, func(c tele.Context) error {
+		msg, err := b.Send(c.Chat(), "Select the token to send:", menuSendToken)
+		if err != nil {
+			return err
+		}
+		globalMenu.ChatID = msg.Chat.ID
+		globalMenu.MessageID = fmt.Sprintf("%d", msg.ID)
+
+		// Store chat ID and message ID in a file for future reference
+		err = os.WriteFile("globalMenu.txt", []byte(fmt.Sprintf("%d %s", globalMenu.ChatID, globalMenu.MessageID)), fs.FileMode(0644))
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	// Handle inline button clicks for token selection
+	b.Handle(&btnInlineAtom, func(c tele.Context) error {
+		selectedToken = "atom"
+		menuSendToken.InlineKeyboard = internal.RemoveGreenTickToken(menuSendToken.InlineKeyboard)
+		menuSendToken.InlineKeyboard[2][0] = internal.AddGreenTick(*btnInlineAtom.Inline())
+		return c.Edit("Selected token: ATOM", menuSendToken)
+	})
+
+	b.Handle(&btnInlineInj, func(c tele.Context) error {
+		selectedToken = "inj"
+		menuSendToken.InlineKeyboard = internal.RemoveGreenTickToken(menuSendToken.InlineKeyboard)
+		menuSendToken.InlineKeyboard[2][1] = internal.AddGreenTick(*btnInlineInj.Inline())
+		return c.Edit("Selected token: INJ", menuSendToken)
+	})
+
+	// Handle amount button clicks
+	b.Handle(&btnTenDollar, func(c tele.Context) error {
+		selectedAmount = "10"
+		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, selectedAmount, selectedToken)
+		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
+		menuSendToken.InlineKeyboard[4][0] = internal.AddGreenTick(*btnTenDollar.Inline())
+		return c.Edit("Selected amount: $10", menuSendToken)
+	})
+
+	b.Handle(&btnFiftyDollar, func(c tele.Context) error {
+		selectedAmount = "50"
+		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, selectedAmount, selectedToken)
+		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
+		menuSendToken.InlineKeyboard[4][1] = internal.AddGreenTick(*btnFiftyDollar.Inline())
+
+		return c.Edit("Selected amount: $50", menuSendToken)
+	})
+
+	b.Handle(&btnHundredDollar, func(c tele.Context) error {
+		selectedAmount = "100"
+		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, selectedAmount, selectedToken)
+		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
+		menuSendToken.InlineKeyboard[4][2] = internal.AddGreenTick(*btnHundredDollar.Inline())
+		return c.Edit("Selected amount: $100", menuSendToken)
+	})
+
+	b.Handle(&btnTwoHundredDollar, func(c tele.Context) error {
+		selectedAmount = "200"
+		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, selectedAmount, selectedToken)
+		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
+		menuSendToken.InlineKeyboard[5][0] = internal.AddGreenTick(*btnTwoHundredDollar.Inline())
+		return c.Edit("Selected amount: $200", menuSendToken)
+	})
+
+	b.Handle(&btnFiveHundredDollar, func(c tele.Context) error {
+		selectedAmount = "500"
+		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, selectedAmount, selectedToken)
+		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
+		menuSendToken.InlineKeyboard[5][1] = internal.AddGreenTick(*btnFiveHundredDollar.Inline())
+		return c.Edit("Selected amount: $500", menuSendToken)
+	})
+
+	b.Handle(&btnCustomAmount, func(c tele.Context) error {
+		// Prompt the user to enter a custom amount
+		currentStep = "customAmount"
+		return c.Send("Please enter the custom amount:")
+	})
+
+	b.Handle(&btnRecipientSection, func(c tele.Context) error {
+		// Prompt the user to enter a recipient address
+		currentStep = "recipientAddress"
+		return c.Send("Please enter the recipient address:", tele.ForceReply)
+	})
+
+	b.Handle(tele.OnText, func(c tele.Context) error {
+		// Check if the user is entering a custom amount
+		if currentStep == "customAmount" {
+			selectedAmount = c.Text()
+			menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, selectedAmount, selectedToken)
+			return c.Send(fmt.Sprintf("Selected amount: %s", selectedAmount), menuSendToken)
+		} else if currentStep == "recipientAddress" { // Check if the user is entering a recipient addres
+			recipientAddress = c.Text()
+			fmt.Println("Recipient address: ", recipientAddress)
+			err := b.Delete(c.Message().ReplyTo)
+			if err != nil {
+				return err
+			}
+			err = c.Delete()
+			if err != nil {
+				return err
+			}
+			btnRecipientSection.Text = "Recipient:" + recipientAddress
+			menuSendToken.InlineKeyboard[6][0] = *btnRecipientSection.Inline()
+
+			// load the global menu from the file
+			data, err := os.ReadFile("globalMenu.txt")
+			if err != nil {
+				return err
+			}
+			_, err = fmt.Sscanf(string(data), "%d %s", &globalMenu.ChatID, &globalMenu.MessageID)
+			if err != nil {
+				return err
+			}
+			_, err = b.EditReplyMarkup(&globalMenu, menuSendToken)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	// Handle the "Send" button click
+	b.Handle(&btnSend, func(c tele.Context) error {
+		// Sanity check to ensure all required fields are filled
+		if selectedToken == "" || selectedAmount == "" || recipientAddress == "" {
+			return c.Send("Please fill in all required fields", menuSendToken)
+		}
+		selectedAmount, err := strconv.ParseFloat(selectedAmount, 64)
+		fmt.Println(selectedAmount)
+		if err != nil {
+			return c.Send("Invalid amount", menuSendToken)
+		}
+		// inj1gxv7rs9q60qyjtaxrmu0pgwvatm6smyk4cz9d0
+		// Trim whitespace from the recipient address
+		recipientAddress = strings.TrimSpace(recipientAddress)
+		txHash, err := client.TransferToken(recipientAddress, selectedAmount/100, selectedToken)
+		if err != nil {
+			return c.Send("Error sending token", menuSendToken)
+		}
+
+		// Perform the token sending logic here
+		// Use the selected token, amount, and recipient address
+		return c.Send(fmt.Sprintf("Sent %f %s to %s, with tx hash %s", selectedAmount, selectedToken, recipientAddress, txHash), menu)
+	})
+
+	b.Start()
+}
