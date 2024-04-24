@@ -33,10 +33,10 @@ func (order *LimitOrderInfo) ToMessage() string {
 	priceIn := 28.5
 
 	return fmt.Sprintf(`📊 Limit Order - %s
-⬩ Mode: %s
-⬩ TokenToPay: %s
-⬩ Amount: %f %s
-⬩ Limit Price: $%f (0.00%%)
-IN:   %f %s ($%f)
-OUT: %f %s ($%f)`, order.Direction, order.Direction, order.DenomOut, order.Amount, order.DenomIn, order.Price, order.Amount, order.DenomIn, order.Amount*priceIn, order.Amount*order.Price, order.DenomOut, order.Amount*order.Price*priceOut)
+	⬩ Mode: %s
+	⬩ TokenToPay: %s
+	⬩ Amount: %f %s
+	⬩ Limit Price: $%f (0.00%%)
+	IN:   %f %s ($%f)
+	OUT: %f %s ($%f)`, order.Direction, order.Direction, order.DenomOut, order.Amount, order.DenomIn, order.Price, order.Amount, order.DenomIn, order.Amount*priceIn, order.Amount*order.Price, order.DenomOut, order.Amount*order.Price*priceOut)
 }

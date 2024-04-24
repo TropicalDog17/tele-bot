@@ -101,8 +101,8 @@ github.com/InjectiveLabs/cosmos-sdk/math v0.47.3-inj-1 h1:BHZQuZJXJctENiTfIBSH21
 github.com/InjectiveLabs/cosmos-sdk/math v0.47.3-inj-1/go.mod h1:An0MllWJY6PxibUpnwGk8jOm+a/qIxlKmL5Zyp9NnaM=
 github.com/InjectiveLabs/ibc-go/v7 v7.2.0-inj h1:CtzShjiD+mGQktWYS0kTzUu8hQaDOmtvSTMekvOm9Rw=
 github.com/InjectiveLabs/ibc-go/v7 v7.2.0-inj/go.mod h1:aEQF2stK9Bi/J56kW93MHlcKIF1uSt204mTngJYdNcY=
-github.com/InjectiveLabs/sdk-go v1.50.1 h1:S4Pg+SJF6MI18A2OFg+GmTJwpJmgQs7H5Mqxi8klCAI=
-github.com/InjectiveLabs/sdk-go v1.50.1/go.mod h1:u2sA/g0Sz/z+/qsJHSPue+i5OY5KsZY7izfKdZ5HB8c=
+github.com/InjectiveLabs/sdk-go v1.50.2-0.20240308032359-b70213c28dde h1:cwfp3FG+hGjWrPvoXx5MqFB4597hIQDIVd3/xflpxgk=
+github.com/InjectiveLabs/sdk-go v1.50.2-0.20240308032359-b70213c28dde/go.mod h1:u2sA/g0Sz/z+/qsJHSPue+i5OY5KsZY7izfKdZ5HB8c=
 github.com/InjectiveLabs/suplog v1.3.3 h1:ARIR3lWD9BxcrmqTwgcGBt8t7e10gwOqllUAXa/MfxI=
 github.com/InjectiveLabs/suplog v1.3.3/go.mod h1:+I9WRgUhzmo1V/n7IkW24kFBFB9ZTPAiXXXCogWxmTM=
 github.com/InjectiveLabs/wasmd v0.45.0-inj h1:hYRzxEiBNJqJA7EoE9kMTFpWayjT2ICo/FsmtAf8A+o=

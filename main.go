@@ -74,6 +74,7 @@ var (
 
 func main() {
 	client := internal.NewClient()
+
 	menu.Reply(
 		menu.Row(btnViewBalances, btnSettings),
 		menu.Row(btnSendToken, btnShowAccount),
@@ -223,7 +224,11 @@ func main() {
 	})
 	b.Handle(&btnConfirmLimitOrder, func(c tele.Context) error {
 		// TODO: Perform the limit order logic here
-		return c.Send("Limit order confirmed", menu)
+		txHash, err := client.PlaceSpotOrder(globalLimitOrder.DenomIn, globalLimitOrder.DenomOut, globalLimitOrder.Amount, globalLimitOrder.Price)
+		if err != nil {
+			return c.Send("Error placing limit order", menu)
+		}
+		return c.Send("Successfully send order, check txhash here: "+txHash, menu)
 	})
 	b.Handle(&btnBack, func(c tele.Context) error {
 		if currentStep == "confirmOrder" {
