@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/TropicalDog17/tele-bot/internal/types"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -42,4 +43,25 @@ func ModifyAmountToTransferButton(keyboard [][]tele.InlineButton, amount, denom 
 		return keyboard
 	}
 	return keyboard
+}
+
+func ModifyLimitOrderMenu(keyboard [][]tele.InlineButton, orderInfo *types.LimitOrderInfo) [][]tele.InlineButton {
+	if orderInfo.Denom != "" {
+		keyboard[1][0].Text = fmt.Sprintf("Token: %s", orderInfo.Denom)
+	}
+	if orderInfo.Amount != 0 {
+		keyboard[2][0].Text = fmt.Sprintf("Amount: %f", orderInfo.Amount)
+	}
+	if orderInfo.Price != 0 {
+		keyboard[3][0].Text = fmt.Sprintf("Price: %f", orderInfo.Price)
+	}
+	return keyboard
+}
+
+func DeleteInputMessage(b *tele.Bot, c tele.Context) error {
+	err := b.Delete(c.Message().ReplyTo)
+	if err != nil {
+		return err
+	}
+	return c.Delete()
 }

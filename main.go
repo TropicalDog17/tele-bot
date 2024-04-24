@@ -11,6 +11,7 @@ import (
 
 	"github.com/TropicalDog17/tele-bot/internal"
 	"github.com/TropicalDog17/tele-bot/internal/handler"
+	"github.com/TropicalDog17/tele-bot/internal/types"
 	"github.com/joho/godotenv"
 	tele "gopkg.in/telebot.v3"
 )
@@ -22,15 +23,17 @@ var (
 	currentStep      string
 	globalMenu       tele.StoredMessage
 	limitOrderMenu   tele.StoredMessage
+	createOrderMenu  tele.StoredMessage
 	promptMsg        tele.StoredMessage
 )
 
 var (
 	// Universal markup builders.
-	menu           = &tele.ReplyMarkup{ResizeKeyboard: true}
-	menuSendToken  = &tele.ReplyMarkup{ResizeKeyboard: true}
-	menuLimitOrder = &tele.ReplyMarkup{ResizeKeyboard: true}
-	selector       = &tele.ReplyMarkup{}
+	menu                 = &tele.ReplyMarkup{ResizeKeyboard: true}
+	menuSendToken        = &tele.ReplyMarkup{ResizeKeyboard: true}
+	menuLimitOrder       = &tele.ReplyMarkup{ResizeKeyboard: true}
+	menuCreateLimitOrder = &tele.ReplyMarkup{ResizeKeyboard: true}
+	selector             = &tele.ReplyMarkup{}
 	// Reply buttons.
 	btnViewBalances = menu.Text("ℹ View Balances")
 	btnSettings     = menu.Text("⚙ Settings")
@@ -56,6 +59,14 @@ var (
 	btnBuyLimitOrder     = menuLimitOrder.Data("📈 Buy", "buyLimit", "buy")
 	btnSellLimitOrder    = menuLimitOrder.Data("📉 Sell", "sellLimit", "sell")
 	btnActiveOrders      = menuLimitOrder.Data("💸 Active Orders", "activeOrders", "active")
+	btnToken             = menuCreateLimitOrder.Data("Token", "limitToken", "token")
+	btnAmount            = menuCreateLimitOrder.Data("Amount", "limitAmount", "amount")
+	btnPrice             = menuCreateLimitOrder.Data("Price", "limitPrice", "price")
+	btnConfirmOrder      = menuCreateLimitOrder.Data("Confirm Order", "confirmOrder", "confirm")
+)
+
+var (
+	globalLimitOrder = types.NewLimitOrderInfo()
 )
 
 func main() {
@@ -79,6 +90,13 @@ func main() {
 		menuLimitOrder.Row(btnActiveOrders),
 		menuLimitOrder.Row(btnBuyLimitOrder, btnSellLimitOrder),
 		menuLimitOrder.Row(btnBack),
+	)
+	menuCreateLimitOrder.Inline(
+		menuCreateLimitOrder.Row(btnBack),
+		menuCreateLimitOrder.Row(btnToken),
+		menuCreateLimitOrder.Row(btnAmount),
+		menuCreateLimitOrder.Row(btnPrice),
+		menuCreateLimitOrder.Row(btnConfirmOrder),
 	)
 	err := godotenv.Load()
 	if err != nil {
@@ -162,6 +180,39 @@ func main() {
 			return err
 		}
 		return nil
+	})
+	b.Handle(&btnBuyLimitOrder, func(ctx tele.Context) error {
+		text := "Place a buy limit order"
+		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+		msg, err := b.Send(ctx.Chat(), text, menuCreateLimitOrder)
+		if err != nil {
+			return err
+		}
+		createOrderMenu.ChatID = msg.Chat.ID
+		createOrderMenu.MessageID = fmt.Sprintf("%d", msg.ID)
+		// Store chat ID and message ID in a file for future reference
+		err = os.WriteFile("db/createOrderMenu.txt", []byte(fmt.Sprintf("%d %s", createOrderMenu.ChatID, createOrderMenu.MessageID)), fs.FileMode(0644))
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	b.Handle(&btnAmount, func(c tele.Context) error {
+		currentStep = "limit_amount"
+		return c.Send("Enter the amount to buy", tele.ForceReply)
+	})
+	b.Handle(&btnPrice, func(c tele.Context) error {
+		currentStep = "limit_price"
+		return c.Send("Enter the price to buy", tele.ForceReply)
+	})
+	b.Handle(&btnToken, func(c tele.Context) error {
+		currentStep = "limit_token"
+		return c.Send("Enter the token to buy", tele.ForceReply)
+	})
+	b.Handle(&btnConfirmOrder, func(c tele.Context) error {
+		currentStep = "confirm_order"
+		return c.Send("Order confirmed", menu)
 	})
 
 	// Handle inline button clicks for token selection
@@ -266,6 +317,37 @@ func main() {
 			if err != nil {
 				return err
 			}
+			return nil
+		} else if currentStep == "limit_amount" {
+			globalLimitOrder.Amount, err = strconv.ParseFloat(c.Text(), 64)
+			if err != nil {
+				return c.Send("Invalid amount")
+			}
+			menuLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+			_, err := b.EditReplyMarkup(&createOrderMenu, menuCreateLimitOrder)
+			if err != nil {
+				return err
+			}
+			return internal.DeleteInputMessage(b, c)
+		} else if currentStep == "limit_price" {
+			globalLimitOrder.Price, err = strconv.ParseFloat(c.Text(), 64)
+			if err != nil {
+				return c.Send("Invalid price")
+			}
+			menuLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+			_, err := b.EditReplyMarkup(&createOrderMenu, menuCreateLimitOrder)
+			if err != nil {
+				return err
+			}
+			return internal.DeleteInputMessage(b, c)
+		} else if currentStep == "limit_token" {
+			globalLimitOrder.Denom = c.Text()
+			menuLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+			_, err := b.EditReplyMarkup(&createOrderMenu, menuCreateLimitOrder)
+			if err != nil {
+				return err
+			}
+			return internal.DeleteInputMessage(b, c)
 		}
 
 		return nil
