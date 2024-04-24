@@ -33,6 +33,7 @@ var (
 	menuSendToken        = &tele.ReplyMarkup{ResizeKeyboard: true}
 	menuLimitOrder       = &tele.ReplyMarkup{ResizeKeyboard: true}
 	menuCreateLimitOrder = &tele.ReplyMarkup{ResizeKeyboard: true}
+	menuConfirmOrder     = &tele.ReplyMarkup{ResizeKeyboard: true}
 	selector             = &tele.ReplyMarkup{}
 	// Reply buttons.
 	btnViewBalances = menu.Text("ℹ View Balances")
@@ -63,6 +64,8 @@ var (
 	btnAmount            = menuCreateLimitOrder.Data("Amount", "limitAmount", "amount")
 	btnPrice             = menuCreateLimitOrder.Data("Price", "limitPrice", "price")
 	btnConfirmOrder      = menuCreateLimitOrder.Data("Confirm Order", "confirmOrder", "confirm")
+	btnConfirmLimitOrder = menuConfirmOrder.Data("Confirm", "confirmLimitOrder", "confirm")
+	btnClose             = menuConfirmOrder.Data("Close", "close", "close")
 )
 
 var (
@@ -97,6 +100,9 @@ func main() {
 		menuCreateLimitOrder.Row(btnAmount),
 		menuCreateLimitOrder.Row(btnPrice),
 		menuCreateLimitOrder.Row(btnConfirmOrder),
+	)
+	menuConfirmOrder.Inline(
+		menuConfirmOrder.Row(btnConfirmLimitOrder, btnClose),
 	)
 	err := godotenv.Load()
 	if err != nil {
@@ -199,20 +205,31 @@ func main() {
 		return nil
 	})
 	b.Handle(&btnAmount, func(c tele.Context) error {
-		currentStep = "limit_amount"
+		currentStep = "limitAmount"
 		return c.Send("Enter the amount to buy", tele.ForceReply)
 	})
 	b.Handle(&btnPrice, func(c tele.Context) error {
-		currentStep = "limit_price"
+		currentStep = "limitPrice"
 		return c.Send("Enter the price to buy", tele.ForceReply)
 	})
 	b.Handle(&btnToken, func(c tele.Context) error {
-		currentStep = "limit_token"
+		currentStep = "limitToken"
 		return c.Send("Enter the token to buy", tele.ForceReply)
 	})
 	b.Handle(&btnConfirmOrder, func(c tele.Context) error {
-		currentStep = "confirm_order"
-		return c.Send("Order confirmed", menu)
+		currentStep = "confirmOrder"
+		orderOverview := globalLimitOrder.ToMessage()
+		return c.Send(orderOverview, menuConfirmOrder)
+	})
+	b.Handle(&btnConfirmLimitOrder, func(c tele.Context) error {
+		// Perform the limit order logic here
+		return c.Send("Limit order confirmed", menu)
+	})
+	b.Handle(&btnBack, func(c tele.Context) error {
+		if currentStep == "confirmOrder" {
+			currentStep = ""
+		}
+		return c.Send("Back to main menu", menu)
 	})
 
 	// Handle inline button clicks for token selection
@@ -283,7 +300,6 @@ func main() {
 		currentStep = "recipientAddress"
 		return c.Send("Please enter the recipient address:", tele.ForceReply)
 	})
-
 	b.Handle(tele.OnText, func(c tele.Context) error {
 		// Check if the user is entering a custom amount
 		if currentStep == "customAmount" {
@@ -318,7 +334,7 @@ func main() {
 				return err
 			}
 			return nil
-		} else if currentStep == "limit_amount" {
+		} else if currentStep == "limitAmount" {
 			globalLimitOrder.Amount, err = strconv.ParseFloat(c.Text(), 64)
 			if err != nil {
 				return c.Send("Invalid amount")
@@ -329,7 +345,7 @@ func main() {
 				return err
 			}
 			return internal.DeleteInputMessage(b, c)
-		} else if currentStep == "limit_price" {
+		} else if currentStep == "limitPrice" {
 			globalLimitOrder.Price, err = strconv.ParseFloat(c.Text(), 64)
 			if err != nil {
 				return c.Send("Invalid price")
@@ -340,8 +356,8 @@ func main() {
 				return err
 			}
 			return internal.DeleteInputMessage(b, c)
-		} else if currentStep == "limit_token" {
-			globalLimitOrder.Denom = c.Text()
+		} else if currentStep == "limitToken" {
+			globalLimitOrder.DenomOut = c.Text()
 			menuLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
 			_, err := b.EditReplyMarkup(&createOrderMenu, menuCreateLimitOrder)
 			if err != nil {

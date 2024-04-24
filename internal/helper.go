@@ -46,11 +46,11 @@ func ModifyAmountToTransferButton(keyboard [][]tele.InlineButton, amount, denom 
 }
 
 func ModifyLimitOrderMenu(keyboard [][]tele.InlineButton, orderInfo *types.LimitOrderInfo) [][]tele.InlineButton {
-	if orderInfo.Denom != "" {
-		keyboard[1][0].Text = fmt.Sprintf("Token: %s", orderInfo.Denom)
+	if orderInfo.DenomOut != "" {
+		keyboard[1][0].Text = fmt.Sprintf("Token to Pay: %s", orderInfo.DenomOut)
 	}
 	if orderInfo.Amount != 0 {
-		keyboard[2][0].Text = fmt.Sprintf("Amount: %f", orderInfo.Amount)
+		keyboard[2][0].Text = fmt.Sprintf("Amount: %f %s", orderInfo.Amount, orderInfo.DenomIn)
 	}
 	if orderInfo.Price != 0 {
 		keyboard[3][0].Text = fmt.Sprintf("Price: %f", orderInfo.Price)
