@@ -34,6 +34,7 @@ var (
 	menuLimitOrder       = &tele.ReplyMarkup{ResizeKeyboard: true}
 	menuCreateLimitOrder = &tele.ReplyMarkup{ResizeKeyboard: true}
 	menuConfirmOrder     = &tele.ReplyMarkup{ResizeKeyboard: true}
+	menuActiveOrders     = &tele.ReplyMarkup{ResizeKeyboard: true}
 	selector             = &tele.ReplyMarkup{}
 	// Reply buttons.
 	btnViewBalances = menu.Text("ℹ View Balances")
@@ -146,7 +147,14 @@ func main() {
 		}
 		rows := []tele.Row{}
 		for denom, balance := range balances {
-			rows = append(rows, accountDetails.Row(accountDetails.Data(fmt.Sprintf("%s: %f", denom, balance), "balance", "balance")))
+			usdPrice, found := client.GetPrice(denom)
+			var balanceInUsd float64
+			if !found {
+				balanceInUsd = 0
+			} else {
+				balanceInUsd = balance * usdPrice
+			}
+			rows = append(rows, accountDetails.Row(accountDetails.Data(fmt.Sprintf("%s: %.3f %.3f", denom, balance, balanceInUsd), "balance", "balance")))
 		}
 		rows = append(rows, accountDetails.Row(accountDetails.Data("Show QR for address", "qr", "qr")))
 		accountDetails.Inline(rows...)
@@ -219,7 +227,7 @@ func main() {
 	})
 	b.Handle(&btnConfirmOrder, func(c tele.Context) error {
 		currentStep = "confirmOrder"
-		orderOverview := globalLimitOrder.ToMessage()
+		orderOverview := client.ToMessage(*globalLimitOrder)
 		return c.Send(orderOverview, menuConfirmOrder)
 	})
 	b.Handle(&btnConfirmLimitOrder, func(c tele.Context) error {
@@ -235,6 +243,24 @@ func main() {
 			currentStep = ""
 		}
 		return c.Send("Back to main menu", menu)
+	})
+
+	// Handle active orders
+	b.Handle(&btnActiveOrders, func(c tele.Context) error {
+		// TODO: fix hardcoded market id
+		orders, err := client.GetActiveOrders("0xfbd55f13641acbb6e69d7b59eb335dabe2ecbfea136082ce2eedaba8a0c917a3")
+		if err != nil {
+			return c.Send("Error fetching active orders")
+		}
+		msgs := []string{}
+		if len(orders) == 0 {
+			return c.Send("No active orders", menu)
+		}
+		for _, order := range orders {
+			msgs = append(msgs, client.ToMessage(order))
+		}
+
+		return c.Send(strings.Join(msgs, "\n\n"), menu)
 	})
 
 	// Handle inline button clicks for token selection
