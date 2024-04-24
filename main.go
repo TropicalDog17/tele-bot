@@ -21,14 +21,16 @@ var (
 	recipientAddress string
 	currentStep      string
 	globalMenu       tele.StoredMessage
+	limitOrderMenu   tele.StoredMessage
 	promptMsg        tele.StoredMessage
 )
 
 var (
 	// Universal markup builders.
-	menu          = &tele.ReplyMarkup{ResizeKeyboard: true}
-	menuSendToken = &tele.ReplyMarkup{ResizeKeyboard: true}
-	selector      = &tele.ReplyMarkup{}
+	menu           = &tele.ReplyMarkup{ResizeKeyboard: true}
+	menuSendToken  = &tele.ReplyMarkup{ResizeKeyboard: true}
+	menuLimitOrder = &tele.ReplyMarkup{ResizeKeyboard: true}
+	selector       = &tele.ReplyMarkup{}
 	// Reply buttons.
 	btnViewBalances = menu.Text("ℹ View Balances")
 	btnSettings     = menu.Text("⚙ Settings")
@@ -51,6 +53,9 @@ var (
 	btnFiveHundredDollar = menuSendToken.Data("$500", "btnFiveHundredDollar", "500")
 	btnCustomAmount      = menuSendToken.Data("Custom Amount", "btnCustomAmount", "")
 	btnBack              = menuSendToken.Data("Back", "btnBack")
+	btnBuyLimitOrder     = menuLimitOrder.Data("📈 Buy", "buyLimit", "buy")
+	btnSellLimitOrder    = menuLimitOrder.Data("📉 Sell", "sellLimit", "sell")
+	btnActiveOrders      = menuLimitOrder.Data("💸 Active Orders", "activeOrders", "active")
 )
 
 func main() {
@@ -69,6 +74,11 @@ func main() {
 		menuSendToken.Row(btnTwoHundredDollar, btnFiveHundredDollar, btnCustomAmount),
 		menuSendToken.Row(btnRecipientSection),
 		menuSendToken.Row(btnSend),
+	)
+	menuLimitOrder.Inline(
+		menuLimitOrder.Row(btnActiveOrders),
+		menuLimitOrder.Row(btnBuyLimitOrder, btnSellLimitOrder),
+		menuLimitOrder.Row(btnBack),
 	)
 	err := godotenv.Load()
 	if err != nil {
@@ -134,7 +144,23 @@ func main() {
 		if err != nil {
 			return err
 		}
+		return nil
+	})
 
+	b.Handle(&btnLimitOrder, func(c tele.Context) error {
+		text := "📊 Limit Orders\n\nBuy or Sell tokens automatically at your desired price.\n1. Choose to Buy or Sell.\n2. Choose the Token to Buy or Sell.\n3. Select the amount to Buy or Sell.\n4. Set your target buy or sell price.\n5. Pick an expiry time for the order.\n6. Click Create Order and Review, Confirm.\n\nTo manage or view unfilled orders, click Active Orders."
+		msg, err := b.Send(c.Chat(), text, menuLimitOrder)
+		if err != nil {
+			return err
+		}
+		limitOrderMenu.ChatID = msg.Chat.ID
+		limitOrderMenu.MessageID = fmt.Sprintf("%d", msg.ID)
+
+		// Store chat ID and message ID in a file for future reference
+		err = os.WriteFile("db/limitOrderMenu.txt", []byte(fmt.Sprintf("%d %s", limitOrderMenu.ChatID, limitOrderMenu.MessageID)), fs.FileMode(0644))
+		if err != nil {
+			return err
+		}
 		return nil
 	})
 
