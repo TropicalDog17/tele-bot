@@ -153,10 +153,7 @@ func (c *CoinGeckoClient) GetPriceInUsd(denoms ...string) (map[string]map[string
 			ticker = append(ticker, denom)
 		}
 	}
-	// curl --request GET \
-	//  --url 'https://api.coingecko.com/api/v3/simple/price?ids=cosmos&vs_currencies=usd' \
-	//  --header 'accept: application/json' \
-	//  --header 'x-cg-demo-api-key: CG-NahJ6HtSXWRtV1ASvP6EZMCS'
+
 	tickerString := strings.Join(ticker, ",")
 	// Request by http
 	req, err := http.NewRequest("GET", "https://api.coingecko.com/api/v3/simple/price?ids="+tickerString+"&vs_currencies=usd", nil)

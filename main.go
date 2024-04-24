@@ -146,6 +146,7 @@ func main() {
 			return c.Send("Error fetching balances")
 		}
 		rows := []tele.Row{}
+		totalBalanceInUsd := 0.0
 		for denom, balance := range balances {
 			usdPrice, found := client.GetPrice(denom)
 			var balanceInUsd float64
@@ -154,8 +155,10 @@ func main() {
 			} else {
 				balanceInUsd = balance * usdPrice
 			}
-			rows = append(rows, accountDetails.Row(accountDetails.Data(fmt.Sprintf("%s: %.3f %.3f", denom, balance, balanceInUsd), "balance", "balance")))
+			totalBalanceInUsd += balanceInUsd
+			rows = append(rows, accountDetails.Row(accountDetails.Data(fmt.Sprintf("%s: %.3f(%.3f $)", denom, balance, balanceInUsd), "balance", "balance")))
 		}
+		rows = append(rows, accountDetails.Row(accountDetails.Data(fmt.Sprintf("Total Balance: %.3f $", totalBalanceInUsd), "totalBalance", "totalBalance")))
 		rows = append(rows, accountDetails.Row(accountDetails.Data("Show QR for address", "qr", "qr")))
 		accountDetails.Inline(rows...)
 		// Message contain the account address
