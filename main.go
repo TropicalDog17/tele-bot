@@ -130,7 +130,7 @@ func main() {
 		globalMenu.MessageID = fmt.Sprintf("%d", msg.ID)
 
 		// Store chat ID and message ID in a file for future reference
-		err = os.WriteFile("globalMenu.txt", []byte(fmt.Sprintf("%d %s", globalMenu.ChatID, globalMenu.MessageID)), fs.FileMode(0644))
+		err = os.WriteFile("db/sendTokenMenu.txt", []byte(fmt.Sprintf("%d %s", globalMenu.ChatID, globalMenu.MessageID)), fs.FileMode(0644))
 		if err != nil {
 			return err
 		}
@@ -228,7 +228,7 @@ func main() {
 			menuSendToken.InlineKeyboard[6][0] = *btnRecipientSection.Inline()
 
 			// load the global menu from the file
-			data, err := os.ReadFile("globalMenu.txt")
+			data, err := os.ReadFile("db/sendTokenMenu.txt")
 			if err != nil {
 				return err
 			}
