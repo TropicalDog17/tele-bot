@@ -222,7 +222,7 @@ func main() {
 		return c.Send(orderOverview, menuConfirmOrder)
 	})
 	b.Handle(&btnConfirmLimitOrder, func(c tele.Context) error {
-		// Perform the limit order logic here
+		// TODO: Perform the limit order logic here
 		return c.Send("Limit order confirmed", menu)
 	})
 	b.Handle(&btnBack, func(c tele.Context) error {
@@ -380,7 +380,6 @@ func main() {
 		if err != nil {
 			return c.Send("Invalid amount", menuSendToken)
 		}
-		// inj1gxv7rs9q60qyjtaxrmu0pgwvatm6smyk4cz9d0
 		// Trim whitespace from the recipient address
 		recipientAddress = strings.TrimSpace(recipientAddress)
 		txHash, err := client.TransferToken(recipientAddress, selectedAmount/100, selectedToken)
@@ -388,7 +387,7 @@ func main() {
 			return c.Send("Error sending token", menuSendToken)
 		}
 
-		// Perform the token sending logic here
+		// TODO: Perform the token sending logic here
 		// Use the selected token, amount, and recipient address
 		return c.Send(fmt.Sprintf("Sent %f %s to %s, with tx hash %s", selectedAmount, selectedToken, recipientAddress, txHash), menu)
 	})
