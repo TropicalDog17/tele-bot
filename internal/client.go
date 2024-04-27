@@ -194,23 +194,29 @@ func (c *CoinGeckoClient) GetPriceInUsd(denoms ...string) (map[string]map[string
 
 }
 
-// 📊 Limit Order - Buy
-// ⬩ Mode: Buy
-// ⬩ Token: SOL
-// ⬩ Amount: 1.000000 SOL
-// ⬩ Limit Price: $0.006382091 (0.00%)
-// IN:   1.000000 SOL ($156.69)
-// OUT: 156.688456 USDC ($156.69)
-func (c *Client) ToMessage(order types.LimitOrderInfo) string {
+func (c *Client) ToMessage(order types.LimitOrderInfo, showDetail bool) string {
 	priceOut := c.priceMap[order.DenomOut]
 	priceIn := c.priceMap[order.DenomIn]
-	return fmt.Sprintf(`📊 Limit Order - %s
+	if !showDetail {
+
+		return fmt.Sprintf(`📊 Limit Order - %s
 	⬩ Mode: %s
 	⬩ Amount: %.3f %s
 	⬩ Limit Price: $%.3f (0.00%%)
 	⬩ Pay Token: %s
-	You will receive:   %.3f %s ($%.3f)
+	⬩ OrderID: %s
+	`, order.Direction, order.Direction, order.Amount, order.DenomIn, order.Price, order.DenomOut, order.OrderHash)
+	} else {
+		return fmt.Sprintf(`📊 Limit Order - %s
+	⬩ Mode: %s
+	⬩ Amount: %.3f %s
+	⬩ Limit Price: $%.3f (0.00%%)
+	⬩ Pay Token: %s
+	After the order is filled: 
+	You will receive: %.3f %s ($%.3f)
 	You will pay: %.3f %s ($%.3f)`, order.Direction, order.Direction, order.Amount, order.DenomIn, order.Price, order.DenomOut, order.Amount, order.DenomIn, order.Amount*priceIn, order.Amount*order.Price, order.DenomOut, order.Amount*order.Price*priceOut)
+	}
+
 }
 
 func (c *Client) GetActiveOrders(marketId string) ([]types.LimitOrderInfo, error) {
@@ -246,7 +252,17 @@ func (c *Client) GetActiveOrders(marketId string) ([]types.LimitOrderInfo, error
 		}
 		parsedOrder.Price = utils.PriceFromChainFormat(order.Price.String(), c.GetDecimal(parsedOrder.DenomIn), c.GetDecimal(parsedOrder.DenomOut)).InexactFloat64()
 		parsedOrder.Amount = utils.QuantityFromChainFormat(order.Quantity.String(), c.GetDecimal(parsedOrder.DenomIn)).InexactFloat64()
+		parsedOrder.OrderHash = order.OrderHash
 		out = append(out, parsedOrder)
 	}
 	return out, nil
+}
+
+func (c *Client) CancelOrder(marketID, orderHash string) (string, error) {
+	ctx := context.Background()
+	txhash, err := c.client.CancelOrder(ctx, marketID, orderHash)
+	if err != nil {
+		return "", err
+	}
+	return txhash, nil
 }

@@ -67,6 +67,7 @@ var (
 	btnConfirmOrder      = menuCreateLimitOrder.Data("Confirm Order", "confirmOrder", "confirm")
 	btnConfirmLimitOrder = menuConfirmOrder.Data("Confirm", "confirmLimitOrder", "confirm")
 	btnClose             = menuConfirmOrder.Data("Close", "close", "close")
+	btnCancelOrder       = menuActiveOrders.Data("Cancel Order", "cancelOrder", "cancel")
 )
 
 var (
@@ -103,6 +104,9 @@ func main() {
 		menuCreateLimitOrder.Row(btnPrice),
 		menuCreateLimitOrder.Row(btnConfirmOrder),
 	)
+	menuActiveOrders.Inline(
+		menuActiveOrders.Row(btnCancelOrder),
+	)
 	menuConfirmOrder.Inline(
 		menuConfirmOrder.Row(btnConfirmLimitOrder, btnClose),
 	)
@@ -126,12 +130,8 @@ func main() {
 	})
 	// On reply button pressed (message)
 	b.Handle(&btnViewBalances, func(c tele.Context) error {
-		fmt.Println("Button pressed")
-		balances, err := client.GetBalances("inj1gxv7rs9q60qyjtaxrmu0pgwvatm6smyk4cz9d0", []string{"atom", "inj"})
-		if err != nil {
-			return c.Send("Error fetching balances")
-		}
-		return c.Send(fmt.Sprintf("Balances: %v", balances))
+		// Unimplemented
+		return c.Send("View Balances", menu)
 	})
 
 	b.Handle("/menu", func(c tele.Context) error {
@@ -230,7 +230,7 @@ func main() {
 	})
 	b.Handle(&btnConfirmOrder, func(c tele.Context) error {
 		currentStep = "confirmOrder"
-		orderOverview := client.ToMessage(*globalLimitOrder)
+		orderOverview := client.ToMessage(*globalLimitOrder, true)
 		return c.Send(orderOverview, menuConfirmOrder)
 	})
 	b.Handle(&btnConfirmLimitOrder, func(c tele.Context) error {
@@ -250,7 +250,7 @@ func main() {
 
 	// Handle active orders
 	b.Handle(&btnActiveOrders, func(c tele.Context) error {
-		// TODO: fix hardcoded market id
+		// TODO: fix hardcoded market id, should fetch from all markets
 		orders, err := client.GetActiveOrders("0xfbd55f13641acbb6e69d7b59eb335dabe2ecbfea136082ce2eedaba8a0c917a3")
 		if err != nil {
 			return c.Send("Error fetching active orders")
@@ -260,10 +260,14 @@ func main() {
 			return c.Send("No active orders", menu)
 		}
 		for _, order := range orders {
-			msgs = append(msgs, client.ToMessage(order))
+			msgs = append(msgs, client.ToMessage(order, false))
 		}
 
-		return c.Send(strings.Join(msgs, "\n\n"), menu)
+		return c.Send(strings.Join(msgs, "\n\n"), menuActiveOrders)
+	})
+	b.Handle(&btnCancelOrder, func(c tele.Context) error {
+		currentStep = "cancelOrder"
+		return c.Send("Enter the order id to cancel", tele.ForceReply)
 	})
 
 	// Handle inline button clicks for token selection
@@ -398,8 +402,17 @@ func main() {
 				return err
 			}
 			return internal.DeleteInputMessage(b, c)
-		}
+		} else if currentStep == "cancelOrder" {
+			orderId := c.Text()
+			marketId := "0xfbd55f13641acbb6e69d7b59eb335dabe2ecbfea136082ce2eedaba8a0c917a3"
+			txhash, err := client.CancelOrder(marketId, orderId)
 
+			if err != nil {
+				return c.Send(fmt.Sprintf("Error cancelling order: %s", err), menu)
+			}
+
+			return c.Send(fmt.Sprintf("Order cancelled with tx hash: %s", txhash), menu)
+		}
 		return nil
 	})
 
