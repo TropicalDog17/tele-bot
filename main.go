@@ -213,6 +213,27 @@ func main() {
 		if err != nil {
 			return err
 		}
+		// Adjust global limit order
+		globalLimitOrder.Direction = "buy"
+
+		return nil
+	})
+	b.Handle(&btnSellLimitOrder, func(ctx tele.Context) error {
+		text := "Place a sell limit order"
+		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+		msg, err := b.Send(ctx.Chat(), text, menuCreateLimitOrder)
+		if err != nil {
+			return err
+		}
+		createOrderMenu.ChatID = msg.Chat.ID
+		createOrderMenu.MessageID = fmt.Sprintf("%d", msg.ID)
+		// Store chat ID and message ID in a file for future reference
+		err = os.WriteFile("db/createOrderMenu.txt", []byte(fmt.Sprintf("%d %s", createOrderMenu.ChatID, createOrderMenu.MessageID)), fs.FileMode(0644))
+		if err != nil {
+			return err
+		}
+		// Adjust global limit order
+		globalLimitOrder.Direction = "sell"
 
 		return nil
 	})

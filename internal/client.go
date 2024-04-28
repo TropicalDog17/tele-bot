@@ -37,7 +37,7 @@ func InitExchangeClient() *exchange.MbClient {
 
 func NewClient() *Client {
 	client := exchange.NewMbClient("local", configtypes.DefaultConfig())
-	client.ChainClient.AdjustKeyring("user3")
+	client.ChainClient.AdjustKeyring("user4")
 
 	cgClient := NewCoinGeckoClient()
 	priceMap, err := cgClient.FetchUsdPriceMap("inj", "atom")

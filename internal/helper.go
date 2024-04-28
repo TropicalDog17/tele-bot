@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/TropicalDog17/tele-bot/internal/types"
@@ -45,19 +46,48 @@ func ModifyAmountToTransferButton(keyboard [][]tele.InlineButton, amount, denom 
 	return keyboard
 }
 
-func ModifyLimitOrderMenu(keyboard [][]tele.InlineButton, orderInfo *types.LimitOrderInfo) [][]tele.InlineButton {
-	if orderInfo.DenomOut != "" {
-		keyboard[1][0].Text = fmt.Sprintf("Token to Pay: %s", orderInfo.DenomOut)
+const (
+	selectTokenToBuyButtonLabel = "Select Token to Buy"
+	enterAmountToBuyButtonLabel = "Enter Amount to Buy"
+	selectTokenToPayButtonLabel = "Select Token to Pay"
+	setPriceButtonLabel         = "Set Price"
+)
+
+func formatTokenToBuyButtonLabel(denomIn string) string {
+	if denomIn == "" {
+		return selectTokenToBuyButtonLabel
 	}
-	if orderInfo.Amount != 0 {
-		keyboard[2][0].Text = fmt.Sprintf("Amount: %f %s", orderInfo.Amount, orderInfo.DenomIn)
-	}
-	if orderInfo.Price != 0 {
-		keyboard[3][0].Text = fmt.Sprintf("Price: %f", orderInfo.Price)
-	}
-	return keyboard
+	return fmt.Sprintf("Buy: %s", strings.ToUpper(denomIn))
 }
 
+func formatAmountToBuyButtonLabel(amount float64, denomIn string) string {
+	if amount == 0 {
+		return enterAmountToBuyButtonLabel
+	}
+	return fmt.Sprintf("Buy Amount: %.2f %s", amount, strings.ToUpper(denomIn))
+}
+
+func formatTokenToPayButtonLabel(denomOut string) string {
+	if denomOut == "" {
+		return selectTokenToPayButtonLabel
+	}
+	return fmt.Sprintf("Pay With: %s", strings.ToUpper(denomOut))
+}
+
+func formatPriceButtonLabel(price float64, denomOut, denomIn string) string {
+	if price == 0 {
+		return setPriceButtonLabel
+	}
+	return fmt.Sprintf("Price: %.2f %s per %s", price, strings.ToUpper(denomOut), strings.ToUpper(denomIn))
+}
+
+func ModifyLimitOrderMenu(keyboard [][]tele.InlineButton, orderInfo *types.LimitOrderInfo) [][]tele.InlineButton {
+	keyboard[1][0].Text = formatTokenToBuyButtonLabel(orderInfo.DenomIn)
+	keyboard[2][0].Text = formatAmountToBuyButtonLabel(orderInfo.Amount, orderInfo.DenomIn)
+	keyboard[3][0].Text = formatTokenToPayButtonLabel(orderInfo.DenomOut)
+	keyboard[4][0].Text = formatPriceButtonLabel(orderInfo.Price, orderInfo.DenomOut, orderInfo.DenomIn)
+	return keyboard
+}
 func DeleteInputMessage(b *tele.Bot, c tele.Context) error {
 	err := b.Delete(c.Message().ReplyTo)
 	if err != nil {
