@@ -17,7 +17,7 @@ import (
 
 type Client struct {
 	client          *exchange.MbClient
-	coinGeckoClient *CoinGeckoClient
+	coinGeckoClient CoinGecko
 	priceMap        map[string]float64
 }
 
