@@ -30,14 +30,14 @@ func HandlerTransferToken(b *tele.Bot, client *internal.Client, menuSendToken *t
 		return nil
 	})
 	// Handle inline button clicks for token selection
-	b.Handle(&btnInlineAtom, func(c tele.Context) error {
+	b.Handle(btnInlineAtom, func(c tele.Context) error {
 		*selectedToken = "atom"
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickToken(menuSendToken.InlineKeyboard)
 		menuSendToken.InlineKeyboard[2][0] = internal.AddGreenTick(*btnInlineAtom.Inline())
 		return c.Edit("Selected token: ATOM", menuSendToken)
 	})
 
-	b.Handle(&btnInlineInj, func(c tele.Context) error {
+	b.Handle(btnInlineInj, func(c tele.Context) error {
 		*selectedToken = "inj"
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickToken(menuSendToken.InlineKeyboard)
 		menuSendToken.InlineKeyboard[2][1] = internal.AddGreenTick(*btnInlineInj.Inline())
@@ -45,7 +45,7 @@ func HandlerTransferToken(b *tele.Bot, client *internal.Client, menuSendToken *t
 	})
 
 	// Handle amount button clicks
-	b.Handle(&btnTenDollar, func(c tele.Context) error {
+	b.Handle(btnTenDollar, func(c tele.Context) error {
 		*selectedAmount = "10"
 		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, *selectedAmount, *selectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
@@ -53,7 +53,7 @@ func HandlerTransferToken(b *tele.Bot, client *internal.Client, menuSendToken *t
 		return c.Edit("Selected amount: $10", menuSendToken)
 	})
 
-	b.Handle(&btnFiftyDollar, func(c tele.Context) error {
+	b.Handle(btnFiftyDollar, func(c tele.Context) error {
 		*selectedAmount = "50"
 		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, *selectedAmount, *selectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
@@ -62,7 +62,7 @@ func HandlerTransferToken(b *tele.Bot, client *internal.Client, menuSendToken *t
 		return c.Edit("Selected amount: $50", menuSendToken)
 	})
 
-	b.Handle(&btnHundredDollar, func(c tele.Context) error {
+	b.Handle(btnHundredDollar, func(c tele.Context) error {
 		*selectedAmount = "100"
 		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, *selectedAmount, *selectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
@@ -70,7 +70,7 @@ func HandlerTransferToken(b *tele.Bot, client *internal.Client, menuSendToken *t
 		return c.Edit("Selected amount: $100", menuSendToken)
 	})
 
-	b.Handle(&btnTwoHundredDollar, func(c tele.Context) error {
+	b.Handle(btnTwoHundredDollar, func(c tele.Context) error {
 		*selectedAmount = "200"
 		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, *selectedAmount, *selectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
@@ -78,7 +78,7 @@ func HandlerTransferToken(b *tele.Bot, client *internal.Client, menuSendToken *t
 		return c.Edit("Selected amount: $200", menuSendToken)
 	})
 
-	b.Handle(&btnFiveHundredDollar, func(c tele.Context) error {
+	b.Handle(btnFiveHundredDollar, func(c tele.Context) error {
 		*selectedAmount = "500"
 		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, *selectedAmount, *selectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
@@ -86,13 +86,13 @@ func HandlerTransferToken(b *tele.Bot, client *internal.Client, menuSendToken *t
 		return c.Edit("Selected amount: $500", menuSendToken)
 	})
 
-	b.Handle(&btnCustomAmount, func(c tele.Context) error {
+	b.Handle(btnCustomAmount, func(c tele.Context) error {
 		// Prompt the user to enter a custom amount
 		*currentStep = "customAmount"
 		return c.Send("Please enter the custom amount:")
 	})
 
-	b.Handle(&btnRecipientSection, func(c tele.Context) error {
+	b.Handle(btnRecipientSection, func(c tele.Context) error {
 		// Prompt the user to enter a recipient address
 		*currentStep = "recipientAddress"
 		return c.Send("Please enter the recipient address:", tele.ForceReply)
