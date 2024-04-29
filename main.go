@@ -68,6 +68,7 @@ var (
 	btnConfirmLimitOrder = menuConfirmOrder.Data("Confirm", "confirmLimitOrder", "confirm")
 	btnClose             = menuConfirmOrder.Data("Close", "close", "close")
 	btnCancelOrder       = menuActiveOrders.Data("Cancel Order", "cancelOrder", "cancel")
+	btnPayWith           = menuCreateLimitOrder.Data("Pay With", "payWith", "payWith")
 )
 
 var (
@@ -101,6 +102,7 @@ func main() {
 		menuCreateLimitOrder.Row(btnBack),
 		menuCreateLimitOrder.Row(btnToken),
 		menuCreateLimitOrder.Row(btnAmount),
+		menuCreateLimitOrder.Row(btnPayWith),
 		menuCreateLimitOrder.Row(btnPrice),
 		menuCreateLimitOrder.Row(btnConfirmOrder),
 	)
