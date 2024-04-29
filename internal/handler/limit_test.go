@@ -24,7 +24,10 @@ func TestHandleLimitOrder_BtnLimitOrder(t *testing.T) {
 	mockCurrentStep := "limitAmount"
 
 	// Create the handler instance
+	mockBot.EXPECT().Handle(gomock.Any(), gomock.Any()).Times(10)
 	handler.HandleLimitOrder(mockBot, mockBotClient, &mockStoredMessages[0], &mockStoredMessages[1], &mockLimitOrderInfo, &mockCurrentStep, GetMockReplyMarkup(), GetMockReplyMarkup(), GetMockReplyMarkup(), GetMockReplyMarkup())
+
+	// Call the function
 
 }
 

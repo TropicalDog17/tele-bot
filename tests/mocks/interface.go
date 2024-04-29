@@ -132,6 +132,18 @@ func (mr *MockBotMockRecorder) Handle(endpoint, h any, m ...any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Handle", reflect.TypeOf((*MockBot)(nil).Handle), varargs...)
 }
 
+// ProcessUpdate mocks base method.
+func (m *MockBot) ProcessUpdate(u telebot.Update) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ProcessUpdate", u)
+}
+
+// ProcessUpdate indicates an expected call of ProcessUpdate.
+func (mr *MockBotMockRecorder) ProcessUpdate(u any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProcessUpdate", reflect.TypeOf((*MockBot)(nil).ProcessUpdate), u)
+}
+
 // Send mocks base method.
 func (m *MockBot) Send(to telebot.Recipient, what any, opts ...any) (*telebot.Message, error) {
 	m.ctrl.T.Helper()

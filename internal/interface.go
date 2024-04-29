@@ -14,6 +14,7 @@ type Bot interface {
 	Delete(msg telebot.Editable) error
 	Send(to telebot.Recipient, what interface{}, opts ...interface{}) (*telebot.Message, error)
 	Handle(endpoint interface{}, h telebot.HandlerFunc, m ...telebot.MiddlewareFunc)
+	ProcessUpdate(u telebot.Update)
 }
 
 type BotClient interface {
