@@ -1,0 +1,40 @@
+package types
+
+var (
+	// Reply buttons.
+	BtnViewBalances      = Menu.Text("ℹ View Balances")
+	BtnSettings          = Menu.Text("⚙ Settings")
+	BtnSendToken         = Menu.Text("💸 Send Token")
+	BtnShowAccount       = Menu.Text("👤 Show Account")
+	BtnLimitOrder        = Menu.Text("📈 Limit Order")
+	BtnSpotOrder         = Menu.Text("📊 Spot Order")
+	BtnInlineAtom        = Selector.Data("ATOM", "atom", "atom")
+	BtnInlineInj         = Selector.Data("INJ", "inj", "inj")
+	BtnMenu              = MenuSendToken.Data("Menu", "menu")
+	BtnTokenSection      = MenuSendToken.Data("---Token Section---", "tokenSection")
+	BtnAmountSection     = MenuSendToken.Data("---Amount Section---", "amountSection")
+	BtnRecipientSection  = MenuSendToken.Data("Enter Recipient Address:", "recipient", "recipient")
+	BtnSend              = MenuSendToken.Data("Send", "send", "send")
+	BtnBack              = MenuSendToken.Data("Back", "btnBack")
+	BtnBuyLimitOrder     = MenuLimitOrder.Data("📈 Buy", "buyLimit", "buy")
+	BtnSellLimitOrder    = MenuLimitOrder.Data("📉 Sell", "sellLimit", "sell")
+	BtnActiveOrders      = MenuLimitOrder.Data("💸 Active Orders", "activeOrders", "active")
+	BtnToken             = MenuCreateLimitOrder.Data("Token", "limitToken", "token")
+	BtnAmount            = MenuCreateLimitOrder.Data("Amount", "limitAmount", "amount")
+	BtnPrice             = MenuCreateLimitOrder.Data("Price", "limitPrice", "price")
+	BtnConfirmOrder      = MenuCreateLimitOrder.Data("Confirm Order", "confirmOrder", "confirm")
+	BtnConfirmLimitOrder = MenuConfirmOrder.Data("Confirm", "confirmLimitOrder", "confirm")
+	BtnClose             = MenuConfirmOrder.Data("Close", "close", "close")
+	BtnCancelOrder       = MenuActiveOrders.Data("Cancel Order", "cancelOrder", "cancel")
+	BtnPayWith           = MenuCreateLimitOrder.Data("Pay With", "payWith", "payWith")
+)
+
+// Amount buttons.
+var (
+	BtnTenDollar         = MenuSendToken.Data("$10", "btnTenDollar", "10")
+	BtnFiftyDollar       = MenuSendToken.Data("$50", "btnFiftyDollar", "50")
+	BtnHundredDollar     = MenuSendToken.Data("$100", "btnHundredDollar", "100")
+	BtnTwoHundredDollar  = MenuSendToken.Data("$200", "btnTwoHundredDollar", "200")
+	BtnFiveHundredDollar = MenuSendToken.Data("$500", "btnFiveHundredDollar", "500")
+	BtnCustomAmount      = MenuSendToken.Data("Custom Amount", "btnCustomAmount", "")
+)
