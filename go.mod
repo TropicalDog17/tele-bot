@@ -9,6 +9,7 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/yeqown/go-qrcode/v2 v2.2.3
 	github.com/yeqown/go-qrcode/writer/standard v1.2.3
+	go.uber.org/mock v0.4.0
 	gopkg.in/telebot.v3 v3.2.1
 )
 
