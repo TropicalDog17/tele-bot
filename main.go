@@ -11,6 +11,7 @@ import (
 
 	"github.com/TropicalDog17/tele-bot/internal"
 	"github.com/TropicalDog17/tele-bot/internal/handler"
+	"github.com/TropicalDog17/tele-bot/internal/types"
 	"github.com/joho/godotenv"
 	tele "gopkg.in/telebot.v3"
 )
@@ -21,14 +22,20 @@ var (
 	recipientAddress string
 	currentStep      string
 	globalMenu       tele.StoredMessage
+	limitOrderMenu   tele.StoredMessage
+	createOrderMenu  tele.StoredMessage
 	promptMsg        tele.StoredMessage
 )
 
 var (
 	// Universal markup builders.
-	menu          = &tele.ReplyMarkup{ResizeKeyboard: true}
-	menuSendToken = &tele.ReplyMarkup{ResizeKeyboard: true}
-	selector      = &tele.ReplyMarkup{}
+	menu                 = &tele.ReplyMarkup{ResizeKeyboard: true}
+	menuSendToken        = &tele.ReplyMarkup{ResizeKeyboard: true}
+	menuLimitOrder       = &tele.ReplyMarkup{ResizeKeyboard: true}
+	menuCreateLimitOrder = &tele.ReplyMarkup{ResizeKeyboard: true}
+	menuConfirmOrder     = &tele.ReplyMarkup{ResizeKeyboard: true}
+	menuActiveOrders     = &tele.ReplyMarkup{ResizeKeyboard: true}
+	selector             = &tele.ReplyMarkup{}
 	// Reply buttons.
 	btnViewBalances = menu.Text("ℹ View Balances")
 	btnSettings     = menu.Text("⚙ Settings")
@@ -51,10 +58,26 @@ var (
 	btnFiveHundredDollar = menuSendToken.Data("$500", "btnFiveHundredDollar", "500")
 	btnCustomAmount      = menuSendToken.Data("Custom Amount", "btnCustomAmount", "")
 	btnBack              = menuSendToken.Data("Back", "btnBack")
+	btnBuyLimitOrder     = menuLimitOrder.Data("📈 Buy", "buyLimit", "buy")
+	btnSellLimitOrder    = menuLimitOrder.Data("📉 Sell", "sellLimit", "sell")
+	btnActiveOrders      = menuLimitOrder.Data("💸 Active Orders", "activeOrders", "active")
+	btnToken             = menuCreateLimitOrder.Data("Token", "limitToken", "token")
+	btnAmount            = menuCreateLimitOrder.Data("Amount", "limitAmount", "amount")
+	btnPrice             = menuCreateLimitOrder.Data("Price", "limitPrice", "price")
+	btnConfirmOrder      = menuCreateLimitOrder.Data("Confirm Order", "confirmOrder", "confirm")
+	btnConfirmLimitOrder = menuConfirmOrder.Data("Confirm", "confirmLimitOrder", "confirm")
+	btnClose             = menuConfirmOrder.Data("Close", "close", "close")
+	btnCancelOrder       = menuActiveOrders.Data("Cancel Order", "cancelOrder", "cancel")
+	btnPayWith           = menuCreateLimitOrder.Data("Pay With", "payWith", "payWith")
+)
+
+var (
+	globalLimitOrder = types.NewLimitOrderInfo()
 )
 
 func main() {
 	client := internal.NewClient()
+
 	menu.Reply(
 		menu.Row(btnViewBalances, btnSettings),
 		menu.Row(btnSendToken, btnShowAccount),
@@ -69,6 +92,25 @@ func main() {
 		menuSendToken.Row(btnTwoHundredDollar, btnFiveHundredDollar, btnCustomAmount),
 		menuSendToken.Row(btnRecipientSection),
 		menuSendToken.Row(btnSend),
+	)
+	menuLimitOrder.Inline(
+		menuLimitOrder.Row(btnActiveOrders),
+		menuLimitOrder.Row(btnBuyLimitOrder, btnSellLimitOrder),
+		menuLimitOrder.Row(btnBack),
+	)
+	menuCreateLimitOrder.Inline(
+		menuCreateLimitOrder.Row(btnBack),
+		menuCreateLimitOrder.Row(btnToken),
+		menuCreateLimitOrder.Row(btnAmount),
+		menuCreateLimitOrder.Row(btnPayWith),
+		menuCreateLimitOrder.Row(btnPrice),
+		menuCreateLimitOrder.Row(btnConfirmOrder),
+	)
+	menuActiveOrders.Inline(
+		menuActiveOrders.Row(btnCancelOrder),
+	)
+	menuConfirmOrder.Inline(
+		menuConfirmOrder.Row(btnConfirmLimitOrder, btnClose),
 	)
 	err := godotenv.Load()
 	if err != nil {
@@ -90,12 +132,8 @@ func main() {
 	})
 	// On reply button pressed (message)
 	b.Handle(&btnViewBalances, func(c tele.Context) error {
-		fmt.Println("Button pressed")
-		balances, err := client.GetBalances("inj1gxv7rs9q60qyjtaxrmu0pgwvatm6smyk4cz9d0", []string{"atom", "inj"})
-		if err != nil {
-			return c.Send("Error fetching balances")
-		}
-		return c.Send(fmt.Sprintf("Balances: %v", balances))
+		// Unimplemented
+		return c.Send("View Balances", menu)
 	})
 
 	b.Handle("/menu", func(c tele.Context) error {
@@ -110,9 +148,19 @@ func main() {
 			return c.Send("Error fetching balances")
 		}
 		rows := []tele.Row{}
+		totalBalanceInUsd := 0.0
 		for denom, balance := range balances {
-			rows = append(rows, accountDetails.Row(accountDetails.Data(fmt.Sprintf("%s: %f", denom, balance), "balance", "balance")))
+			usdPrice, found := client.GetPrice(denom)
+			var balanceInUsd float64
+			if !found {
+				balanceInUsd = 0
+			} else {
+				balanceInUsd = balance * usdPrice
+			}
+			totalBalanceInUsd += balanceInUsd
+			rows = append(rows, accountDetails.Row(accountDetails.Data(fmt.Sprintf("%s: %.3f(%.3f $)", denom, balance, balanceInUsd), "balance", "balance")))
 		}
+		rows = append(rows, accountDetails.Row(accountDetails.Data(fmt.Sprintf("Total Balance: %.3f $", totalBalanceInUsd), "totalBalance", "totalBalance")))
 		rows = append(rows, accountDetails.Row(accountDetails.Data("Show QR for address", "qr", "qr")))
 		accountDetails.Inline(rows...)
 		// Message contain the account address
@@ -134,8 +182,115 @@ func main() {
 		if err != nil {
 			return err
 		}
+		return nil
+	})
+
+	b.Handle(&btnLimitOrder, func(c tele.Context) error {
+		text := "📊 Limit Orders\n\nBuy or Sell tokens automatically at your desired price.\n1. Choose to Buy or Sell.\n2. Choose the Token to Buy or Sell.\n3. Select the amount to Buy or Sell.\n4. Set your target buy or sell price.\n5. Pick an expiry time for the order.\n6. Click Create Order and Review, Confirm.\n\nTo manage or view unfilled orders, click Active Orders."
+		msg, err := b.Send(c.Chat(), text, menuLimitOrder)
+		if err != nil {
+			return err
+		}
+		limitOrderMenu.ChatID = msg.Chat.ID
+		limitOrderMenu.MessageID = fmt.Sprintf("%d", msg.ID)
+
+		// Store chat ID and message ID in a file for future reference
+		err = os.WriteFile("db/limitOrderMenu.txt", []byte(fmt.Sprintf("%d %s", limitOrderMenu.ChatID, limitOrderMenu.MessageID)), fs.FileMode(0644))
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	b.Handle(&btnBuyLimitOrder, func(ctx tele.Context) error {
+		text := "Place a buy limit order"
+		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+		msg, err := b.Send(ctx.Chat(), text, menuCreateLimitOrder)
+		if err != nil {
+			return err
+		}
+		createOrderMenu.ChatID = msg.Chat.ID
+		createOrderMenu.MessageID = fmt.Sprintf("%d", msg.ID)
+		// Store chat ID and message ID in a file for future reference
+		err = os.WriteFile("db/createOrderMenu.txt", []byte(fmt.Sprintf("%d %s", createOrderMenu.ChatID, createOrderMenu.MessageID)), fs.FileMode(0644))
+		if err != nil {
+			return err
+		}
+		// Adjust global limit order
+		globalLimitOrder.Direction = "buy"
 
 		return nil
+	})
+	b.Handle(&btnSellLimitOrder, func(ctx tele.Context) error {
+		text := "Place a sell limit order"
+		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+		msg, err := b.Send(ctx.Chat(), text, menuCreateLimitOrder)
+		if err != nil {
+			return err
+		}
+		createOrderMenu.ChatID = msg.Chat.ID
+		createOrderMenu.MessageID = fmt.Sprintf("%d", msg.ID)
+		// Store chat ID and message ID in a file for future reference
+		err = os.WriteFile("db/createOrderMenu.txt", []byte(fmt.Sprintf("%d %s", createOrderMenu.ChatID, createOrderMenu.MessageID)), fs.FileMode(0644))
+		if err != nil {
+			return err
+		}
+		// Adjust global limit order
+		globalLimitOrder.Direction = "sell"
+
+		return nil
+	})
+	b.Handle(&btnAmount, func(c tele.Context) error {
+		currentStep = "limitAmount"
+		return c.Send("Enter the amount to buy", tele.ForceReply)
+	})
+	b.Handle(&btnPrice, func(c tele.Context) error {
+		currentStep = "limitPrice"
+		return c.Send("Enter the price to buy", tele.ForceReply)
+	})
+	b.Handle(&btnToken, func(c tele.Context) error {
+		currentStep = "limitToken"
+		return c.Send("Enter the token to buy", tele.ForceReply)
+	})
+	b.Handle(&btnConfirmOrder, func(c tele.Context) error {
+		currentStep = "confirmOrder"
+		orderOverview := client.ToMessage(*globalLimitOrder, true)
+		return c.Send(orderOverview, menuConfirmOrder)
+	})
+	b.Handle(&btnConfirmLimitOrder, func(c tele.Context) error {
+		// TODO: Perform the limit order logic here
+		txHash, err := client.PlaceSpotOrder(globalLimitOrder.DenomIn, globalLimitOrder.DenomOut, globalLimitOrder.Amount, globalLimitOrder.Price)
+		if err != nil {
+			return c.Send("Error placing limit order", menu)
+		}
+		return c.Send("Successfully send order, check txhash here: "+txHash, menu)
+	})
+	b.Handle(&btnBack, func(c tele.Context) error {
+		if currentStep == "confirmOrder" {
+			currentStep = ""
+		}
+		return c.Send("Back to main menu", menu)
+	})
+
+	// Handle active orders
+	b.Handle(&btnActiveOrders, func(c tele.Context) error {
+		// TODO: fix hardcoded market id, should fetch from all markets
+		orders, err := client.GetActiveOrders("0xfbd55f13641acbb6e69d7b59eb335dabe2ecbfea136082ce2eedaba8a0c917a3")
+		if err != nil {
+			return c.Send("Error fetching active orders")
+		}
+		msgs := []string{}
+		if len(orders) == 0 {
+			return c.Send("No active orders", menu)
+		}
+		for _, order := range orders {
+			msgs = append(msgs, client.ToMessage(order, false))
+		}
+
+		return c.Send(strings.Join(msgs, "\n\n"), menuActiveOrders)
+	})
+	b.Handle(&btnCancelOrder, func(c tele.Context) error {
+		currentStep = "cancelOrder"
+		return c.Send("Enter the order id to cancel", tele.ForceReply)
 	})
 
 	// Handle inline button clicks for token selection
@@ -206,7 +361,6 @@ func main() {
 		currentStep = "recipientAddress"
 		return c.Send("Please enter the recipient address:", tele.ForceReply)
 	})
-
 	b.Handle(tele.OnText, func(c tele.Context) error {
 		// Check if the user is entering a custom amount
 		if currentStep == "customAmount" {
@@ -240,8 +394,48 @@ func main() {
 			if err != nil {
 				return err
 			}
-		}
+			return nil
+		} else if currentStep == "limitAmount" {
+			globalLimitOrder.Amount, err = strconv.ParseFloat(c.Text(), 64)
+			if err != nil {
+				return c.Send("Invalid amount")
+			}
+			menuLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+			_, err := b.EditReplyMarkup(&createOrderMenu, menuCreateLimitOrder)
+			if err != nil {
+				return err
+			}
+			return internal.DeleteInputMessage(b, c)
+		} else if currentStep == "limitPrice" {
+			globalLimitOrder.Price, err = strconv.ParseFloat(c.Text(), 64)
+			if err != nil {
+				return c.Send("Invalid price")
+			}
+			menuLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+			_, err := b.EditReplyMarkup(&createOrderMenu, menuCreateLimitOrder)
+			if err != nil {
+				return err
+			}
+			return internal.DeleteInputMessage(b, c)
+		} else if currentStep == "limitToken" {
+			globalLimitOrder.DenomOut = c.Text()
+			menuLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+			_, err := b.EditReplyMarkup(&createOrderMenu, menuCreateLimitOrder)
+			if err != nil {
+				return err
+			}
+			return internal.DeleteInputMessage(b, c)
+		} else if currentStep == "cancelOrder" {
+			orderId := c.Text()
+			marketId := "0xfbd55f13641acbb6e69d7b59eb335dabe2ecbfea136082ce2eedaba8a0c917a3"
+			txhash, err := client.CancelOrder(marketId, orderId)
 
+			if err != nil {
+				return c.Send(fmt.Sprintf("Error cancelling order: %s", err), menu)
+			}
+
+			return c.Send(fmt.Sprintf("Order cancelled with tx hash: %s", txhash), menu)
+		}
 		return nil
 	})
 
@@ -256,7 +450,6 @@ func main() {
 		if err != nil {
 			return c.Send("Invalid amount", menuSendToken)
 		}
-		// inj1gxv7rs9q60qyjtaxrmu0pgwvatm6smyk4cz9d0
 		// Trim whitespace from the recipient address
 		recipientAddress = strings.TrimSpace(recipientAddress)
 		txHash, err := client.TransferToken(recipientAddress, selectedAmount/100, selectedToken)
@@ -264,7 +457,7 @@ func main() {
 			return c.Send("Error sending token", menuSendToken)
 		}
 
-		// Perform the token sending logic here
+		// TODO: Perform the token sending logic here
 		// Use the selected token, amount, and recipient address
 		return c.Send(fmt.Sprintf("Sent %f %s to %s, with tx hash %s", selectedAmount, selectedToken, recipientAddress, txHash), menu)
 	})

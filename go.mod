@@ -3,8 +3,10 @@ module github.com/TropicalDog17/tele-bot
 go 1.22.1
 
 require (
+	github.com/InjectiveLabs/sdk-go v1.50.2-0.20240308032359-b70213c28dde
 	github.com/TropicalDog17/orderbook-go-sdk v0.1.2
 	github.com/joho/godotenv v1.5.1
+	github.com/stretchr/testify v1.8.4
 	github.com/yeqown/go-qrcode/v2 v2.2.3
 	github.com/yeqown/go-qrcode/writer/standard v1.2.3
 	gopkg.in/telebot.v3 v3.2.1
@@ -22,7 +24,6 @@ require (
 	github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d // indirect
 	github.com/CosmWasm/wasmd v0.40.2 // indirect
 	github.com/CosmWasm/wasmvm v1.5.0 // indirect
-	github.com/InjectiveLabs/sdk-go v1.50.1 // indirect
 	github.com/InjectiveLabs/suplog v1.3.3 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/aws/aws-sdk-go v1.44.203 // indirect
@@ -131,7 +132,6 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.16.0 // indirect
-	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/tendermint/go-amino v0.16.0 // indirect
@@ -164,6 +164,8 @@ replace (
 	cosmossdk.io/math => github.com/InjectiveLabs/cosmos-sdk/math v0.47.3-inj-1
 	github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd v0.45.0-inj
 	github.com/TropicalDog17/orderbook-go-sdk => ../mm-bot
+	github.com/TropicalDog17/orderbook-go-sdk/pkg/exchange => ../mm-bot/pkg/exchange
+
 	github.com/bandprotocol/bandchain-packet => github.com/InjectiveLabs/bandchain-packet v0.0.4-inj-1
 	github.com/cometbft/cometbft => github.com/InjectiveLabs/cometbft v0.37.2-inj
 	github.com/cosmos/cosmos-sdk => github.com/InjectiveLabs/cosmos-sdk v0.47.3-inj-9
