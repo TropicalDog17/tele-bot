@@ -33,9 +33,11 @@ type BotClient interface {
 	GetActiveOrders(marketId string) ([]types.LimitOrderInfo, error)
 	CancelOrder(marketID, orderHash string) (string, error)
 	ToMessage(order types.LimitOrderInfo, showDetail bool) string
+	GetRedisInstance() RedisClient
 }
 
 type RedisClient interface {
 	Get(ctx context.Context, key string) *redis.StringCmd
 	Set(context.Context, string, interface{}, time.Duration) *redis.StatusCmd
+	HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
 }

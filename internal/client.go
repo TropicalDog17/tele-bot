@@ -279,3 +279,7 @@ func (c *Client) CancelOrder(marketID, orderHash string) (string, error) {
 	}
 	return txhash, nil
 }
+
+func (c *Client) GetRedisInstance() RedisClient {
+	return c.redisClient
+}

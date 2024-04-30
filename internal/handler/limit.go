@@ -1,9 +1,8 @@
 package handler
 
 import (
+	"context"
 	"fmt"
-	"io/fs"
-	"os"
 	"strings"
 
 	"github.com/TropicalDog17/tele-bot/internal"
@@ -12,55 +11,83 @@ import (
 )
 
 func HandleLimitOrder(b internal.Bot, client internal.BotClient, limitOrderMenu, createOrderMenu *tele.StoredMessage, globalLimitOrder *types.LimitOrderInfo, currentStep *string, menu, menuCreateLimitOrder, menuConfirmOrder, menuActiveOrders *tele.ReplyMarkup) {
+	rdb := client.GetRedisInstance()
 	b.Handle(&types.BtnLimitOrder, func(c tele.Context) error {
 		text := "📊 Limit Orders\n\nBuy or Sell tokens automatically at your desired price.\n1. Choose to Buy or Sell.\n2. Choose the Token to Buy or Sell.\n3. Select the amount to Buy or Sell.\n4. Set your target buy or sell price.\n5. Pick an expiry time for the order.\n6. Click Create Order and Review, Confirm.\n\nTo manage or view unfilled orders, click Active Orders."
+
 		msg, err := b.Send(c.Chat(), text, types.MenuLimitOrder)
 		if err != nil {
 			return err
 		}
+
 		limitOrderMenu.ChatID = msg.Chat.ID
 		limitOrderMenu.MessageID = fmt.Sprintf("%d", msg.ID)
-
-		// Store chat ID and message ID in a file for future reference
-		err = os.WriteFile("db/limitOrderMenu.txt", []byte(fmt.Sprintf("%d %s", limitOrderMenu.ChatID, limitOrderMenu.MessageID)), fs.FileMode(0644))
+		ctx := context.Background()
+		err = rdb.HSet(ctx, "limitOrderMenu", "chatID", fmt.Sprintf("%d", limitOrderMenu.ChatID)).Err()
 		if err != nil {
 			return err
 		}
+
+		err = rdb.HSet(ctx, "limitOrderMenu", "messageID", limitOrderMenu.MessageID).Err()
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 	b.Handle(&types.BtnBuyLimitOrder, func(ctx tele.Context) error {
 		text := "Place a buy limit order"
+
 		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(types.MenuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
 		msg, err := b.Send(ctx.Chat(), text, menuCreateLimitOrder)
 		if err != nil {
 			return err
 		}
+
 		createOrderMenu.ChatID = msg.Chat.ID
 		createOrderMenu.MessageID = fmt.Sprintf("%d", msg.ID)
-		// Store chat ID and message ID in a file for future reference
-		err = os.WriteFile("db/createOrderMenu.txt", []byte(fmt.Sprintf("%d %s", createOrderMenu.ChatID, createOrderMenu.MessageID)), fs.FileMode(0644))
+
+		// Store chat ID and message ID in Redis using HSET
+		redisCtx := context.Background()
+		err = rdb.HSet(redisCtx, "createOrderMenu", "chatID", fmt.Sprintf("%d", createOrderMenu.ChatID)).Err()
 		if err != nil {
 			return err
 		}
+
+		err = rdb.HSet(redisCtx, "createOrderMenu", "messageID", createOrderMenu.MessageID).Err()
+		if err != nil {
+			return err
+		}
+
 		// Adjust global limit order
 		globalLimitOrder.Direction = "buy"
 
 		return nil
 	})
-	b.Handle(&types.BtnSellLimitOrder, func(ctx tele.Context) error {
-		text := "Place a sell limit order"
-		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+	b.Handle(&types.BtnBuyLimitOrder, func(ctx tele.Context) error {
+		text := "Place a buy limit order"
+
+		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(types.MenuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
 		msg, err := b.Send(ctx.Chat(), text, menuCreateLimitOrder)
 		if err != nil {
 			return err
 		}
+
 		createOrderMenu.ChatID = msg.Chat.ID
 		createOrderMenu.MessageID = fmt.Sprintf("%d", msg.ID)
-		// Store chat ID and message ID in a file for future reference
-		err = os.WriteFile("db/createOrderMenu.txt", []byte(fmt.Sprintf("%d %s", createOrderMenu.ChatID, createOrderMenu.MessageID)), fs.FileMode(0644))
+
+		// Store chat ID and message ID in Redis using HSET
+		redisCtx := context.Background()
+		err = rdb.HSet(redisCtx, "createOrderMenu", "chatID", fmt.Sprintf("%d", createOrderMenu.ChatID)).Err()
 		if err != nil {
 			return err
 		}
+
+		err = rdb.HSet(redisCtx, "createOrderMenu", "messageID", createOrderMenu.MessageID).Err()
+		if err != nil {
+			return err
+		}
+
 		// Adjust global limit order
 		globalLimitOrder.Direction = "sell"
 

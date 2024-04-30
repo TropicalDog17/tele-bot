@@ -10,9 +10,13 @@
 package mock_internal
 
 import (
+	context "context"
 	reflect "reflect"
+	time "time"
 
+	internal "github.com/TropicalDog17/tele-bot/internal"
 	types "github.com/TropicalDog17/tele-bot/internal/types"
+	redis "github.com/redis/go-redis/v9"
 	gomock "go.uber.org/mock/gomock"
 	telebot "gopkg.in/telebot.v3"
 )
@@ -57,6 +61,20 @@ func (m *MockCoinGecko) FetchUsdPriceMap(denoms ...string) (map[string]float64, 
 func (mr *MockCoinGeckoMockRecorder) FetchUsdPriceMap(denoms ...any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchUsdPriceMap", reflect.TypeOf((*MockCoinGecko)(nil).FetchUsdPriceMap), denoms...)
+}
+
+// GetAPIKey mocks base method.
+func (m *MockCoinGecko) GetAPIKey() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAPIKey")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GetAPIKey indicates an expected call of GetAPIKey.
+func (mr *MockCoinGeckoMockRecorder) GetAPIKey() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAPIKey", reflect.TypeOf((*MockCoinGecko)(nil).GetAPIKey))
 }
 
 // GetPriceInUsd mocks base method.
@@ -275,6 +293,20 @@ func (mr *MockBotClientMockRecorder) GetPrice(ticker any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPrice", reflect.TypeOf((*MockBotClient)(nil).GetPrice), ticker)
 }
 
+// GetRedisInstance mocks base method.
+func (m *MockBotClient) GetRedisInstance() internal.RedisClient {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRedisInstance")
+	ret0, _ := ret[0].(internal.RedisClient)
+	return ret0
+}
+
+// GetRedisInstance indicates an expected call of GetRedisInstance.
+func (mr *MockBotClientMockRecorder) GetRedisInstance() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRedisInstance", reflect.TypeOf((*MockBotClient)(nil).GetRedisInstance))
+}
+
 // PlaceSpotOrder mocks base method.
 func (m *MockBotClient) PlaceSpotOrder(denomIn, denomOut string, amount, price float64) (string, error) {
 	m.ctrl.T.Helper()
@@ -329,4 +361,74 @@ func (m *MockBotClient) TransferToken(to string, amount float64, denom string) (
 func (mr *MockBotClientMockRecorder) TransferToken(to, amount, denom any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TransferToken", reflect.TypeOf((*MockBotClient)(nil).TransferToken), to, amount, denom)
+}
+
+// MockRedisClient is a mock of RedisClient interface.
+type MockRedisClient struct {
+	ctrl     *gomock.Controller
+	recorder *MockRedisClientMockRecorder
+}
+
+// MockRedisClientMockRecorder is the mock recorder for MockRedisClient.
+type MockRedisClientMockRecorder struct {
+	mock *MockRedisClient
+}
+
+// NewMockRedisClient creates a new mock instance.
+func NewMockRedisClient(ctrl *gomock.Controller) *MockRedisClient {
+	mock := &MockRedisClient{ctrl: ctrl}
+	mock.recorder = &MockRedisClientMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockRedisClient) EXPECT() *MockRedisClientMockRecorder {
+	return m.recorder
+}
+
+// Get mocks base method.
+func (m *MockRedisClient) Get(ctx context.Context, key string) *redis.StringCmd {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get", ctx, key)
+	ret0, _ := ret[0].(*redis.StringCmd)
+	return ret0
+}
+
+// Get indicates an expected call of Get.
+func (mr *MockRedisClientMockRecorder) Get(ctx, key any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockRedisClient)(nil).Get), ctx, key)
+}
+
+// HSet mocks base method.
+func (m *MockRedisClient) HSet(ctx context.Context, key string, values ...any) *redis.IntCmd {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, key}
+	for _, a := range values {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "HSet", varargs...)
+	ret0, _ := ret[0].(*redis.IntCmd)
+	return ret0
+}
+
+// HSet indicates an expected call of HSet.
+func (mr *MockRedisClientMockRecorder) HSet(ctx, key any, values ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, key}, values...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HSet", reflect.TypeOf((*MockRedisClient)(nil).HSet), varargs...)
+}
+
+// Set mocks base method.
+func (m *MockRedisClient) Set(arg0 context.Context, arg1 string, arg2 any, arg3 time.Duration) *redis.StatusCmd {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Set", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*redis.StatusCmd)
+	return ret0
+}
+
+// Set indicates an expected call of Set.
+func (mr *MockRedisClientMockRecorder) Set(arg0, arg1, arg2, arg3 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockRedisClient)(nil).Set), arg0, arg1, arg2, arg3)
 }
