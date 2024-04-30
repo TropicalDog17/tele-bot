@@ -40,4 +40,6 @@ type RedisClient interface {
 	Get(ctx context.Context, key string) *redis.StringCmd
 	Set(context.Context, string, interface{}, time.Duration) *redis.StatusCmd
 	HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
+	HGet(ctx context.Context, key, field string) *redis.StringCmd
+	HGetAll(ctx context.Context, key string) *redis.MapStringStringCmd
 }

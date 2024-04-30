@@ -1,8 +1,8 @@
 package handler
 
 import (
+	"context"
 	"fmt"
-	"os"
 	"strconv"
 
 	"github.com/TropicalDog17/tele-bot/internal"
@@ -31,15 +31,17 @@ func HandleStep(b *tele.Bot, client *internal.Client, currentStep *string, menuS
 			types.BtnRecipientSection.Text = "Recipient:" + *recipientAddress
 			menuSendToken.InlineKeyboard[6][0] = *types.BtnRecipientSection.Inline()
 
-			// load the global menu from the file
-			data, err := os.ReadFile("db/sendTokenMenu.txt")
+			// load the global menu from database
+			redisCtx := context.Background()
+			sendTokenMenu, err := client.GetRedisInstance().HGetAll(redisCtx, "sendTokenMenu").Result()
 			if err != nil {
 				return err
 			}
-			_, err = fmt.Sscanf(string(data), "%d %s", &globalMenu.ChatID, &globalMenu.MessageID)
+			globalMenu.ChatID, err = strconv.ParseInt(sendTokenMenu["chatID"], 10, 64)
 			if err != nil {
 				return err
 			}
+			globalMenu.MessageID = sendTokenMenu["messageID"]
 			_, err = b.EditReplyMarkup(globalMenu, menuSendToken)
 			if err != nil {
 				return err
