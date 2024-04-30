@@ -6,19 +6,21 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	configtypes "github.com/TropicalDog17/orderbook-go-sdk/config"
 	"github.com/TropicalDog17/orderbook-go-sdk/pkg/exchange"
 	"github.com/TropicalDog17/orderbook-go-sdk/pkg/utils"
+	"github.com/TropicalDog17/tele-bot/internal/database"
 	"github.com/TropicalDog17/tele-bot/internal/types"
 )
 
 type Client struct {
 	client          *exchange.MbClient
 	coinGeckoClient CoinGecko
-	priceMap        map[string]float64
+	redisClient     RedisClient
 }
 
 type CoinGeckoClient struct {
@@ -38,24 +40,30 @@ func InitExchangeClient() *exchange.MbClient {
 func NewClient() *Client {
 	client := exchange.NewMbClient("local", configtypes.DefaultConfig())
 	client.ChainClient.AdjustKeyring("user4")
+	redisClient := database.NewRedisInstance()
 
 	cgClient := NewCoinGeckoClient()
-	priceMap, err := cgClient.FetchUsdPriceMap("inj", "atom")
-	if err != nil {
-		panic(err)
-	}
+	go FetchDataWithTimeout(redisClient, cgClient)
 	c := &Client{
 		client:          client,
 		coinGeckoClient: cgClient,
-		priceMap:        priceMap,
+		redisClient:     redisClient,
 	}
 
 	return c
 }
 
 func (c *Client) GetPrice(ticker string) (float64, bool) {
-	price, found := c.priceMap[ticker]
-	return price, found
+	ctx := context.Background()
+	price, found := c.redisClient.Get(ctx, fmt.Sprintf("price:%s", ticker)).Result()
+	if found != nil {
+		return 0, false
+	}
+	floatPrice, err := strconv.ParseFloat(price, 64)
+	if err != nil {
+		return 0, false
+	}
+	return floatPrice, true
 }
 
 func (c *CoinGeckoClient) FetchUsdPriceMap(denoms ...string) (map[string]float64, error) {
@@ -71,7 +79,8 @@ func (c *CoinGeckoClient) FetchUsdPriceMap(denoms ...string) (map[string]float64
 	return result, nil
 }
 func (c *Client) SetPrice(ticker string, price float64) {
-	c.priceMap[ticker] = price
+	ctx := context.Background()
+	c.redisClient.Set(ctx, fmt.Sprintf("price:%s", ticker), fmt.Sprintf("%f", price), 0)
 }
 
 func (c *Client) GetBalances(address string, denoms []string) (map[string]float64, error) {
@@ -194,9 +203,13 @@ func (c *CoinGeckoClient) GetPriceInUsd(denoms ...string) (map[string]map[string
 
 }
 
+func (c *CoinGeckoClient) GetAPIKey() string {
+	return c.apiKey
+}
+
 func (c *Client) ToMessage(order types.LimitOrderInfo, showDetail bool) string {
-	priceOut := c.priceMap[order.DenomOut]
-	priceIn := c.priceMap[order.DenomIn]
+	priceOut, _ := c.GetPrice(order.DenomOut)
+	priceIn, _ := c.GetPrice(order.DenomIn)
 	if !showDetail {
 
 		return fmt.Sprintf(`📊 Limit Order - %s
