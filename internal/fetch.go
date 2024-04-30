@@ -27,8 +27,8 @@ func FetchUsdPriceMap(redisClient RedisClient, coinGeckoClient CoinGecko, tokens
 	ctx := context.Background()
 	for _, token := range tokens {
 		// Fetch data from redis
-		token = ConvertToCoinGeckoTicker(token)
 		tokenKey := fmt.Sprintf("price:%s", token)
+		token = ConvertToCoinGeckoTicker(token)
 		// If data is not found in redis, fetch from CoinGecko
 		// If data is found in CoinGecko, store it in redis
 		price, err := redisClient.Get(ctx, tokenKey).Result()
