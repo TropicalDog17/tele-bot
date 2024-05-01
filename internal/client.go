@@ -44,7 +44,7 @@ func NewClient() *Client {
 	redisClient := database.NewRedisInstance()
 
 	cgClient := NewCoinGeckoClient()
-	go FetchDataWithTimeout(redisClient, cgClient)
+	go FetchDataWithTimeout(redisClient, cgClient, client)
 	c := &Client{
 		client:          client,
 		coinGeckoClient: cgClient,

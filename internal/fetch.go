@@ -13,10 +13,18 @@ import (
 )
 
 // Fetch market data, market id, and market summary from the exchange client
-func FetchDataWithTimeout(redisClient *redis.Client, coinGeckoClient CoinGecko) {
+func FetchDataWithTimeout(redisClient *redis.Client, coinGeckoClient CoinGecko, exchangeClient ExchangeClient) {
 	// goroutine fetch usd price map
 	go func() {
 		err := FetchUsdPriceMap(redisClient, coinGeckoClient, "inj", "atom")
+		if err != nil {
+			fmt.Println(err)
+		}
+		time.Sleep(30 * time.Minute)
+	}()
+
+	go func() {
+		err := FetchMarkets(redisClient, exchangeClient)
 		if err != nil {
 			fmt.Println(err)
 		}

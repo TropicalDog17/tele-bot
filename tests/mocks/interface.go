@@ -17,8 +17,9 @@ import (
 	types "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	injective_spot_exchange_rpcpb "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 	chain "github.com/TropicalDog17/orderbook-go-sdk/pkg/chain"
+	types0 "github.com/TropicalDog17/orderbook-go-sdk/pkg/types"
 	internal "github.com/TropicalDog17/tele-bot/internal"
-	types0 "github.com/TropicalDog17/tele-bot/internal/types"
+	types1 "github.com/TropicalDog17/tele-bot/internal/types"
 	redis "github.com/redis/go-redis/v9"
 	gomock "go.uber.org/mock/gomock"
 	telebot "gopkg.in/telebot.v3"
@@ -224,10 +225,10 @@ func (mr *MockBotClientMockRecorder) CancelOrder(marketID, orderHash any) *gomoc
 }
 
 // GetActiveOrders mocks base method.
-func (m *MockBotClient) GetActiveOrders(marketId string) ([]types0.LimitOrderInfo, error) {
+func (m *MockBotClient) GetActiveOrders(marketId string) ([]types1.LimitOrderInfo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetActiveOrders", marketId)
-	ret0, _ := ret[0].([]types0.LimitOrderInfo)
+	ret0, _ := ret[0].([]types1.LimitOrderInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -338,7 +339,7 @@ func (mr *MockBotClientMockRecorder) SetPrice(ticker, price any) *gomock.Call {
 }
 
 // ToMessage mocks base method.
-func (m *MockBotClient) ToMessage(order types0.LimitOrderInfo, showDetail bool) string {
+func (m *MockBotClient) ToMessage(order types1.LimitOrderInfo, showDetail bool) string {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ToMessage", order, showDetail)
 	ret0, _ := ret[0].(string)
@@ -518,10 +519,10 @@ func (mr *MockExchangeClientMockRecorder) GetActiveMarkets(ctx, req any) *gomock
 }
 
 // GetChainClient mocks base method.
-func (m *MockExchangeClient) GetChainClient() chain.ChainClient {
+func (m *MockExchangeClient) GetChainClient() *chain.ChainClient {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetChainClient")
-	ret0, _ := ret[0].(chain.ChainClient)
+	ret0, _ := ret[0].(*chain.ChainClient)
 	return ret0
 }
 
@@ -547,10 +548,10 @@ func (mr *MockExchangeClientMockRecorder) GetDecimals(ctx, marketId any) *gomock
 }
 
 // GetMarketSummary mocks base method.
-func (m *MockExchangeClient) GetMarketSummary(marketId string) (types.MarketSummary, error) {
+func (m *MockExchangeClient) GetMarketSummary(marketId string) (types0.MarketSummary, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMarketSummary", marketId)
-	ret0, _ := ret[0].(types.MarketSummary)
+	ret0, _ := ret[0].(types0.MarketSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -562,10 +563,10 @@ func (mr *MockExchangeClientMockRecorder) GetMarketSummary(marketId any) *gomock
 }
 
 // GetMarketSummaryFromTicker mocks base method.
-func (m *MockExchangeClient) GetMarketSummaryFromTicker(ticker string) (types.MarketSummary, error) {
+func (m *MockExchangeClient) GetMarketSummaryFromTicker(ticker string) (types0.MarketSummary, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetMarketSummaryFromTicker", ticker)
-	ret0, _ := ret[0].(types.MarketSummary)
+	ret0, _ := ret[0].(types0.MarketSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -622,10 +623,10 @@ func (mr *MockExchangeClientMockRecorder) GetSpotMarketFromTicker(ticker any) *g
 }
 
 // NewSpotOrder mocks base method.
-func (m *MockExchangeClient) NewSpotOrder(orderType types.OrderType, marketId string, price, quantity float64) types.SpotOrder {
+func (m *MockExchangeClient) NewSpotOrder(orderType types.OrderType, marketId string, price, quantity float64) types0.SpotOrder {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "NewSpotOrder", orderType, marketId, price, quantity)
-	ret0, _ := ret[0].(types.SpotOrder)
+	ret0, _ := ret[0].(types0.SpotOrder)
 	return ret0
 }
 
@@ -636,7 +637,7 @@ func (mr *MockExchangeClientMockRecorder) NewSpotOrder(orderType, marketId, pric
 }
 
 // PlaceSpotOrder mocks base method.
-func (m *MockExchangeClient) PlaceSpotOrder(order types.SpotOrder) (string, error) {
+func (m *MockExchangeClient) PlaceSpotOrder(order types0.SpotOrder) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "PlaceSpotOrder", order)
 	ret0, _ := ret[0].(string)
