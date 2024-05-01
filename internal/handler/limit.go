@@ -121,6 +121,7 @@ func HandleLimitOrder(b internal.Bot, client internal.BotClient, limitOrderMenu,
 	// Handle active orders
 	b.Handle(&types.BtnActiveOrders, func(c tele.Context) error {
 		// TODO: fix hardcoded market id, should fetch from all markets
+
 		orders, err := client.GetActiveOrders("0xfbd55f13641acbb6e69d7b59eb335dabe2ecbfea136082ce2eedaba8a0c917a3")
 		if err != nil {
 			return c.Send("Error fetching active orders")

@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 	configtypes "github.com/TropicalDog17/orderbook-go-sdk/config"
 	"github.com/TropicalDog17/orderbook-go-sdk/pkg/exchange"
 	"github.com/TropicalDog17/orderbook-go-sdk/pkg/utils"
@@ -282,4 +283,16 @@ func (c *Client) CancelOrder(marketID, orderHash string) (string, error) {
 
 func (c *Client) GetRedisInstance() RedisClient {
 	return c.redisClient
+}
+
+func (c *Client) GetActiveMarkets() ([]*spotExchangePB.SpotMarketInfo, error) {
+	ctx := context.Background()
+	req := spotExchangePB.MarketsRequest{
+		MarketStatus: "active",
+	}
+	res, err := c.client.ExchangeClient.GetSpotMarkets(ctx, &req)
+	if err != nil {
+		return nil, err
+	}
+	return res.Markets, nil
 }

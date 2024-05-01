@@ -14,8 +14,11 @@ import (
 	reflect "reflect"
 	time "time"
 
+	types "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	injective_spot_exchange_rpcpb "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
+	chain "github.com/TropicalDog17/orderbook-go-sdk/pkg/chain"
 	internal "github.com/TropicalDog17/tele-bot/internal"
-	types "github.com/TropicalDog17/tele-bot/internal/types"
+	types0 "github.com/TropicalDog17/tele-bot/internal/types"
 	redis "github.com/redis/go-redis/v9"
 	gomock "go.uber.org/mock/gomock"
 	telebot "gopkg.in/telebot.v3"
@@ -221,10 +224,10 @@ func (mr *MockBotClientMockRecorder) CancelOrder(marketID, orderHash any) *gomoc
 }
 
 // GetActiveOrders mocks base method.
-func (m *MockBotClient) GetActiveOrders(marketId string) ([]types.LimitOrderInfo, error) {
+func (m *MockBotClient) GetActiveOrders(marketId string) ([]types0.LimitOrderInfo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetActiveOrders", marketId)
-	ret0, _ := ret[0].([]types.LimitOrderInfo)
+	ret0, _ := ret[0].([]types0.LimitOrderInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -335,7 +338,7 @@ func (mr *MockBotClientMockRecorder) SetPrice(ticker, price any) *gomock.Call {
 }
 
 // ToMessage mocks base method.
-func (m *MockBotClient) ToMessage(order types.LimitOrderInfo, showDetail bool) string {
+func (m *MockBotClient) ToMessage(order types0.LimitOrderInfo, showDetail bool) string {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ToMessage", order, showDetail)
 	ret0, _ := ret[0].(string)
@@ -400,6 +403,34 @@ func (mr *MockRedisClientMockRecorder) Get(ctx, key any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockRedisClient)(nil).Get), ctx, key)
 }
 
+// HGet mocks base method.
+func (m *MockRedisClient) HGet(ctx context.Context, key, field string) *redis.StringCmd {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HGet", ctx, key, field)
+	ret0, _ := ret[0].(*redis.StringCmd)
+	return ret0
+}
+
+// HGet indicates an expected call of HGet.
+func (mr *MockRedisClientMockRecorder) HGet(ctx, key, field any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HGet", reflect.TypeOf((*MockRedisClient)(nil).HGet), ctx, key, field)
+}
+
+// HGetAll mocks base method.
+func (m *MockRedisClient) HGetAll(ctx context.Context, key string) *redis.MapStringStringCmd {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HGetAll", ctx, key)
+	ret0, _ := ret[0].(*redis.MapStringStringCmd)
+	return ret0
+}
+
+// HGetAll indicates an expected call of HGetAll.
+func (mr *MockRedisClientMockRecorder) HGetAll(ctx, key any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HGetAll", reflect.TypeOf((*MockRedisClient)(nil).HGetAll), ctx, key)
+}
+
 // HSet mocks base method.
 func (m *MockRedisClient) HSet(ctx context.Context, key string, values ...any) *redis.IntCmd {
 	m.ctrl.T.Helper()
@@ -431,4 +462,190 @@ func (m *MockRedisClient) Set(arg0 context.Context, arg1 string, arg2 any, arg3 
 func (mr *MockRedisClientMockRecorder) Set(arg0, arg1, arg2, arg3 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockRedisClient)(nil).Set), arg0, arg1, arg2, arg3)
+}
+
+// MockExchangeClient is a mock of ExchangeClient interface.
+type MockExchangeClient struct {
+	ctrl     *gomock.Controller
+	recorder *MockExchangeClientMockRecorder
+}
+
+// MockExchangeClientMockRecorder is the mock recorder for MockExchangeClient.
+type MockExchangeClientMockRecorder struct {
+	mock *MockExchangeClient
+}
+
+// NewMockExchangeClient creates a new mock instance.
+func NewMockExchangeClient(ctrl *gomock.Controller) *MockExchangeClient {
+	mock := &MockExchangeClient{ctrl: ctrl}
+	mock.recorder = &MockExchangeClientMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockExchangeClient) EXPECT() *MockExchangeClientMockRecorder {
+	return m.recorder
+}
+
+// CancelOrder mocks base method.
+func (m *MockExchangeClient) CancelOrder(ctx context.Context, marketID, orderID string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CancelOrder", ctx, marketID, orderID)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CancelOrder indicates an expected call of CancelOrder.
+func (mr *MockExchangeClientMockRecorder) CancelOrder(ctx, marketID, orderID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelOrder", reflect.TypeOf((*MockExchangeClient)(nil).CancelOrder), ctx, marketID, orderID)
+}
+
+// GetActiveMarkets mocks base method.
+func (m *MockExchangeClient) GetActiveMarkets(ctx context.Context, req *injective_spot_exchange_rpcpb.MarketsRequest) ([]*injective_spot_exchange_rpcpb.SpotMarketInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetActiveMarkets", ctx, req)
+	ret0, _ := ret[0].([]*injective_spot_exchange_rpcpb.SpotMarketInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetActiveMarkets indicates an expected call of GetActiveMarkets.
+func (mr *MockExchangeClientMockRecorder) GetActiveMarkets(ctx, req any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetActiveMarkets", reflect.TypeOf((*MockExchangeClient)(nil).GetActiveMarkets), ctx, req)
+}
+
+// GetChainClient mocks base method.
+func (m *MockExchangeClient) GetChainClient() chain.ChainClient {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetChainClient")
+	ret0, _ := ret[0].(chain.ChainClient)
+	return ret0
+}
+
+// GetChainClient indicates an expected call of GetChainClient.
+func (mr *MockExchangeClientMockRecorder) GetChainClient() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChainClient", reflect.TypeOf((*MockExchangeClient)(nil).GetChainClient))
+}
+
+// GetDecimals mocks base method.
+func (m *MockExchangeClient) GetDecimals(ctx context.Context, marketId string) (int32, int32) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDecimals", ctx, marketId)
+	ret0, _ := ret[0].(int32)
+	ret1, _ := ret[1].(int32)
+	return ret0, ret1
+}
+
+// GetDecimals indicates an expected call of GetDecimals.
+func (mr *MockExchangeClientMockRecorder) GetDecimals(ctx, marketId any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDecimals", reflect.TypeOf((*MockExchangeClient)(nil).GetDecimals), ctx, marketId)
+}
+
+// GetMarketSummary mocks base method.
+func (m *MockExchangeClient) GetMarketSummary(marketId string) (types.MarketSummary, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMarketSummary", marketId)
+	ret0, _ := ret[0].(types.MarketSummary)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMarketSummary indicates an expected call of GetMarketSummary.
+func (mr *MockExchangeClientMockRecorder) GetMarketSummary(marketId any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMarketSummary", reflect.TypeOf((*MockExchangeClient)(nil).GetMarketSummary), marketId)
+}
+
+// GetMarketSummaryFromTicker mocks base method.
+func (m *MockExchangeClient) GetMarketSummaryFromTicker(ticker string) (types.MarketSummary, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetMarketSummaryFromTicker", ticker)
+	ret0, _ := ret[0].(types.MarketSummary)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetMarketSummaryFromTicker indicates an expected call of GetMarketSummaryFromTicker.
+func (mr *MockExchangeClientMockRecorder) GetMarketSummaryFromTicker(ticker any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMarketSummaryFromTicker", reflect.TypeOf((*MockExchangeClient)(nil).GetMarketSummaryFromTicker), ticker)
+}
+
+// GetPrice mocks base method.
+func (m *MockExchangeClient) GetPrice(ticker string) (float64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPrice", ticker)
+	ret0, _ := ret[0].(float64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPrice indicates an expected call of GetPrice.
+func (mr *MockExchangeClientMockRecorder) GetPrice(ticker any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPrice", reflect.TypeOf((*MockExchangeClient)(nil).GetPrice), ticker)
+}
+
+// GetSpotMarket mocks base method.
+func (m *MockExchangeClient) GetSpotMarket(marketId string) (*types.SpotMarket, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSpotMarket", marketId)
+	ret0, _ := ret[0].(*types.SpotMarket)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSpotMarket indicates an expected call of GetSpotMarket.
+func (mr *MockExchangeClientMockRecorder) GetSpotMarket(marketId any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSpotMarket", reflect.TypeOf((*MockExchangeClient)(nil).GetSpotMarket), marketId)
+}
+
+// GetSpotMarketFromTicker mocks base method.
+func (m *MockExchangeClient) GetSpotMarketFromTicker(ticker string) (*types.SpotMarket, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSpotMarketFromTicker", ticker)
+	ret0, _ := ret[0].(*types.SpotMarket)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSpotMarketFromTicker indicates an expected call of GetSpotMarketFromTicker.
+func (mr *MockExchangeClientMockRecorder) GetSpotMarketFromTicker(ticker any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSpotMarketFromTicker", reflect.TypeOf((*MockExchangeClient)(nil).GetSpotMarketFromTicker), ticker)
+}
+
+// NewSpotOrder mocks base method.
+func (m *MockExchangeClient) NewSpotOrder(orderType types.OrderType, marketId string, price, quantity float64) types.SpotOrder {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NewSpotOrder", orderType, marketId, price, quantity)
+	ret0, _ := ret[0].(types.SpotOrder)
+	return ret0
+}
+
+// NewSpotOrder indicates an expected call of NewSpotOrder.
+func (mr *MockExchangeClientMockRecorder) NewSpotOrder(orderType, marketId, price, quantity any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewSpotOrder", reflect.TypeOf((*MockExchangeClient)(nil).NewSpotOrder), orderType, marketId, price, quantity)
+}
+
+// PlaceSpotOrder mocks base method.
+func (m *MockExchangeClient) PlaceSpotOrder(order types.SpotOrder) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PlaceSpotOrder", order)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PlaceSpotOrder indicates an expected call of PlaceSpotOrder.
+func (mr *MockExchangeClientMockRecorder) PlaceSpotOrder(order any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlaceSpotOrder", reflect.TypeOf((*MockExchangeClient)(nil).PlaceSpotOrder), order)
 }

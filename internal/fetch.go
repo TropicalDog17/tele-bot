@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -91,4 +92,25 @@ func GetPriceInUsd(denom string, coinGeckoClient CoinGecko) (float64, error) {
 
 func MockGetPriceInUsd(_ string, _ CoinGecko) (float64, error) {
 	return 1.2, nil
+}
+
+func FetchMarkets(redisClient RedisClient, ExchangeClient ExchangeClient) error {
+	ctx := context.Background()
+	req := &spotExchangePB.MarketsRequest{
+		MarketStatus: "active",
+	}
+	res, err := ExchangeClient.GetActiveMarkets(ctx, req)
+	if err != nil {
+		return err
+	}
+	for _, market := range res {
+		ticker := market.Ticker
+		marketId := market.MarketId
+		// Store in redis
+		err = redisClient.HSet(ctx, "markets", ticker, marketId).Err()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

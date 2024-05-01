@@ -4,6 +4,9 @@ import (
 	"context"
 	"time"
 
+	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
+	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
+	"github.com/TropicalDog17/orderbook-go-sdk/pkg/chain"
 	"github.com/TropicalDog17/tele-bot/internal/types"
 	"github.com/redis/go-redis/v9"
 	"gopkg.in/telebot.v3"
@@ -42,4 +45,18 @@ type RedisClient interface {
 	HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
 	HGet(ctx context.Context, key, field string) *redis.StringCmd
 	HGetAll(ctx context.Context, key string) *redis.MapStringStringCmd
+}
+
+type ExchangeClient interface {
+	CancelOrder(ctx context.Context, marketID string, orderID string) (string, error)
+	GetChainClient() chain.ChainClient
+	GetDecimals(ctx context.Context, marketId string) (baseDecimal int32, quoteDecimal int32)
+	GetMarketSummary(marketId string) (exchangetypes.MarketSummary, error)
+	GetMarketSummaryFromTicker(ticker string) (exchangetypes.MarketSummary, error)
+	GetPrice(ticker string) (float64, error)
+	GetSpotMarket(marketId string) (*exchangetypes.SpotMarket, error)
+	GetSpotMarketFromTicker(ticker string) (*exchangetypes.SpotMarket, error)
+	NewSpotOrder(orderType exchangetypes.OrderType, marketId string, price float64, quantity float64) exchangetypes.SpotOrder
+	PlaceSpotOrder(order exchangetypes.SpotOrder) (string, error)
+	GetActiveMarkets(ctx context.Context, req *spotExchangePB.MarketsRequest) ([]*spotExchangePB.SpotMarketInfo, error)
 }
