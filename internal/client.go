@@ -6,19 +6,22 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	configtypes "github.com/TropicalDog17/orderbook-go-sdk/config"
 	"github.com/TropicalDog17/orderbook-go-sdk/pkg/exchange"
 	"github.com/TropicalDog17/orderbook-go-sdk/pkg/utils"
+	"github.com/TropicalDog17/tele-bot/internal/database"
 	"github.com/TropicalDog17/tele-bot/internal/types"
 )
 
 type Client struct {
 	client          *exchange.MbClient
 	coinGeckoClient CoinGecko
-	priceMap        map[string]float64
+	redisClient     RedisClient
 }
 
 type CoinGeckoClient struct {
@@ -38,24 +41,42 @@ func InitExchangeClient() *exchange.MbClient {
 func NewClient() *Client {
 	client := exchange.NewMbClient("local", configtypes.DefaultConfig())
 	client.ChainClient.AdjustKeyring("user4")
+	redisClient := database.NewRedisInstance()
 
 	cgClient := NewCoinGeckoClient()
-	priceMap, err := cgClient.FetchUsdPriceMap("inj", "atom")
-	if err != nil {
-		panic(err)
-	}
+	go FetchDataWithTimeout(redisClient, cgClient, client)
 	c := &Client{
 		client:          client,
 		coinGeckoClient: cgClient,
-		priceMap:        priceMap,
+		redisClient:     redisClient,
 	}
+	go func() {
+		ticker := time.NewTicker(10 * time.Second)
+		defer ticker.Stop()
+
+		for range ticker.C {
+			fmt.Println("Sync orders to redis")
+			err := SyncOrdersToRedis(c, c.redisClient)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}()
 
 	return c
 }
 
 func (c *Client) GetPrice(ticker string) (float64, bool) {
-	price, found := c.priceMap[ticker]
-	return price, found
+	ctx := context.Background()
+	price, found := c.redisClient.Get(ctx, fmt.Sprintf("price:%s", ticker)).Result()
+	if found != nil {
+		return 0, false
+	}
+	floatPrice, err := strconv.ParseFloat(price, 64)
+	if err != nil {
+		return 0, false
+	}
+	return floatPrice, true
 }
 
 func (c *CoinGeckoClient) FetchUsdPriceMap(denoms ...string) (map[string]float64, error) {
@@ -71,7 +92,8 @@ func (c *CoinGeckoClient) FetchUsdPriceMap(denoms ...string) (map[string]float64
 	return result, nil
 }
 func (c *Client) SetPrice(ticker string, price float64) {
-	c.priceMap[ticker] = price
+	ctx := context.Background()
+	c.redisClient.Set(ctx, fmt.Sprintf("price:%s", ticker), fmt.Sprintf("%f", price), 0)
 }
 
 func (c *Client) GetBalances(address string, denoms []string) (map[string]float64, error) {
@@ -194,9 +216,13 @@ func (c *CoinGeckoClient) GetPriceInUsd(denoms ...string) (map[string]map[string
 
 }
 
+func (c *CoinGeckoClient) GetAPIKey() string {
+	return c.apiKey
+}
+
 func (c *Client) ToMessage(order types.LimitOrderInfo, showDetail bool) string {
-	priceOut := c.priceMap[order.DenomOut]
-	priceIn := c.priceMap[order.DenomIn]
+	priceOut, _ := c.GetPrice(order.DenomOut)
+	priceIn, _ := c.GetPrice(order.DenomIn)
 	if !showDetail {
 
 		return fmt.Sprintf(`📊 Limit Order - %s
@@ -205,16 +231,19 @@ func (c *Client) ToMessage(order types.LimitOrderInfo, showDetail bool) string {
 	⬩ Limit Price: $%.3f (0.00%%)
 	⬩ Pay Token: %s
 	⬩ OrderID: %s
-	`, order.Direction, order.Direction, order.Amount, order.DenomIn, order.Price, order.DenomOut, order.OrderHash)
+	⬩ MarketID: %s
+	`, order.Direction, order.Direction, order.Amount, order.DenomIn, order.Price, order.DenomOut, order.OrderHash, order.MarketID)
 	} else {
 		return fmt.Sprintf(`📊 Limit Order - %s
 	⬩ Mode: %s
 	⬩ Amount: %.3f %s
 	⬩ Limit Price: $%.3f (0.00%%)
 	⬩ Pay Token: %s
+	⬩ OrderID: %s
+	⬩ MarketID: %s
 	After the order is filled: 
 	You will receive: %.3f %s ($%.3f)
-	You will pay: %.3f %s ($%.3f)`, order.Direction, order.Direction, order.Amount, order.DenomIn, order.Price, order.DenomOut, order.Amount, order.DenomIn, order.Amount*priceIn, order.Amount*order.Price, order.DenomOut, order.Amount*order.Price*priceOut)
+	You will pay: %.3f %s ($%.3f)`, order.Direction, order.Direction, order.Amount, order.DenomIn, order.Price, order.DenomOut, order.OrderHash, order.MarketID, order.Amount, order.DenomIn, order.Amount*priceIn, order.Amount*order.Price, order.DenomOut, order.Amount*order.Price*priceOut)
 	}
 
 }
@@ -223,7 +252,7 @@ func (c *Client) GetActiveOrders(marketId string) ([]types.LimitOrderInfo, error
 	ctx := context.Background()
 	orders, err := c.client.ChainClient.GetInjectiveChainClient().FetchChainAccountAddressSpotOrders(ctx, marketId, c.GetAddress())
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 	if len(orders.Orders) == 0 {
 		return nil, nil
@@ -253,6 +282,7 @@ func (c *Client) GetActiveOrders(marketId string) ([]types.LimitOrderInfo, error
 		parsedOrder.Price = utils.PriceFromChainFormat(order.Price.String(), c.GetDecimal(parsedOrder.DenomIn), c.GetDecimal(parsedOrder.DenomOut)).InexactFloat64()
 		parsedOrder.Amount = utils.QuantityFromChainFormat(order.Quantity.String(), c.GetDecimal(parsedOrder.DenomIn)).InexactFloat64()
 		parsedOrder.OrderHash = order.OrderHash
+		parsedOrder.MarketID = marketId
 		out = append(out, parsedOrder)
 	}
 	return out, nil
@@ -265,4 +295,17 @@ func (c *Client) CancelOrder(marketID, orderHash string) (string, error) {
 		return "", err
 	}
 	return txhash, nil
+}
+
+func (c *Client) GetRedisInstance() RedisClient {
+	return c.redisClient
+}
+
+func (c *Client) GetActiveMarkets() (map[string]string, error) {
+	ctx := context.Background()
+	markets, err := c.GetRedisInstance().HGetAll(ctx, "markets").Result()
+	if err != nil {
+		return nil, err
+	}
+	return markets, nil
 }

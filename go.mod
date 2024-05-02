@@ -4,8 +4,10 @@ go 1.22.1
 
 require (
 	github.com/InjectiveLabs/sdk-go v1.50.2-0.20240308032359-b70213c28dde
-	github.com/TropicalDog17/orderbook-go-sdk v0.1.2
+	github.com/TropicalDog17/orderbook-go-sdk v0.1.6
+	github.com/go-redis/redismock/v9 v9.2.0
 	github.com/joho/godotenv v1.5.1
+	github.com/redis/go-redis/v9 v9.5.1
 	github.com/stretchr/testify v1.8.4
 	github.com/yeqown/go-qrcode/v2 v2.2.3
 	github.com/yeqown/go-qrcode/writer/standard v1.2.3
@@ -61,6 +63,7 @@ require (
 	github.com/dgraph-io/badger/v2 v2.2007.4 // indirect
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/dgryski/go-farm v0.0.0-20200201041132-a6ae2369ad13 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/docker/distribution v2.8.2+incompatible // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
@@ -165,7 +168,9 @@ replace (
 	cosmossdk.io/math => github.com/InjectiveLabs/cosmos-sdk/math v0.47.3-inj-1
 	github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd v0.45.0-inj
 	github.com/TropicalDog17/orderbook-go-sdk => ../mm-bot
+	github.com/TropicalDog17/orderbook-go-sdk/pkg => ../mm-bot/pkg
 	github.com/TropicalDog17/orderbook-go-sdk/pkg/exchange => ../mm-bot/pkg/exchange
+	github.com/TropicalDog17/orderbook-go-sdk/pkg/types => ../mm-bot/pkg/types
 
 	github.com/bandprotocol/bandchain-packet => github.com/InjectiveLabs/bandchain-packet v0.0.4-inj-1
 	github.com/cometbft/cometbft => github.com/InjectiveLabs/cometbft v0.37.2-inj

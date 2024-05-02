@@ -1,9 +1,8 @@
 package handler
 
 import (
+	"context"
 	"fmt"
-	"io/fs"
-	"os"
 	"strconv"
 	"strings"
 
@@ -14,19 +13,28 @@ import (
 
 func HandlerTransferToken(b *tele.Bot, client *internal.Client, menuSendToken *tele.ReplyMarkup, btnInlineAtom, btnInlineInj, btnTenDollar, btnFiftyDollar, btnHundredDollar, btnTwoHundredDollar, btnFiveHundredDollar, btnCustomAmount, btnRecipientSection *tele.Btn, selectedToken, selectedAmount, currentStep, recipientAddress *string, globalMenu *tele.StoredMessage) {
 	// Handle the "Send Tokens" button click
+	rdb := client.GetRedisInstance()
 	b.Handle(&types.BtnSendToken, func(c tele.Context) error {
 		msg, err := b.Send(c.Chat(), "Select the token to send:", menuSendToken)
 		if err != nil {
 			return err
 		}
+
 		globalMenu.ChatID = msg.Chat.ID
 		globalMenu.MessageID = fmt.Sprintf("%d", msg.ID)
 
-		// Store chat ID and message ID in a file for future reference
-		err = os.WriteFile("db/sendTokenMenu.txt", []byte(fmt.Sprintf("%d %s", globalMenu.ChatID, globalMenu.MessageID)), fs.FileMode(0644))
+		// Store chat ID and message ID in Redis using HSET
+		ctx := context.Background()
+		err = rdb.HSet(ctx, "sendTokenMenu", "chatID", fmt.Sprintf("%d", globalMenu.ChatID)).Err()
 		if err != nil {
 			return err
 		}
+
+		err = rdb.HSet(ctx, "sendTokenMenu", "messageID", globalMenu.MessageID).Err()
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 	// Handle inline button clicks for token selection
