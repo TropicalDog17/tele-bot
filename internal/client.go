@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
-	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 	configtypes "github.com/TropicalDog17/orderbook-go-sdk/config"
 	"github.com/TropicalDog17/orderbook-go-sdk/pkg/exchange"
 	"github.com/TropicalDog17/orderbook-go-sdk/pkg/utils"
@@ -219,16 +218,19 @@ func (c *Client) ToMessage(order types.LimitOrderInfo, showDetail bool) string {
 	⬩ Limit Price: $%.3f (0.00%%)
 	⬩ Pay Token: %s
 	⬩ OrderID: %s
-	`, order.Direction, order.Direction, order.Amount, order.DenomIn, order.Price, order.DenomOut, order.OrderHash)
+	⬩ MarketID: %s
+	`, order.Direction, order.Direction, order.Amount, order.DenomIn, order.Price, order.DenomOut, order.OrderHash, order.MarketID)
 	} else {
 		return fmt.Sprintf(`📊 Limit Order - %s
 	⬩ Mode: %s
 	⬩ Amount: %.3f %s
 	⬩ Limit Price: $%.3f (0.00%%)
 	⬩ Pay Token: %s
+	⬩ OrderID: %s
+	⬩ MarketID: %s
 	After the order is filled: 
 	You will receive: %.3f %s ($%.3f)
-	You will pay: %.3f %s ($%.3f)`, order.Direction, order.Direction, order.Amount, order.DenomIn, order.Price, order.DenomOut, order.Amount, order.DenomIn, order.Amount*priceIn, order.Amount*order.Price, order.DenomOut, order.Amount*order.Price*priceOut)
+	You will pay: %.3f %s ($%.3f)`, order.Direction, order.Direction, order.Amount, order.DenomIn, order.Price, order.DenomOut, order.OrderHash, order.MarketID, order.Amount, order.DenomIn, order.Amount*priceIn, order.Amount*order.Price, order.DenomOut, order.Amount*order.Price*priceOut)
 	}
 
 }
@@ -267,6 +269,7 @@ func (c *Client) GetActiveOrders(marketId string) ([]types.LimitOrderInfo, error
 		parsedOrder.Price = utils.PriceFromChainFormat(order.Price.String(), c.GetDecimal(parsedOrder.DenomIn), c.GetDecimal(parsedOrder.DenomOut)).InexactFloat64()
 		parsedOrder.Amount = utils.QuantityFromChainFormat(order.Quantity.String(), c.GetDecimal(parsedOrder.DenomIn)).InexactFloat64()
 		parsedOrder.OrderHash = order.OrderHash
+		parsedOrder.MarketID = marketId
 		out = append(out, parsedOrder)
 	}
 	return out, nil
@@ -285,14 +288,11 @@ func (c *Client) GetRedisInstance() RedisClient {
 	return c.redisClient
 }
 
-func (c *Client) GetActiveMarkets() ([]*spotExchangePB.SpotMarketInfo, error) {
+func (c *Client) GetActiveMarkets() (map[string]string, error) {
 	ctx := context.Background()
-	req := spotExchangePB.MarketsRequest{
-		MarketStatus: "active",
-	}
-	res, err := c.client.ExchangeClient.GetSpotMarkets(ctx, &req)
+	markets, err := c.GetRedisInstance().HGetAll(ctx, "markets").Result()
 	if err != nil {
 		return nil, err
 	}
-	return res.Markets, nil
+	return markets, nil
 }

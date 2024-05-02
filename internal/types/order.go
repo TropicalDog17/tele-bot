@@ -7,6 +7,7 @@ type LimitOrderInfo struct {
 	Price     float64 "json:\"price\""
 	Direction string  "json:\"direction\""
 	OrderHash string  "json:\"order_hash\""
+	MarketID  string  "json:\"market_id\""
 }
 
 // NewLimitOrderInfo returns a new LimitOrderInfo with default values

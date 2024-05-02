@@ -111,7 +111,6 @@ func HandleLimitOrder(b internal.Bot, client internal.BotClient, limitOrderMenu,
 		return c.Send(orderOverview, menuConfirmOrder)
 	})
 	b.Handle(&types.BtnConfirmLimitOrder, func(c tele.Context) error {
-		// TODO: Perform the limit order logic here
 		txHash, err := client.PlaceSpotOrder(globalLimitOrder.DenomIn, globalLimitOrder.DenomOut, globalLimitOrder.Amount, globalLimitOrder.Price)
 		if err != nil {
 			return c.Send("Error placing limit order", menu)
@@ -120,13 +119,21 @@ func HandleLimitOrder(b internal.Bot, client internal.BotClient, limitOrderMenu,
 	})
 	// Handle active orders
 	b.Handle(&types.BtnActiveOrders, func(c tele.Context) error {
-		// TODO: fix hardcoded market id, should fetch from all markets
-
-		orders, err := client.GetActiveOrders("0xfbd55f13641acbb6e69d7b59eb335dabe2ecbfea136082ce2eedaba8a0c917a3")
+		// markets, err := client.
+		markets, err := client.GetActiveMarkets()
 		if err != nil {
 			return c.Send("Error fetching active orders")
 		}
 		msgs := []string{}
+		orders := []types.LimitOrderInfo{}
+		for _, marketID := range markets {
+			marketOrders, err := client.GetActiveOrders(marketID)
+			if err != nil {
+				return c.Send("Error fetching active orders")
+			}
+			orders = append(orders, marketOrders...)
+		}
+
 		if len(orders) == 0 {
 			return c.Send("No active orders", menu)
 		}

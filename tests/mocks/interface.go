@@ -224,6 +224,21 @@ func (mr *MockBotClientMockRecorder) CancelOrder(marketID, orderHash any) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelOrder", reflect.TypeOf((*MockBotClient)(nil).CancelOrder), marketID, orderHash)
 }
 
+// GetActiveMarkets mocks base method.
+func (m *MockBotClient) GetActiveMarkets() (map[string]string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetActiveMarkets")
+	ret0, _ := ret[0].(map[string]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetActiveMarkets indicates an expected call of GetActiveMarkets.
+func (mr *MockBotClientMockRecorder) GetActiveMarkets() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetActiveMarkets", reflect.TypeOf((*MockBotClient)(nil).GetActiveMarkets))
+}
+
 // GetActiveOrders mocks base method.
 func (m *MockBotClient) GetActiveOrders(marketId string) ([]types1.LimitOrderInfo, error) {
 	m.ctrl.T.Helper()
