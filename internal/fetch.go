@@ -30,6 +30,7 @@ func FetchDataWithTimeout(redisClient *redis.Client, coinGeckoClient CoinGecko, 
 		}
 		time.Sleep(30 * time.Minute)
 	}()
+
 }
 
 func FetchUsdPriceMap(redisClient RedisClient, coinGeckoClient CoinGecko, tokens ...string) error {
@@ -120,5 +121,33 @@ func FetchMarkets(redisClient RedisClient, ExchangeClient ExchangeClient) error 
 			return err
 		}
 	}
+	return nil
+}
+
+func SyncOrdersToRedis(client BotClient, rdb RedisClient) error {
+	markets, err := client.GetActiveMarkets()
+	if err != nil {
+		return fmt.Errorf("error fetching active markets: %v", err)
+	}
+
+	for _, marketID := range markets {
+		marketOrders, err := client.GetActiveOrders(marketID)
+		if err != nil {
+			return fmt.Errorf("error fetching active orders for market %s: %v", marketID, err)
+		}
+		ctx := context.Background()
+		for _, order := range marketOrders {
+			orderID := order.OrderHash
+			_, err = rdb.SAdd(ctx, client.GetAddress(), order).Result()
+			if err != nil {
+				return fmt.Errorf("error syncing order %s to Redis: %v", client.GetAddress(), err)
+			}
+			_, err = rdb.HSet(ctx, client.GetAddress(), orderID, marketID).Result()
+			if err != nil {
+				return fmt.Errorf("error mapping order %s to marketid to redis: %v", orderID, err)
+			}
+		}
+	}
+
 	return nil
 }

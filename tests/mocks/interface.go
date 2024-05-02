@@ -466,6 +466,25 @@ func (mr *MockRedisClientMockRecorder) HSet(ctx, key any, values ...any) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HSet", reflect.TypeOf((*MockRedisClient)(nil).HSet), varargs...)
 }
 
+// SAdd mocks base method.
+func (m *MockRedisClient) SAdd(ctx context.Context, key string, members ...any) *redis.IntCmd {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, key}
+	for _, a := range members {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "SAdd", varargs...)
+	ret0, _ := ret[0].(*redis.IntCmd)
+	return ret0
+}
+
+// SAdd indicates an expected call of SAdd.
+func (mr *MockRedisClientMockRecorder) SAdd(ctx, key any, members ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, key}, members...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SAdd", reflect.TypeOf((*MockRedisClient)(nil).SAdd), varargs...)
+}
+
 // Set mocks base method.
 func (m *MockRedisClient) Set(arg0 context.Context, arg1 string, arg2 any, arg3 time.Duration) *redis.StatusCmd {
 	m.ctrl.T.Helper()

@@ -47,6 +47,7 @@ type RedisClient interface {
 	HSet(ctx context.Context, key string, values ...interface{}) *redis.IntCmd
 	HGet(ctx context.Context, key, field string) *redis.StringCmd
 	HGetAll(ctx context.Context, key string) *redis.MapStringStringCmd
+	SAdd(ctx context.Context, key string, members ...interface{}) *redis.IntCmd
 }
 
 type ExchangeClient interface {

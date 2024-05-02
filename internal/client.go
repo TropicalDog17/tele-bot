@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	configtypes "github.com/TropicalDog17/orderbook-go-sdk/config"
@@ -49,6 +50,13 @@ func NewClient() *Client {
 		coinGeckoClient: cgClient,
 		redisClient:     redisClient,
 	}
+	go func() {
+		err := SyncOrdersToRedis(c, c.redisClient)
+		if err != nil {
+			fmt.Println(err)
+		}
+		time.Sleep(60 * time.Second)
+	}()
 
 	return c
 }

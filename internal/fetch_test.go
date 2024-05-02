@@ -8,6 +8,7 @@ import (
 
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 	"github.com/TropicalDog17/tele-bot/internal"
+	"github.com/TropicalDog17/tele-bot/internal/types"
 	mock_internal "github.com/TropicalDog17/tele-bot/tests/mocks"
 	"github.com/go-redis/redismock/v9"
 	"github.com/stretchr/testify/require"
@@ -86,4 +87,121 @@ func TestFetchMarkets(t *testing.T) {
 	mock.ExpectHSet(key, pair2, mockPair2Response.MarketId).SetVal(1)
 	err := internal.FetchMarkets(db, mockExchangeClient)
 	require.NoError(t, err)
+}
+
+func TestSyncOrderHappyCase(t *testing.T) {
+	mockOrder1 := types.LimitOrderInfo{
+		OrderHash: "order1",
+		MarketID:  "pair1",
+	}
+	mockOrder2 := types.LimitOrderInfo{
+		OrderHash: "order2",
+		MarketID:  "pair1",
+	}
+	mockOrder3 := types.LimitOrderInfo{
+		OrderHash: "order3",
+		MarketID:  "pair2",
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	botClient := mock_internal.NewMockBotClient(ctrl)
+	rdb, mock := redismock.NewClientMock()
+
+	botClient.EXPECT().GetActiveMarkets().Return(map[string]string{"ATOM/INJ": "pair1", "BTC/USDT": "pair2"}, nil)
+	botClient.EXPECT().GetActiveOrders("pair1").Return([]types.LimitOrderInfo{mockOrder1, mockOrder2}, nil)
+	botClient.EXPECT().GetActiveOrders("pair2").Return([]types.LimitOrderInfo{mockOrder3}, nil)
+	botClient.EXPECT().GetAddress().Return("address").AnyTimes()
+
+	mock.ExpectSAdd("address", mockOrder1).SetVal(1)
+	mock.ExpectHSet("address", "order1", "pair1").SetVal(1)
+
+	mock.ExpectSAdd("address", mockOrder2).SetVal(1)
+	mock.ExpectHSet("address", "order2", "pair1").SetVal(1)
+
+	mock.ExpectSAdd("address", mockOrder3).SetVal(1)
+	mock.ExpectHSet("address", "order3", "pair2").SetVal(1)
+
+	err := internal.SyncOrdersToRedis(botClient, rdb)
+	require.NoError(t, err)
+}
+
+// TestSyncOrderError1 tests the case where GetActiveMarkets returns an error
+func TestSyncOrderError1(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	botClient := mock_internal.NewMockBotClient(ctrl)
+	rdb, _ := redismock.NewClientMock()
+
+	botClient.EXPECT().GetActiveMarkets().Return(nil, errors.New("error"))
+	err := internal.SyncOrdersToRedis(botClient, rdb)
+	require.Error(t, err)
+}
+
+// TestSyncOrderError2 tests the case where GetActiveOrders returns an error
+func TestSyncOrderError2(t *testing.T) {
+	mockOrder1 := types.LimitOrderInfo{
+		OrderHash: "order1",
+		MarketID:  "pair1",
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	botClient := mock_internal.NewMockBotClient(ctrl)
+	rdb, mock := redismock.NewClientMock()
+
+	botClient.EXPECT().GetActiveMarkets().Return(map[string]string{"ATOM/INJ": "pair1"}, nil)
+	botClient.EXPECT().GetActiveOrders("pair1").Return(nil, errors.New("error"))
+	botClient.EXPECT().GetAddress().Return("address").AnyTimes()
+
+	mock.ExpectSAdd("address", mockOrder1).SetVal(1)
+	mock.ExpectHSet("address", "order1", "pair1").SetVal(1)
+
+	err := internal.SyncOrdersToRedis(botClient, rdb)
+	require.Error(t, err)
+}
+
+// TestSyncOrderError3 tests the case where SAdd returns an error
+func TestSyncOrderError3(t *testing.T) {
+	mockOrder1 := types.LimitOrderInfo{
+		OrderHash: "order1",
+		MarketID:  "pair1",
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	botClient := mock_internal.NewMockBotClient(ctrl)
+	rdb, mock := redismock.NewClientMock()
+
+	botClient.EXPECT().GetActiveMarkets().Return(map[string]string{"ATOM/INJ": "pair1"}, nil)
+	botClient.EXPECT().GetActiveOrders("pair1").Return([]types.LimitOrderInfo{mockOrder1}, nil)
+	botClient.EXPECT().GetAddress().Return("address").AnyTimes()
+
+	mock.ExpectSAdd("address", mockOrder1).SetErr(errors.New("error"))
+
+	err := internal.SyncOrdersToRedis(botClient, rdb)
+	require.Error(t, err)
+}
+
+// TestSyncOrderError4 tests the case where HSet returns an error
+func TestSyncOrderError4(t *testing.T) {
+	mockOrder1 := types.LimitOrderInfo{
+		OrderHash: "order1",
+		MarketID:  "pair1",
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	botClient := mock_internal.NewMockBotClient(ctrl)
+	rdb, mock := redismock.NewClientMock()
+
+	botClient.EXPECT().GetActiveMarkets().Return(map[string]string{"ATOM/INJ": "pair1"}, nil)
+	botClient.EXPECT().GetActiveOrders("pair1").Return([]types.LimitOrderInfo{mockOrder1}, nil)
+	botClient.EXPECT().GetAddress().Return("address").AnyTimes()
+
+	mock.ExpectSAdd("address", mockOrder1).SetVal(1)
+	mock.ExpectHSet("address", "order1", "pair1").SetErr(errors.New("error"))
+
+	err := internal.SyncOrdersToRedis(botClient, rdb)
+	require.Error(t, err)
 }
