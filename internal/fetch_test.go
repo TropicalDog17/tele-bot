@@ -213,6 +213,40 @@ func TestSyncOrderError4(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestSyncAndPrune(t *testing.T) {
+	mockOrder1 := types.LimitOrderInfo{
+		OrderHash: "order1",
+		MarketID:  "pair1",
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	botClient := mock_internal.NewMockBotClient(ctrl)
+	rdb, mock := redismock.NewClientMock()
+
+	botClient.EXPECT().GetActiveMarkets().Return(map[string]string{"ATOM/INJ": "pair1"}, nil)
+	mock.ExpectHKeys("address").SetVal([]string{"order1"})
+	botClient.EXPECT().GetActiveOrders("pair1").Return([]types.LimitOrderInfo{mockOrder1}, nil)
+	botClient.EXPECT().GetAddress().Return("address").AnyTimes()
+
+	mock.ExpectHGet("address", "order1").SetVal(LimitOrderInfoToJson(mockOrder1))
+	err := internal.SyncOrdersToRedis(botClient, rdb)
+	require.NoError(t, err)
+
+	// order in redis, but onchain data order is already completed(not active)
+	botClient.EXPECT().GetActiveMarkets().Return(map[string]string{"ATOM/INJ": "pair1"}, nil)
+	mock.ExpectHKeys("address").SetVal([]string{"order1"})
+	botClient.EXPECT().GetActiveOrders("pair1").Return([]types.LimitOrderInfo{}, nil)
+	botClient.EXPECT().GetAddress().Return("address").AnyTimes()
+
+	mock.ExpectHDel("orders", "order1").SetVal(1)
+	mock.ExpectHDel("address", "order1").SetVal(1)
+
+	err = internal.SyncOrdersToRedis(botClient, rdb)
+	require.NoError(t, err)
+
+}
+
 func LimitOrderInfoToJson(order types.LimitOrderInfo) string {
 	jsonBytes, _ := json.Marshal(order)
 	return string(jsonBytes)

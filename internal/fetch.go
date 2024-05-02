@@ -154,6 +154,12 @@ func SyncOrdersToRedis(client BotClient, rdb RedisClient) error {
 		for _, order := range marketOrders {
 			orderID := order.OrderHash
 			fetchedOrderIDs[orderID] = true
+			// Check if already exists
+			order := rdb.HGet(ctx, client.GetAddress(), orderID).Val()
+			if order != "" {
+				// Order already exists in Redis, skip
+				continue
+			}
 			// Serialize the order struct to JSON
 			orderJSON, err := json.Marshal(order)
 			if err != nil {

@@ -90,6 +90,8 @@ func HandleStep(b *tele.Bot, client *internal.Client, currentStep *string, menuS
 			if err != nil {
 				return c.Send(fmt.Sprintf("Error cancelling order: %s", err), types.Menu)
 			}
+
+			// Delete the order from the database
 			err = client.GetRedisInstance().HDel(context.Background(), client.GetAddress(), orderId).Err()
 			if err != nil {
 				return c.Send(fmt.Sprintf("Error cancelling order: %s", err), types.Menu)
@@ -98,7 +100,6 @@ func HandleStep(b *tele.Bot, client *internal.Client, currentStep *string, menuS
 			return c.Send(fmt.Sprintf("Order cancelled with tx hash: %s", txhash), types.Menu)
 		}
 		return c.Send("Invalid input", types.Menu)
-
 	})
 
 }
