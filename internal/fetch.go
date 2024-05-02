@@ -14,23 +14,27 @@ import (
 
 // Fetch market data, market id, and market summary from the exchange client
 func FetchDataWithTimeout(redisClient *redis.Client, coinGeckoClient CoinGecko, exchangeClient ExchangeClient) {
-	// goroutine fetch usd price map
-	go func() {
-		err := FetchUsdPriceMap(redisClient, coinGeckoClient, "inj", "atom")
-		if err != nil {
-			fmt.Println(err)
-		}
-		time.Sleep(30 * time.Minute)
-	}()
+	// Create a ticker that ticks every 30 minutes
+	ticker := time.NewTicker(30 * time.Minute)
+	defer ticker.Stop()
 
-	go func() {
-		err := FetchMarkets(redisClient, exchangeClient)
-		if err != nil {
-			fmt.Println(err)
-		}
-		time.Sleep(30 * time.Minute)
-	}()
+	for range ticker.C {
+		// Fetch USD price map
+		go func() {
+			err := FetchUsdPriceMap(redisClient, coinGeckoClient, "inj", "atom")
+			if err != nil {
+				fmt.Println(err)
+			}
+		}()
 
+		// Fetch markets
+		go func() {
+			err := FetchMarkets(redisClient, exchangeClient)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}()
+	}
 }
 
 func FetchUsdPriceMap(redisClient RedisClient, coinGeckoClient CoinGecko, tokens ...string) error {
@@ -129,25 +133,56 @@ func SyncOrdersToRedis(client BotClient, rdb RedisClient) error {
 	if err != nil {
 		return fmt.Errorf("error fetching active markets: %v", err)
 	}
+	ctx := context.Background()
+
+	// Get all existing order IDs from Redis
+	fmt.Println("client.GetAddress()", client.GetAddress())
+	existingOrderIDs, err := rdb.HKeys(ctx, client.GetAddress()).Result()
+
+	if err != nil {
+		return fmt.Errorf("error fetching existing order IDs from Redis: %v", err)
+	}
+	// Create a map to store the fetched order IDs
+	fetchedOrderIDs := make(map[string]bool)
 
 	for _, marketID := range markets {
 		marketOrders, err := client.GetActiveOrders(marketID)
 		if err != nil {
 			return fmt.Errorf("error fetching active orders for market %s: %v", marketID, err)
 		}
-		ctx := context.Background()
+
 		for _, order := range marketOrders {
 			orderID := order.OrderHash
-			_, err = rdb.SAdd(ctx, client.GetAddress(), order).Result()
+			fetchedOrderIDs[orderID] = true
+			// Serialize the order struct to JSON
+			orderJSON, err := json.Marshal(order)
 			if err != nil {
-				return fmt.Errorf("error syncing order %s to Redis: %v", client.GetAddress(), err)
+				return err
 			}
-			_, err = rdb.HSet(ctx, client.GetAddress(), orderID, marketID).Result()
+			err = rdb.HSet(ctx, client.GetAddress(), orderID, string(orderJSON)).Err()
+			if err != nil {
+				return fmt.Errorf("error syncing order %s to Redis: %v", orderID, err)
+			}
+			// sync mapping orderid to marketid
+			_, err = rdb.HSet(ctx, "orders", orderID, marketID).Result()
 			if err != nil {
 				return fmt.Errorf("error mapping order %s to marketid to redis: %v", orderID, err)
 			}
 		}
 	}
-
+	// Prune completed orders
+	for _, orderID := range existingOrderIDs {
+		if !fetchedOrderIDs[orderID] {
+			// Order is not in the fetched orders, consider it as completed and remove it from Redis
+			err = rdb.HDel(ctx, "orders", orderID).Err()
+			if err != nil {
+				return fmt.Errorf("error removing completed order %s from Redis: %v", orderID, err)
+			}
+			err = rdb.HDel(ctx, client.GetAddress(), orderID).Err()
+			if err != nil {
+				return fmt.Errorf("error removing completed order %s from user set in Redis: %v", orderID, err)
+			}
+		}
+	}
 	return nil
 }

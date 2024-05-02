@@ -51,11 +51,16 @@ func NewClient() *Client {
 		redisClient:     redisClient,
 	}
 	go func() {
-		err := SyncOrdersToRedis(c, c.redisClient)
-		if err != nil {
-			fmt.Println(err)
+		ticker := time.NewTicker(10 * time.Second)
+		defer ticker.Stop()
+
+		for range ticker.C {
+			fmt.Println("Sync orders to redis")
+			err := SyncOrdersToRedis(c, c.redisClient)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
-		time.Sleep(60 * time.Second)
 	}()
 
 	return c
@@ -247,7 +252,7 @@ func (c *Client) GetActiveOrders(marketId string) ([]types.LimitOrderInfo, error
 	ctx := context.Background()
 	orders, err := c.client.ChainClient.GetInjectiveChainClient().FetchChainAccountAddressSpotOrders(ctx, marketId, c.GetAddress())
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
 	if len(orders.Orders) == 0 {
 		return nil, nil

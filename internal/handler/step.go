@@ -81,16 +81,24 @@ func HandleStep(b *tele.Bot, client *internal.Client, currentStep *string, menuS
 			return internal.DeleteInputMessage(b, c)
 		} else if *currentStep == "cancelOrder" {
 			orderId := c.Text()
-			marketId := "0xfbd55f13641acbb6e69d7b59eb335dabe2ecbfea136082ce2eedaba8a0c917a3"
+			marketId, err := client.GetRedisInstance().HGet(context.Background(), "orders", orderId).Result()
+			if err != nil {
+				return c.Send(fmt.Sprintf("Error cancelling order: %s", err), types.Menu)
+			}
 			txhash, err := client.CancelOrder(marketId, orderId)
 
 			if err != nil {
 				return c.Send(fmt.Sprintf("Error cancelling order: %s", err), types.Menu)
 			}
-
+			err = client.GetRedisInstance().HDel(context.Background(), client.GetAddress(), orderId).Err()
+			if err != nil {
+				return c.Send(fmt.Sprintf("Error cancelling order: %s", err), types.Menu)
+			}
+			*currentStep = ""
 			return c.Send(fmt.Sprintf("Order cancelled with tx hash: %s", txhash), types.Menu)
 		}
-		return nil
+		return c.Send("Invalid input", types.Menu)
+
 	})
 
 }

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -115,23 +116,35 @@ func HandleLimitOrder(b internal.Bot, client internal.BotClient, limitOrderMenu,
 		if err != nil {
 			return c.Send("Error placing limit order", menu)
 		}
+		// Store the order in Redis
+		orderJSON, err := json.Marshal(globalLimitOrder)
+		if err != nil {
+			return c.Send("Error placing limit order", menu)
+		}
+		ctx := context.Background()
+		err = rdb.HSet(ctx, client.GetAddress(), globalLimitOrder.OrderHash, string(orderJSON)).Err()
+		if err != nil {
+			return c.Send("Error placing limit order", menu)
+		}
 		return c.Send("Successfully send order, check txhash here: "+txHash, menu)
 	})
 	// Handle active orders
 	b.Handle(&types.BtnActiveOrders, func(c tele.Context) error {
 		// markets, err := client.
-		markets, err := client.GetActiveMarkets()
-		if err != nil {
-			return c.Send("Error fetching active orders")
-		}
+		ctx := context.Background()
 		msgs := []string{}
 		orders := []types.LimitOrderInfo{}
-		for _, marketID := range markets {
-			marketOrders, err := client.GetActiveOrders(marketID)
+		marketOrders, err := client.GetRedisInstance().HGetAll(ctx, client.GetAddress()).Result()
+		if err != nil {
+			return c.Send("Error fetching active orders, please try again later")
+		}
+		for _, orderJSON := range marketOrders {
+			order := types.LimitOrderInfo{}
+			err = json.Unmarshal([]byte(orderJSON), &order)
 			if err != nil {
 				return c.Send("Error fetching active orders")
 			}
-			orders = append(orders, marketOrders...)
+			orders = append(orders, order)
 		}
 
 		if len(orders) == 0 {

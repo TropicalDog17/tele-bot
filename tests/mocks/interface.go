@@ -419,6 +419,25 @@ func (mr *MockRedisClientMockRecorder) Get(ctx, key any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockRedisClient)(nil).Get), ctx, key)
 }
 
+// HDel mocks base method.
+func (m *MockRedisClient) HDel(ctx context.Context, key string, fields ...string) *redis.IntCmd {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, key}
+	for _, a := range fields {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "HDel", varargs...)
+	ret0, _ := ret[0].(*redis.IntCmd)
+	return ret0
+}
+
+// HDel indicates an expected call of HDel.
+func (mr *MockRedisClientMockRecorder) HDel(ctx, key any, fields ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, key}, fields...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HDel", reflect.TypeOf((*MockRedisClient)(nil).HDel), varargs...)
+}
+
 // HGet mocks base method.
 func (m *MockRedisClient) HGet(ctx context.Context, key, field string) *redis.StringCmd {
 	m.ctrl.T.Helper()
@@ -445,6 +464,20 @@ func (m *MockRedisClient) HGetAll(ctx context.Context, key string) *redis.MapStr
 func (mr *MockRedisClientMockRecorder) HGetAll(ctx, key any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HGetAll", reflect.TypeOf((*MockRedisClient)(nil).HGetAll), ctx, key)
+}
+
+// HKeys mocks base method.
+func (m *MockRedisClient) HKeys(ctx context.Context, key string) *redis.StringSliceCmd {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "HKeys", ctx, key)
+	ret0, _ := ret[0].(*redis.StringSliceCmd)
+	return ret0
+}
+
+// HKeys indicates an expected call of HKeys.
+func (mr *MockRedisClientMockRecorder) HKeys(ctx, key any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HKeys", reflect.TypeOf((*MockRedisClient)(nil).HKeys), ctx, key)
 }
 
 // HSet mocks base method.
@@ -483,6 +516,39 @@ func (mr *MockRedisClientMockRecorder) SAdd(ctx, key any, members ...any) *gomoc
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]any{ctx, key}, members...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SAdd", reflect.TypeOf((*MockRedisClient)(nil).SAdd), varargs...)
+}
+
+// SMembers mocks base method.
+func (m *MockRedisClient) SMembers(ctx context.Context, key string) *redis.StringSliceCmd {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SMembers", ctx, key)
+	ret0, _ := ret[0].(*redis.StringSliceCmd)
+	return ret0
+}
+
+// SMembers indicates an expected call of SMembers.
+func (mr *MockRedisClientMockRecorder) SMembers(ctx, key any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SMembers", reflect.TypeOf((*MockRedisClient)(nil).SMembers), ctx, key)
+}
+
+// SRem mocks base method.
+func (m *MockRedisClient) SRem(ctx context.Context, key string, members ...any) *redis.IntCmd {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, key}
+	for _, a := range members {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "SRem", varargs...)
+	ret0, _ := ret[0].(*redis.IntCmd)
+	return ret0
+}
+
+// SRem indicates an expected call of SRem.
+func (mr *MockRedisClientMockRecorder) SRem(ctx, key any, members ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, key}, members...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SRem", reflect.TypeOf((*MockRedisClient)(nil).SRem), varargs...)
 }
 
 // Set mocks base method.
