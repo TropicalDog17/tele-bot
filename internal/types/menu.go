@@ -22,7 +22,7 @@ func InitializeUI() []*tele.ReplyMarkup {
 	MenuSendToken.Inline(
 		MenuSendToken.Row(BtnBack, BtnMenu),
 		MenuSendToken.Row(BtnTokenSection),
-		MenuSendToken.Row(BtnInlineAtom, BtnInlineInj),
+		MenuSendToken.Row(BtnInlineAtom, BtnInlineInj, BtnCustomToken),
 		MenuSendToken.Row(BtnAmountSection),
 		MenuSendToken.Row(BtnTenDollar, BtnFiftyDollar, BtnHundredDollar),
 		MenuSendToken.Row(BtnTwoHundredDollar, BtnFiveHundredDollar, BtnCustomAmount),

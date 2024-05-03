@@ -163,8 +163,8 @@ func HandleLimitOrder(b internal.Bot, client internal.BotClient, limitOrderMenu,
 	})
 }
 
-func HandleLimitStep(b *tele.Bot, c tele.Context, createOrderMenu *tele.StoredMessage, menuLimitOrder, menuCreateLimitOrder *tele.ReplyMarkup, globalLimitOrder *types.LimitOrderInfo, step string) error {
-	switch step {
+func HandleLimitStep(b *tele.Bot, c tele.Context, createOrderMenu *tele.StoredMessage, menuLimitOrder, menuCreateLimitOrder *tele.ReplyMarkup, globalLimitOrder *types.LimitOrderInfo, step *string) error {
+	switch *step {
 	case "limitAmount":
 		amount, err := strconv.ParseFloat(c.Text(), 64)
 		if err != nil {

@@ -109,18 +109,24 @@ func TestSyncOrderHappyCase(t *testing.T) {
 	botClient := mock_internal.NewMockBotClient(ctrl)
 	rdb, mock := redismock.NewClientMock()
 
+	// GetActiveMarkets returns a map of market pairs
 	botClient.EXPECT().GetActiveMarkets().Return(map[string]string{"ATOM/INJ": "pair1", "BTC/USDT": "pair2"}, nil)
 	botClient.EXPECT().GetActiveOrders("pair1").Return([]types.LimitOrderInfo{mockOrder1, mockOrder2}, nil)
 	botClient.EXPECT().GetActiveOrders("pair2").Return([]types.LimitOrderInfo{mockOrder3}, nil)
 	botClient.EXPECT().GetAddress().Return("address").AnyTimes()
 
+	mock.MatchExpectationsInOrder(true)
+
 	mock.ExpectHKeys("address").SetVal([]string{})
+	mock.ExpectHGet("address", "order1").SetVal("")
 	mock.ExpectHSet("address", "order1", LimitOrderInfoToJson(mockOrder1)).SetVal(1)
 	mock.ExpectHSet("orders", "order1", "pair1").SetVal(1)
 
+	mock.ExpectHGet("address", "order2").SetVal("")
 	mock.ExpectHSet("address", "order2", LimitOrderInfoToJson(mockOrder2)).SetVal(1)
 	mock.ExpectHSet("orders", "order2", "pair1").SetVal(1)
 
+	mock.ExpectHGet("address", "order3").SetVal("")
 	mock.ExpectHSet("address", "order3", LimitOrderInfoToJson(mockOrder3)).SetVal(1)
 	mock.ExpectHSet("orders", "order3", "pair2").SetVal(1)
 
@@ -228,7 +234,6 @@ func TestSyncAndPrune(t *testing.T) {
 	mock.ExpectHKeys("address").SetVal([]string{"order1"})
 	botClient.EXPECT().GetActiveOrders("pair1").Return([]types.LimitOrderInfo{mockOrder1}, nil)
 	botClient.EXPECT().GetAddress().Return("address").AnyTimes()
-
 	mock.ExpectHGet("address", "order1").SetVal(LimitOrderInfoToJson(mockOrder1))
 	err := internal.SyncOrdersToRedis(botClient, rdb)
 	require.NoError(t, err)
