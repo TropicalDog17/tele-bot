@@ -47,58 +47,12 @@ func HandleStep(b *tele.Bot, client *internal.Client, currentStep *string, menuS
 				return err
 			}
 			return nil
-		} else if *currentStep == "limitAmount" {
-			amount, err := strconv.ParseFloat(c.Text(), 64)
-			if err != nil {
-				return c.Send("Invalid amount")
-			}
-			globalLimitOrder.Amount = amount
-			menuLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
-			_, err = b.EditReplyMarkup(createOrderMenu, menuCreateLimitOrder)
-			if err != nil {
-				return err
-			}
-			return internal.DeleteInputMessage(b, c)
-		} else if *currentStep == "limitPrice" {
-			price, err := strconv.ParseFloat(c.Text(), 64)
-			if err != nil {
-				return c.Send("Invalid price")
-			}
-			globalLimitOrder.Price = price
-			menuLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
-			_, err = b.EditReplyMarkup(createOrderMenu, menuCreateLimitOrder)
-			if err != nil {
-				return err
-			}
-			return internal.DeleteInputMessage(b, c)
-		} else if *currentStep == "limitToken" {
-			globalLimitOrder.DenomOut = c.Text()
-			menuLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
-			_, err := b.EditReplyMarkup(createOrderMenu, menuCreateLimitOrder)
-			if err != nil {
-				return err
-			}
-			return internal.DeleteInputMessage(b, c)
+		} else if *currentStep == "limitAmount" || *currentStep == "limitPrice" || *currentStep == "limitToken" {
+			return HandleLimitStep(b, c, createOrderMenu, menuLimitOrder, menuCreateLimitOrder, globalLimitOrder, *currentStep)
 		} else if *currentStep == "cancelOrder" {
-			orderId := c.Text()
-			marketId, err := client.GetRedisInstance().HGet(context.Background(), "orders", orderId).Result()
-			if err != nil {
-				return c.Send(fmt.Sprintf("Error cancelling order: %s", err), types.Menu)
-			}
-			txhash, err := client.CancelOrder(marketId, orderId)
-
-			if err != nil {
-				return c.Send(fmt.Sprintf("Error cancelling order: %s", err), types.Menu)
-			}
-			err = client.GetRedisInstance().HDel(context.Background(), client.GetAddress(), orderId).Err()
-			if err != nil {
-				return c.Send(fmt.Sprintf("Error cancelling order: %s", err), types.Menu)
-			}
-			*currentStep = ""
-			return c.Send(fmt.Sprintf("Order cancelled with tx hash: %s", txhash), types.Menu)
+			return HandleCancelLimitOrderStep(b, c, client, globalLimitOrder)
 		}
 		return c.Send("Invalid input", types.Menu)
-
 	})
 
 }
