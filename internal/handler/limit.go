@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/TropicalDog17/tele-bot/internal"
@@ -160,4 +161,61 @@ func HandleLimitOrder(b internal.Bot, client internal.BotClient, limitOrderMenu,
 		*currentStep = "cancelOrder"
 		return c.Send("Enter the order id to cancel", tele.ForceReply)
 	})
+}
+
+func HandleLimitStep(b *tele.Bot, c tele.Context, createOrderMenu *tele.StoredMessage, menuLimitOrder, menuCreateLimitOrder *tele.ReplyMarkup, globalLimitOrder *types.LimitOrderInfo, step string) error {
+	switch step {
+	case "limitAmount":
+		amount, err := strconv.ParseFloat(c.Text(), 64)
+		if err != nil {
+			return c.Send("Invalid amount")
+		}
+		globalLimitOrder.Amount = amount
+		menuLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+		_, err = b.EditReplyMarkup(createOrderMenu, menuCreateLimitOrder)
+		if err != nil {
+			return err
+		}
+		return internal.DeleteInputMessage(b, c)
+	case "limitPrice":
+		price, err := strconv.ParseFloat(c.Text(), 64)
+		if err != nil {
+			return c.Send("Invalid price")
+		}
+		globalLimitOrder.Price = price
+		menuLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+		_, err = b.EditReplyMarkup(createOrderMenu, menuCreateLimitOrder)
+		if err != nil {
+			return err
+		}
+		return internal.DeleteInputMessage(b, c)
+	case "limitToken":
+		globalLimitOrder.DenomOut = c.Text()
+		menuLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+		_, err := b.EditReplyMarkup(createOrderMenu, menuCreateLimitOrder)
+		if err != nil {
+			return err
+		}
+		return internal.DeleteInputMessage(b, c)
+	}
+	return c.Send("Invalid input")
+}
+
+func HandleCancelLimitOrderStep(b *tele.Bot, c tele.Context, client internal.BotClient, globalLimitOrder *types.LimitOrderInfo) error {
+	orderId := c.Text()
+	marketId, err := client.GetRedisInstance().HGet(context.Background(), "orders", orderId).Result()
+	if err != nil {
+		return c.Send(fmt.Sprintf("Error cancelling order: %s", err), types.Menu)
+	}
+	txhash, err := client.CancelOrder(marketId, orderId)
+
+	if err != nil {
+		return c.Send(fmt.Sprintf("Error cancelling order: %s", err), types.Menu)
+	}
+	// Delete the order from the database
+	err = client.GetRedisInstance().HDel(context.Background(), client.GetAddress(), orderId).Err()
+	if err != nil {
+		return c.Send(fmt.Sprintf("Error cancelling order: %s", err), types.Menu)
+	}
+	return c.Send(fmt.Sprintf("Order cancelled with tx hash: %s", txhash), types.Menu)
 }
