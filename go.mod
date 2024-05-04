@@ -167,10 +167,10 @@ require (
 replace (
 	cosmossdk.io/math => github.com/InjectiveLabs/cosmos-sdk/math v0.47.3-inj-1
 	github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd v0.45.0-inj
-	github.com/TropicalDog17/orderbook-go-sdk => ../mm-bot
-	github.com/TropicalDog17/orderbook-go-sdk/pkg => ../mm-bot/pkg
-	github.com/TropicalDog17/orderbook-go-sdk/pkg/exchange => ../mm-bot/pkg/exchange
-	github.com/TropicalDog17/orderbook-go-sdk/pkg/types => ../mm-bot/pkg/types
+	github.com/TropicalDog17/orderbook-go-sdk => ../go-sdk
+	github.com/TropicalDog17/orderbook-go-sdk/pkg => ../go-sdk/pkg
+	github.com/TropicalDog17/orderbook-go-sdk/pkg/exchange => ../go-sdk/pkg/exchange
+	github.com/TropicalDog17/orderbook-go-sdk/pkg/types => ../go-sdk/pkg/types
 
 	github.com/bandprotocol/bandchain-packet => github.com/InjectiveLabs/bandchain-packet v0.0.4-inj-1
 	github.com/cometbft/cometbft => github.com/InjectiveLabs/cometbft v0.37.2-inj
