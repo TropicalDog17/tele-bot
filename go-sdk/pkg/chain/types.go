@@ -30,7 +30,7 @@ func NewChainClient(keyName string) ChainClient {
 		os.Getenv("HOME")+"/.injectived",
 		"injectived",
 		"test",
-		"",
+		keyName,
 		"12345678",
 		"", // keyring will be used if pk not provided
 		false,
