@@ -11,7 +11,7 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-func HandlerTransferToken(b *tele.Bot, client *internal.Client, menuSendToken *tele.ReplyMarkup, btnInlineAtom, btnInlineInj, btnTenDollar, btnFiftyDollar, btnHundredDollar, btnTwoHundredDollar, btnFiveHundredDollar, btnCustomAmount, btnRecipientSection *tele.Btn, selectedToken, selectedAmount, currentStep, recipientAddress *string, globalMenu *tele.StoredMessage) {
+func HandlerTransferToken(b *tele.Bot, client *internal.Client, menuSendToken *tele.ReplyMarkup, btnInlineAtom, btnInlineInj, btnTenDollar, btnFiftyDollar, btnHundredDollar, btnTwoHundredDollar, btnFiveHundredDollar, btnCustomAmount, btnRecipientSection, btnCustomToken *tele.Btn, selectedToken, selectedAmount, currentStep, recipientAddress *string, globalMenu *tele.StoredMessage) {
 	// Handle the "Send Tokens" button click
 	rdb := client.GetRedisInstance()
 	b.Handle(&types.BtnSendToken, func(c tele.Context) error {
@@ -54,50 +54,55 @@ func HandlerTransferToken(b *tele.Bot, client *internal.Client, menuSendToken *t
 
 	// Handle amount button clicks
 	b.Handle(btnTenDollar, func(c tele.Context) error {
-		*selectedAmount = "10"
+		*selectedAmount = "1"
 		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, *selectedAmount, *selectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
 		menuSendToken.InlineKeyboard[4][0] = internal.AddGreenTick(*btnTenDollar.Inline())
-		return c.Edit("Selected amount: $10", menuSendToken)
+		return c.Edit("Selected amount: 10 "+strings.ToUpper(*selectedToken), menuSendToken)
 	})
 
 	b.Handle(btnFiftyDollar, func(c tele.Context) error {
-		*selectedAmount = "50"
+		*selectedAmount = "5"
 		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, *selectedAmount, *selectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
 		menuSendToken.InlineKeyboard[4][1] = internal.AddGreenTick(*btnFiftyDollar.Inline())
 
-		return c.Edit("Selected amount: $50", menuSendToken)
+		return c.Edit("Selected amount: 50 "+strings.ToUpper(*selectedToken), menuSendToken)
 	})
 
 	b.Handle(btnHundredDollar, func(c tele.Context) error {
-		*selectedAmount = "100"
+		*selectedAmount = "10"
 		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, *selectedAmount, *selectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
 		menuSendToken.InlineKeyboard[4][2] = internal.AddGreenTick(*btnHundredDollar.Inline())
-		return c.Edit("Selected amount: $100", menuSendToken)
+		return c.Edit("Selected amount: 100 "+strings.ToUpper(*selectedToken), menuSendToken)
 	})
 
 	b.Handle(btnTwoHundredDollar, func(c tele.Context) error {
-		*selectedAmount = "200"
+		*selectedAmount = "50"
 		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, *selectedAmount, *selectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
 		menuSendToken.InlineKeyboard[5][0] = internal.AddGreenTick(*btnTwoHundredDollar.Inline())
-		return c.Edit("Selected amount: $200", menuSendToken)
+		return c.Edit("Selected amount: 50 "+strings.ToUpper(*selectedToken), menuSendToken)
 	})
 
 	b.Handle(btnFiveHundredDollar, func(c tele.Context) error {
-		*selectedAmount = "500"
+		*selectedAmount = "100"
 		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, *selectedAmount, *selectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
 		menuSendToken.InlineKeyboard[5][1] = internal.AddGreenTick(*btnFiveHundredDollar.Inline())
-		return c.Edit("Selected amount: $500", menuSendToken)
+		return c.Edit("Selected amount: 100 "+strings.ToUpper(*selectedToken), menuSendToken)
 	})
 
 	b.Handle(btnCustomAmount, func(c tele.Context) error {
 		// Prompt the user to enter a custom amount
 		*currentStep = "customAmount"
 		return c.Send("Please enter the custom amount:")
+	})
+	b.Handle(btnCustomToken, func(c tele.Context) error {
+		// Prompt the user to enter a custom token
+		*currentStep = "customToken"
+		return c.Send("Please enter the custom token:")
 	})
 
 	b.Handle(btnRecipientSection, func(c tele.Context) error {
@@ -127,4 +132,44 @@ func HandlerTransferToken(b *tele.Bot, client *internal.Client, menuSendToken *t
 		// Use the selected token, amount, and recipient address
 		return c.Send(fmt.Sprintf("Sent %f %s to %s, with tx hash %s", selectedAmount, *selectedToken, *recipientAddress, txHash), types.Menu)
 	})
+}
+
+func HandleTransferStep(b *tele.Bot, client *internal.Client, c tele.Context, menuSendToken *tele.ReplyMarkup, selectedAmount, selectedToken, recipientAddress *string, globalMenu *tele.StoredMessage, currentStep *string) error {
+	switch *currentStep {
+	case "customAmount":
+		*selectedAmount = c.Text()
+		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, *selectedAmount, *selectedToken)
+		return c.Send(fmt.Sprintf("Selected amount: %s", *selectedAmount), menuSendToken)
+	case "recipientAddress":
+		*recipientAddress = c.Text()
+		fmt.Println("Recipient address: ", recipientAddress)
+		err := b.Delete(c.Message().ReplyTo)
+		if err != nil {
+			return err
+		}
+		err = c.Delete()
+		if err != nil {
+			return err
+		}
+		types.BtnRecipientSection.Text = "Recipient:" + *recipientAddress
+		menuSendToken.InlineKeyboard[6][0] = *types.BtnRecipientSection.Inline()
+
+		// load the global menu from database
+		redisCtx := context.Background()
+		sendTokenMenu, err := client.GetRedisInstance().HGetAll(redisCtx, "sendTokenMenu").Result()
+		if err != nil {
+			return err
+		}
+		globalMenu.ChatID, err = strconv.ParseInt(sendTokenMenu["chatID"], 10, 64)
+		if err != nil {
+			return err
+		}
+		globalMenu.MessageID = sendTokenMenu["messageID"]
+		_, err = b.EditReplyMarkup(globalMenu, menuSendToken)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+	return c.Send("Invalid input", types.Menu)
 }

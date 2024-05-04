@@ -155,8 +155,8 @@ func SyncOrdersToRedis(client BotClient, rdb RedisClient) error {
 			orderID := order.OrderHash
 			fetchedOrderIDs[orderID] = true
 			// Check if already exists
-			order := rdb.HGet(ctx, client.GetAddress(), orderID).Val()
-			if order != "" {
+			orderInStore := rdb.HGet(ctx, client.GetAddress(), orderID).Val()
+			if orderInStore != "" {
 				// Order already exists in Redis, skip
 				continue
 			}
@@ -165,6 +165,7 @@ func SyncOrdersToRedis(client BotClient, rdb RedisClient) error {
 			if err != nil {
 				return err
 			}
+			// Sync the order to Redis
 			err = rdb.HSet(ctx, client.GetAddress(), orderID, string(orderJSON)).Err()
 			if err != nil {
 				return fmt.Errorf("error syncing order %s to Redis: %v", orderID, err)

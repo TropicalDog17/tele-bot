@@ -10,6 +10,7 @@ var (
 	BtnSpotOrder         = Menu.Text("📊 Spot Order")
 	BtnInlineAtom        = Selector.Data("ATOM", "atom", "atom")
 	BtnInlineInj         = Selector.Data("INJ", "inj", "inj")
+	BtnCustomToken       = Selector.Data("Custom Token", "customToken", "customToken")
 	BtnMenu              = MenuSendToken.Data("Menu", "menu")
 	BtnTokenSection      = MenuSendToken.Data("---Token Section---", "tokenSection")
 	BtnAmountSection     = MenuSendToken.Data("---Amount Section---", "amountSection")
