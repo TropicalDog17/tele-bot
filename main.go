@@ -8,6 +8,7 @@ import (
 	"github.com/TropicalDog17/tele-bot/internal"
 	"github.com/TropicalDog17/tele-bot/internal/handler"
 	"github.com/TropicalDog17/tele-bot/internal/types"
+	"github.com/TropicalDog17/tele-bot/internal/utils"
 	"github.com/joho/godotenv"
 	tele "gopkg.in/telebot.v3"
 )
@@ -62,7 +63,7 @@ func main() {
 	// Handle the transfer token flow
 	handler.HandlerTransferToken(b, client, menuSendToken, &types.BtnInlineAtom, &types.BtnInlineInj, &types.BtnTenDollar, &types.BtnFiftyDollar, &types.BtnHundredDollar, &types.BtnTwoHundredDollar, &types.BtnFiveHundredDollar, &types.BtnCustomAmount, &types.BtnRecipientSection, &types.BtnCustomToken, &selectedToken, &selectedAmount, &currentStep, &recipientAddress, &globalMenu)
 
-	handler.HandleStep(b, client, &currentStep, menuSendToken, menuLimitOrder, menuCreateLimitOrder, globalLimitOrder, &selectedAmount, &selectedToken, &recipientAddress, &globalMenu, &createOrderMenu)
+	handler.HandleStep(b, client, utils.Utils{}, &currentStep, menuSendToken, menuLimitOrder, menuCreateLimitOrder, globalLimitOrder, &selectedAmount, &selectedToken, &recipientAddress, &globalMenu, &createOrderMenu)
 
 	b.Start()
 }
