@@ -33,7 +33,7 @@ func TestHandleStorePrivateKey(t *testing.T) {
 	testMnemonic := memguard.NewBufferFromBytes([]byte("test mnemonic"))
 	testPassword := memguard.NewBufferFromBytes([]byte("test password"))
 	encryptedMnemonic := "encryptedMnemonic"
-	salt := "astrongsalt"
+	salt := []byte("astrongsalt")
 	step := "sendMnemonic"
 	mockUser := &telebot.User{
 		ID:       1,
