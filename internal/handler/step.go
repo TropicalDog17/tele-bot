@@ -14,6 +14,8 @@ func HandleStep(b *tele.Bot, client *internal.Client, currentStep *string, menuS
 			return HandleLimitStep(b, c, createOrderMenu, menuLimitOrder, menuCreateLimitOrder, globalLimitOrder, currentStep)
 		} else if *currentStep == "cancelOrder" {
 			return HandleCancelLimitOrderStep(b, c, client, globalLimitOrder)
+		} else if *currentStep == "addPassword" || *currentStep == "sendMnemonic" || *currentStep == "confirmMnemonic" || *currentStep == "receiveMnemonicWords" {
+			return HandleOnboardStep(b, c, client, currentStep)
 		}
 		return c.Send("Invalid input", types.Menu)
 	})

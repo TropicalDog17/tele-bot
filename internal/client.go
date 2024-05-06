@@ -51,7 +51,7 @@ func NewClient() *Client {
 		redisClient:     redisClient,
 	}
 	go func() {
-		ticker := time.NewTicker(10 * time.Second)
+		ticker := time.NewTicker(60 * time.Second)
 		defer ticker.Stop()
 
 		for range ticker.C {

@@ -40,9 +40,9 @@ func main() {
 		return
 	}
 
-	b.Handle("/start", func(c tele.Context) error {
-		return c.Send("Hello!", menu)
-	})
+	// On start command
+	handler.HandleOnboard(b, client, &currentStep)
+
 	// On reply button pressed (message)
 	b.Handle(&types.BtnViewBalances, func(c tele.Context) error {
 		// Unimplemented

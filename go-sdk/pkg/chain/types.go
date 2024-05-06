@@ -114,3 +114,45 @@ func (c *ChainClient) AdjustKeyring(keyName string) {
 	}
 	c.chainClient = chainClient
 }
+
+func (c *ChainClient) AdjustKeyringFromPrivateKey(privateKey string) {
+	network := config.DefaultNetwork()
+	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
+		"",
+		"",
+		"",
+		"",
+		"",
+		privateKey, // keyring will be used if pk not provided
+		false,
+	)
+	if err != nil {
+		panic(err)
+	}
+	c.SenderAddress = senderAddress
+	c.CosmosKeyring = cosmosKeyring
+	clientCtx, err := chainclient.NewClientContext(
+		"injective-1", // TODO: refactor hard code
+		senderAddress.String(),
+		cosmosKeyring,
+	)
+	if err != nil {
+		panic(err)
+	}
+	tmClient, err := rpchttp.New("http://localhost:26657", "/websocket")
+	if err != nil {
+		panic(err)
+	}
+
+	clientCtx = clientCtx.WithNodeURI("http://localhost:26657").WithClient(tmClient)
+
+	chainClient, err := chainclient.NewChainClient(
+		clientCtx,
+		network,
+		common.OptionGasPrices(DefaultLocalGasPrice),
+	)
+	if err != nil {
+		panic(err)
+	}
+	c.chainClient = chainClient
+}
