@@ -101,11 +101,11 @@ func clientMiddleware(next tele.HandlerFunc) tele.HandlerFunc {
 				pwdBuffer.Destroy()
 
 				// Proceed with the next handler
-				return c.Send("Password accepted", types.Menu)
+				return c.Send("Password accepted. You can perform your action again", types.Menu)
 			} else {
 				// Client doesn't exist and not waiting for password
 				// Send password request message
-				_, _ = c.Bot().Send(c.Recipient(), "Please enter your password")
+				_, _ = c.Bot().Send(c.Recipient(), "Session expired! Please enter your password")
 
 				// Set the waiting flag for the user
 				notWaitingForPassword[username] = true

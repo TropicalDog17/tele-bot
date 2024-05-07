@@ -35,7 +35,7 @@ func (c *ChainClientStruct) TransferToken(toAddress string, amount float64, deno
 	txResp, err := c.chainClient.SyncBroadcastMsg(msg)
 
 	if err != nil {
-		fmt.Println(err)
+		return "", fmt.Errorf("failed to transfer token: %v", err)
 	}
 
 	return txResp.TxResponse.TxHash, nil

@@ -18,7 +18,7 @@ func HandleStep(b *tele.Bot, clients map[string]internal.BotClient, utils utils.
 		if !ok {
 			return c.Send("Client not found", types.Menu)
 		}
-		if *currentStep == "customAmount" || *currentStep == "recipentAddress" {
+		if *currentStep == "customAmount" || *currentStep == "recipientAddress" {
 			return HandleTransferStep(b, client, c, menuSendToken, selectedAmount, selectedToken, recipientAddress, globalMenu, currentStep)
 		} else if *currentStep == "limitAmount" || *currentStep == "limitPrice" || *currentStep == "limitToken" {
 			return HandleLimitStep(b, c, createOrderMenu, menuLimitOrder, menuCreateLimitOrder, globalLimitOrder, currentStep)
