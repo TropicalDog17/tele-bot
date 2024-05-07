@@ -7,8 +7,13 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-func HandleStep(b *tele.Bot, client *internal.Client, utils utils.UtilsInterface, currentStep *string, menuSendToken, menuLimitOrder, menuCreateLimitOrder *tele.ReplyMarkup, globalLimitOrder *types.LimitOrderInfo, selectedAmount, selectedToken, recipientAddress *string, globalMenu *tele.StoredMessage, createOrderMenu *tele.StoredMessage) {
+func HandleStep(b *tele.Bot, clients map[string]internal.BotClient, utils utils.UtilsInterface, currentStep *string, menuSendToken, menuLimitOrder, menuCreateLimitOrder *tele.ReplyMarkup, globalLimitOrder *types.LimitOrderInfo, selectedAmount, selectedToken, recipientAddress *string, globalMenu *tele.StoredMessage, createOrderMenu *tele.StoredMessage) {
+
 	b.Handle(tele.OnText, func(c tele.Context) error {
+		client, ok := clients[c.Message().Sender.Username]
+		if !ok {
+			return c.Send("Client not found", types.Menu)
+		}
 		if *currentStep == "customAmount" || *currentStep == "recipentAddress" {
 			return HandleTransferStep(b, client, c, menuSendToken, selectedAmount, selectedToken, recipientAddress, globalMenu, currentStep)
 		} else if *currentStep == "limitAmount" || *currentStep == "limitPrice" || *currentStep == "limitToken" {

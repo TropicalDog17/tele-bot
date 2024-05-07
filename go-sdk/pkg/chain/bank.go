@@ -10,7 +10,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func (c *ChainClient) TransferToken(toAddress string, amount float64, denom string) (string, error) {
+func (c *ChainClientStruct) TransferToken(toAddress string, amount float64, denom string) (string, error) {
 	var decimals int32
 	switch denom {
 	case "inj":

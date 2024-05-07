@@ -16,7 +16,16 @@ import (
 
 const DefaultLocalGasPrice = "100000000000000inj"
 
-type ChainClient struct {
+type ChainClient interface {
+	GetInjectiveChainClient() chainclient.ChainClient
+	AdjustKeyring(keyName string)
+	AdjustKeyringFromPrivateKey(privateKey string)
+	TransferToken(toAddress string, amount float64, denom string) (string, error)
+	GetSenderAddress() cosmtypes.AccAddress
+	GetBalance(address string, denom string) (float64, error)
+}
+
+type ChainClientStruct struct {
 	chainClient   chainclient.ChainClient
 	SenderAddress cosmtypes.AccAddress
 	CosmosKeyring keyring.Keyring
@@ -61,7 +70,7 @@ func NewChainClient(keyName string) ChainClient {
 	if err != nil {
 		panic(err)
 	}
-	return ChainClient{
+	return &ChainClientStruct{
 		chainClient:   chainClient,
 		SenderAddress: senderAddress,
 		CosmosKeyring: cosmosKeyring,
@@ -69,7 +78,7 @@ func NewChainClient(keyName string) ChainClient {
 	}
 }
 
-func (c *ChainClient) GetInjectiveChainClient() chainclient.ChainClient {
+func (c *ChainClientStruct) GetInjectiveChainClient() chainclient.ChainClient {
 	return c.chainClient
 }
 
@@ -109,7 +118,7 @@ func NewChainClientFromPrivateKey(privateKey string) ChainClient {
 	if err != nil {
 		panic(err)
 	}
-	return ChainClient{
+	return &ChainClientStruct{
 		chainClient:   chainClient,
 		SenderAddress: senderAddress,
 		CosmosKeyring: cosmosKeyring,
@@ -117,7 +126,7 @@ func NewChainClientFromPrivateKey(privateKey string) ChainClient {
 	}
 }
 
-func (c *ChainClient) AdjustKeyring(keyName string) {
+func (c *ChainClientStruct) AdjustKeyring(keyName string) {
 	network := config.DefaultNetwork()
 	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
 		os.Getenv("HOME")+"/.injectived",
@@ -159,7 +168,7 @@ func (c *ChainClient) AdjustKeyring(keyName string) {
 	c.chainClient = chainClient
 }
 
-func (c *ChainClient) AdjustKeyringFromPrivateKey(privateKey string) {
+func (c *ChainClientStruct) AdjustKeyringFromPrivateKey(privateKey string) {
 	network := config.DefaultNetwork()
 	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
 		"",
@@ -204,4 +213,8 @@ func (c *ChainClient) AdjustKeyringFromPrivateKey(privateKey string) {
 		panic(err)
 	}
 	c.chainClient = chainClient
+}
+
+func (c *ChainClientStruct) GetSenderAddress() cosmtypes.AccAddress {
+	return c.SenderAddress
 }

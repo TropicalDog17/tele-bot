@@ -634,10 +634,10 @@ func (mr *MockExchangeClientMockRecorder) GetActiveMarkets(ctx, req any) *gomock
 }
 
 // GetChainClient mocks base method.
-func (m *MockExchangeClient) GetChainClient() *chain.ChainClient {
+func (m *MockExchangeClient) GetChainClient() chain.ChainClient {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetChainClient")
-	ret0, _ := ret[0].(*chain.ChainClient)
+	ret0, _ := ret[0].(chain.ChainClient)
 	return ret0
 }
 

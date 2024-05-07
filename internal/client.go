@@ -34,15 +34,18 @@ func NewCoinGeckoClient() *CoinGeckoClient {
 	}
 }
 func InitExchangeClient() *exchange.MbClient {
-	exchangeClient := exchange.NewMbClient("local", configtypes.DefaultConfig())
+	exchangeClient := exchange.NewMbClient("local", "", configtypes.DefaultConfig())
 	return exchangeClient
 }
 
-func NewClient(privateKey string) *Client {
-	client := exchange.NewMbClient("local", privateKey, configtypes.DefaultConfig())
-	client.ChainClient.AdjustKeyring("user4")
+func NewClient(username string) *Client {
 	redisClient := database.NewRedisInstance()
-
+	pkBuffer, err := RetrievePrivateKeyFromRedis(redisClient, username)
+	if err != nil {
+		panic(err)
+	}
+	client := exchange.NewMbClient("local", pkBuffer.String(), configtypes.DefaultConfig())
+	defer pkBuffer.Destroy()
 	cgClient := NewCoinGeckoClient()
 	go FetchDataWithTimeout(redisClient, cgClient, client)
 	c := &Client{
@@ -113,7 +116,7 @@ func (c *Client) TransferToken(to string, amount float64, denom string) (string,
 }
 
 func (c *Client) GetAddress() string {
-	return c.client.ChainClient.SenderAddress.String()
+	return c.client.ChainClient.GetSenderAddress().String()
 }
 
 // This works for most of the tokens

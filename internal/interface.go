@@ -58,7 +58,7 @@ type RedisClient interface {
 
 type ExchangeClient interface {
 	CancelOrder(ctx context.Context, marketID string, orderID string) (string, error)
-	GetChainClient() *chain.ChainClient
+	GetChainClient() chain.ChainClient
 	GetDecimals(ctx context.Context, marketId string) (baseDecimal int32, quoteDecimal int32)
 	GetMarketSummary(marketId string) (customsdktypes.MarketSummary, error)
 	GetMarketSummaryFromTicker(ticker string) (customsdktypes.MarketSummary, error)

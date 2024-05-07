@@ -11,10 +11,11 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-func HandlerTransferToken(b *tele.Bot, client *internal.Client, menuSendToken *tele.ReplyMarkup, btnInlineAtom, btnInlineInj, btnTenDollar, btnFiftyDollar, btnHundredDollar, btnTwoHundredDollar, btnFiveHundredDollar, btnCustomAmount, btnRecipientSection, btnCustomToken *tele.Btn, selectedToken, selectedAmount, currentStep, recipientAddress *string, globalMenu *tele.StoredMessage) {
+func HandlerTransferToken(b *tele.Bot, clients map[string]internal.BotClient, menuSendToken *tele.ReplyMarkup, btnInlineAtom, btnInlineInj, btnTenDollar, btnFiftyDollar, btnHundredDollar, btnTwoHundredDollar, btnFiveHundredDollar, btnCustomAmount, btnRecipientSection, btnCustomToken *tele.Btn, selectedToken, selectedAmount, currentStep, recipientAddress *string, globalMenu *tele.StoredMessage) {
 	// Handle the "Send Tokens" button click
-	rdb := client.GetRedisInstance()
 	b.Handle(&types.BtnSendToken, func(c tele.Context) error {
+		client := clients[c.Message().Sender.Username]
+		rdb := client.GetRedisInstance()
 		msg, err := b.Send(c.Chat(), "Select the token to send:", menuSendToken)
 		if err != nil {
 			return err
@@ -112,6 +113,7 @@ func HandlerTransferToken(b *tele.Bot, client *internal.Client, menuSendToken *t
 	})
 	// Handle the "Send" button click
 	b.Handle(&types.BtnSend, func(c tele.Context) error {
+		client := clients[c.Message().Sender.Username]
 		// Sanity check to ensure all required fields are filled
 		if *selectedToken == "" || *selectedAmount == "" || *recipientAddress == "" {
 			return c.Send("Please fill in all required fields", menuSendToken)
@@ -134,7 +136,7 @@ func HandlerTransferToken(b *tele.Bot, client *internal.Client, menuSendToken *t
 	})
 }
 
-func HandleTransferStep(b *tele.Bot, client *internal.Client, c tele.Context, menuSendToken *tele.ReplyMarkup, selectedAmount, selectedToken, recipientAddress *string, globalMenu *tele.StoredMessage, currentStep *string) error {
+func HandleTransferStep(b *tele.Bot, client internal.BotClient, c tele.Context, menuSendToken *tele.ReplyMarkup, selectedAmount, selectedToken, recipientAddress *string, globalMenu *tele.StoredMessage, currentStep *string) error {
 	switch *currentStep {
 	case "customAmount":
 		*selectedAmount = c.Text()

@@ -26,6 +26,7 @@ var (
 var (
 	globalLimitOrder = types.NewLimitOrderInfo()
 )
+var clients = make(map[string]internal.BotClient)
 
 func main() {
 	err := godotenv.Load()
@@ -39,10 +40,9 @@ func main() {
 		log.Fatal(err)
 		return
 	}
-	client := internal.NewClient()
-
+	b.Use(clientMiddleware)
 	// On start command
-	handler.HandleOnboard(b, client, &currentStep)
+	handler.HandleOnboard(b, clients, &currentStep)
 
 	// On reply button pressed (message)
 	b.Handle(&types.BtnViewBalances, func(c tele.Context) error {
@@ -51,19 +51,33 @@ func main() {
 	})
 
 	b.Handle("/menu", func(c tele.Context) error {
+
 		return c.Send("Menu", menu)
 	})
-	handler.HandleAccountDetails(b, client)
-	handler.HandleAddressQr(b, client)
+	handler.HandleAccountDetails(b, clients)
+	handler.HandleAddressQr(b, clients)
 
 	// Handle the "Limit Order" flow
-	handler.HandleLimitOrder(b, client, &limitOrderMenu, &createOrderMenu, globalLimitOrder, &currentStep, menu, menuCreateLimitOrder, menuConfirmOrder, menuActiveOrders)
-	handler.UtilityHandler(b, client, &currentStep)
+	handler.HandleLimitOrder(b, clients, &limitOrderMenu, &createOrderMenu, globalLimitOrder, &currentStep, menu, menuCreateLimitOrder, menuConfirmOrder, menuActiveOrders)
+	handler.UtilityHandler(b, &currentStep)
 
 	// Handle the transfer token flow
-	handler.HandlerTransferToken(b, client, menuSendToken, &types.BtnInlineAtom, &types.BtnInlineInj, &types.BtnTenDollar, &types.BtnFiftyDollar, &types.BtnHundredDollar, &types.BtnTwoHundredDollar, &types.BtnFiveHundredDollar, &types.BtnCustomAmount, &types.BtnRecipientSection, &types.BtnCustomToken, &selectedToken, &selectedAmount, &currentStep, &recipientAddress, &globalMenu)
+	handler.HandlerTransferToken(b, clients, menuSendToken, &types.BtnInlineAtom, &types.BtnInlineInj, &types.BtnTenDollar, &types.BtnFiftyDollar, &types.BtnHundredDollar, &types.BtnTwoHundredDollar, &types.BtnFiveHundredDollar, &types.BtnCustomAmount, &types.BtnRecipientSection, &types.BtnCustomToken, &selectedToken, &selectedAmount, &currentStep, &recipientAddress, &globalMenu)
 
-	handler.HandleStep(b, client, utils.Utils{}, &currentStep, menuSendToken, menuLimitOrder, menuCreateLimitOrder, globalLimitOrder, &selectedAmount, &selectedToken, &recipientAddress, &globalMenu, &createOrderMenu)
+	handler.HandleStep(b, clients, utils.Utils{}, &currentStep, menuSendToken, menuLimitOrder, menuCreateLimitOrder, globalLimitOrder, &selectedAmount, &selectedToken, &recipientAddress, &globalMenu, &createOrderMenu)
 
 	b.Start()
+}
+
+func clientMiddleware(next tele.HandlerFunc) tele.HandlerFunc {
+	return func(c tele.Context) error {
+		username := c.Sender().Username
+		_, ok := clients[username]
+		if !ok {
+
+			client := internal.NewClient(username)
+			clients[username] = client
+		}
+		return next(c)
+	}
 }

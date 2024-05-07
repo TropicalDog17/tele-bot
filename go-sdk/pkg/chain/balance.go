@@ -7,11 +7,7 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-type WalletFetcher interface {
-	GetBalance(address string, denom string) (float64, error)
-}
-
-func (c *ChainClient) GetBalance(address string, denom string) (float64, error) {
+func (c *ChainClientStruct) GetBalance(address string, denom string) (float64, error) {
 	denom = strings.ToLower(denom)
 	var decimals int32
 	switch denom {

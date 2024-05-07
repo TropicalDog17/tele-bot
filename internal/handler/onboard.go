@@ -18,11 +18,12 @@ var randomIndexes [3]int
 var mnemonic *memguard.LockedBuffer
 var password *memguard.LockedBuffer
 
-func HandleOnboard(b internal.Bot, client internal.BotClient, currentStep *string) {
+func HandleOnboard(b internal.Bot, clients map[string]internal.BotClient, currentStep *string) {
 	btnOnboard.Inline(
 		btnOnboard.Row(btnConfirmMnemonic),
 	)
 	b.Handle("/start", func(c tele.Context) error {
+		client := clients[c.Message().Sender.Username]
 		return HandleStart(c, client, currentStep)
 	})
 
@@ -42,7 +43,7 @@ func HandleOnboardStep(b *tele.Bot, c tele.Context, botClient internal.BotClient
 	case "sendMnemonic":
 		HandleSendMnemonicStep(b, c, botClient, step)
 	case "confirmMnemonic":
-		HandleConfirmMnemonicStep(b, c, botClient, mnemonic, step)
+		return HandleConfirmMnemonicStep(b, c, botClient, mnemonic, step)
 	case "receiveMnemonicWords":
 		HandleReceiveMnemonicWords(b, c, botClient, utils, mnemonic, randomIndexes, step)
 	}

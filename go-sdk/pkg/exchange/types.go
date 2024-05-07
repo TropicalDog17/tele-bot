@@ -34,7 +34,7 @@ type CronosClient interface {
 }
 type MbClient struct {
 	ExchangeClient exchangeclient.ExchangeClient
-	ChainClient    *chain.ChainClient
+	ChainClient    chain.ChainClient
 	Config         *configtypes.Config
 }
 
@@ -58,7 +58,7 @@ func NewMbClient(networkType string, privateKey string, config *configtypes.Conf
 
 	return &MbClient{
 		ExchangeClient: exchangeClient,
-		ChainClient:    &chainClient,
+		ChainClient:    chainClient,
 		Config:         config,
 	}
 }
@@ -122,7 +122,7 @@ func (c *MbClient) GetSpotMarket(marketId string) (*exchangetypes.SpotMarket, er
 // 	return marketsAssistant
 // }
 
-func (c *MbClient) GetChainClient() *chain.ChainClient {
+func (c *MbClient) GetChainClient() chain.ChainClient {
 	return c.ChainClient
 }
 
