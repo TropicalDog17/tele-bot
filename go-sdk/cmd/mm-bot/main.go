@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	exchangeClient := exchange.NewMbClient("local", configtypes.DefaultConfig())
+	exchangeClient := exchange.NewMbClient("local", "", configtypes.DefaultConfig())
 	err := godotenv.Load()
 	if err != nil {
 		panic(err)

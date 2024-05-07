@@ -31,7 +31,7 @@ func HandleOnboard(b internal.Bot, client internal.BotClient, currentStep *strin
 func HandleStart(c tele.Context, botClient internal.BotClient, step *string) error {
 	*step = "addPassword"
 	text := "Welcome to the TropicalDog17 bot! 🐶\n\nI am a bot that can help you with your trading needs. I can provide you with the latest cryptocurrency prices, help you place limit orders, and more.\n\nTo get started, type /help to see a list of available commands.\n To start, please provide a password"
-	return c.Reply(text, &btnOnboard, tele.ModeHTML)
+	return c.Reply(text)
 
 }
 
@@ -42,9 +42,9 @@ func HandleOnboardStep(b *tele.Bot, c tele.Context, botClient internal.BotClient
 	case "sendMnemonic":
 		HandleSendMnemonicStep(b, c, botClient, step)
 	case "confirmMnemonic":
-		HandleConfirmMnemonicStep(b, c, botClient, mnemonic.String(), step)
+		HandleConfirmMnemonicStep(b, c, botClient, mnemonic, step)
 	case "receiveMnemonicWords":
-		HandleReceiveMnemonicWords(b, c, botClient, utils, mnemonic.String(), randomIndexes, step)
+		HandleReceiveMnemonicWords(b, c, botClient, utils, mnemonic, randomIndexes, step)
 	}
 	return nil
 }
@@ -56,23 +56,32 @@ func HandleAddPassword(b *tele.Bot, c tele.Context, step *string) {
 
 func HandleStorePassword(b internal.Bot, c tele.Context, botClient internal.BotClient, utils utils.UtilsInterface, step *string) {
 	*step = "sendMnemonic"
-	mnemonic = memguard.NewBufferFromBytes([]byte("pony glide frown crisp unfold lawn cup loan trial govern usual matrix theory wash fresh address pioneer between meadow visa buffalo keep gallery swear"))
+	// Generate random mnemonic - 24 words
+	randomMnemonic, err := utils.GenerateMnemonic()
+	if err != nil {
+		_ = c.Reply("Error generating mnemonic")
+		return
+	}
+	mnemonic = memguard.NewBufferFromBytes([]byte(randomMnemonic))
 	password = memguard.NewBufferFromBytes([]byte(c.Text()))
-	HandleStorePrivateKey(b, c, botClient, utils, mnemonic, password, step)
-	HandleConfirmMnemonicStep(b, c, botClient, mnemonic.String(), step)
+	msg1, err := HandleStorePrivateKey(b, c, botClient, utils, mnemonic, password, step)
+	if err != nil {
+		_ = c.Reply("Error storing private key")
+	}
+	b.Handle(&btnConfirmMnemonic, func(c tele.Context) error {
+		_ = b.Delete(msg1)
+		return HandleConfirmMnemonicStep(b, c, botClient, mnemonic, step)
+	})
 }
 
-func HandleStorePrivateKey(b internal.Bot, c tele.Context, botClient internal.BotClient, utils utils.UtilsInterface, mnemonic, password *memguard.LockedBuffer, step *string) {
-	// Generate mnemonic
-	// TODO: generate this randomly, securely
-	// mnemonic := memguard.NewBufferFromBytes([]byte("pony glide frown crisp unfold lawn cup loan trial govern usual matrix theory wash fresh address pioneer between meadow visa buffalo keep gallery swear"))
+func HandleStorePrivateKey(b internal.Bot, c tele.Context, botClient internal.BotClient, utils utils.UtilsInterface, mnemonic, password *memguard.LockedBuffer, step *string) (*tele.Message, error) {
 	encryptedMnemonic, salt, err := utils.GetEncryptedMnemonic(mnemonic.String(), password.String())
 
 	// Destroy password from memory
 	password.Destroy()
 	if err != nil {
 		_, _ = b.Send(c.Chat(), "Error getting encrypted mnemonic")
-		return
+		return nil, err
 	}
 
 	redisClient := botClient.GetRedisInstance()
@@ -80,10 +89,17 @@ func HandleStorePrivateKey(b internal.Bot, c tele.Context, botClient internal.Bo
 	// Store encrypted mnemonic and salt in Redis
 	redisClient.HSet(ctx, c.Message().Sender.Username, "encryptedMnemonic", encryptedMnemonic)
 	redisClient.HSet(ctx, c.Message().Sender.Username, "salt", salt)
-	err = c.Send("Mnemonic stored! Please confirm it", &btnConfirmMnemonic)
+	msg1, err := b.Send(c.Chat(), "Here is the mnemonic:\n"+mnemonic.String()+"\nPlease store it in a safe place, as it will be used to recover your account")
+
 	if err != nil {
-		_ = c.Send("Error storing private key")
+		_ = c.Reply("Error sending mnemonic")
 	}
+
+	err = c.Send("Mnemonic stored! Please confirm it", &btnOnboard)
+	if err != nil {
+		_ = c.Reply("Error storing private key")
+	}
+	return msg1, err
 }
 
 func HandleSendMnemonicStep(b internal.Bot, c tele.Context, botClient internal.BotClient, step *string) {
@@ -92,14 +108,14 @@ func HandleSendMnemonicStep(b internal.Bot, c tele.Context, botClient internal.B
 }
 
 // TODO: implement confirmation mnemonic
-func HandleConfirmMnemonicStep(b internal.Bot, c tele.Context, botClient internal.BotClient, mnemonic string, step *string) {
+func HandleConfirmMnemonicStep(b internal.Bot, c tele.Context, botClient internal.BotClient, mnemonic *memguard.LockedBuffer, step *string) error {
 	*step = "receiveMnemonicWords"
-	randomIndexes = utils.GetRandomIndexesForTesting(len(utils.SplitMnemonic(mnemonic)))
-	text := fmt.Sprintf("please enter these missing words, seperate by space \n %s", utils.GenerateMissedWordsMnemonicFromIndexes(mnemonic, randomIndexes))
-	_ = c.Send(text)
+	randomIndexes = utils.GetRandomIndexesForTesting(len(utils.SplitMnemonic(mnemonic.String())))
+	text := fmt.Sprintf("please enter these missing words, seperate by space \n %s", utils.GenerateMissedWordsMnemonicFromIndexes(mnemonic.String(), randomIndexes))
+	return c.Reply(text)
 }
 
-func HandleReceiveMnemonicWords(b internal.Bot, c tele.Context, botClient internal.BotClient, utils utils.UtilsInterface, mnemonic string, randomIndexes [3]int, step *string) {
+func HandleReceiveMnemonicWords(b internal.Bot, c tele.Context, botClient internal.BotClient, utils utils.UtilsInterface, mnemonic *memguard.LockedBuffer, randomIndexes [3]int, step *string) {
 	providedWords := utils.SplitMnemonic(c.Text())
 	if len(providedWords) != 3 {
 		_, _ = b.Send(c.Chat(), "Please provide 3 words")
@@ -107,28 +123,27 @@ func HandleReceiveMnemonicWords(b internal.Bot, c tele.Context, botClient intern
 		return
 	}
 
-	result, _ := utils.MnemonicChallenge(mnemonic, randomIndexes, [3]string{providedWords[0], providedWords[1], providedWords[2]})
+	result, _ := utils.MnemonicChallenge(mnemonic.String(), randomIndexes, [3]string{providedWords[0], providedWords[1], providedWords[2]})
 	if result {
-		_ = c.Send("Mnemonic confirmed!")
+		_ = c.Reply("Mnemonic confirmed!")
+		// hooks
+		_ = AfterMnemonicConfirmed(b, c, botClient.GetExchangeClient(), mnemonic, step)
 	} else {
-		_ = c.Send("Mnemonic not confirmed, please try again")
+		_ = c.Reply("Mnemonic not confirmed, please try again")
 		*step = "confirmMnemonic"
 	}
 }
-func HandleStoreMnemonicStep(b *tele.Bot, c tele.Context, botClient internal.BotClient, step *string) {
-	_, _ = b.Send(c.Chat(), "Mnemonic stored!")
-}
 
 // delete mnemonic from memory
-func AfterMnemonicConfirmed(b *tele.Bot, c tele.Context, exchangeClient internal.ExchangeClient, step *string) {
+func AfterMnemonicConfirmed(b internal.Bot, c tele.Context, exchangeClient internal.ExchangeClient, mnemonic *memguard.LockedBuffer, step *string) error {
 	privateKey, err := utils.DerivePrivateKeyFromMnemonic(mnemonic.String())
 	if err != nil {
-		_, _ = b.Send(c.Chat(), "Error deriving private key from mnemonic")
-		return
+		_ = c.Reply("Error deriving private key from mnemonic")
+		return err
 	}
-	*step = "addPassword"
+	*step = ""
 	exchangeClient.GetChainClient().AdjustKeyringFromPrivateKey(utils.ECDSAToString(privateKey))
 	mnemonic.Destroy()
 
-	_, _ = b.Send(c.Chat(), "Private key derived from mnemonic and set as default keyring!")
+	return c.Reply("Private key derived from mnemonic and set as default keyring!")
 }

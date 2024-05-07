@@ -38,6 +38,21 @@ func (m *MockUtilsInterface) EXPECT() *MockUtilsInterfaceMockRecorder {
 	return m.recorder
 }
 
+// GenerateMnemonic mocks base method.
+func (m *MockUtilsInterface) GenerateMnemonic() (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GenerateMnemonic")
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GenerateMnemonic indicates an expected call of GenerateMnemonic.
+func (mr *MockUtilsInterfaceMockRecorder) GenerateMnemonic() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GenerateMnemonic", reflect.TypeOf((*MockUtilsInterface)(nil).GenerateMnemonic))
+}
+
 // GetEncryptedMnemonic mocks base method.
 func (m *MockUtilsInterface) GetEncryptedMnemonic(mnemonic, password string) (string, []byte, error) {
 	m.ctrl.T.Helper()

@@ -38,7 +38,7 @@ type MbClient struct {
 	Config         *configtypes.Config
 }
 
-func NewMbClient(networkType string, config *configtypes.Config) *MbClient {
+func NewMbClient(networkType string, privateKey string, config *configtypes.Config) *MbClient {
 	if networkType != "local" {
 		panic("Only local network type is supported")
 	}
@@ -48,7 +48,14 @@ func NewMbClient(networkType string, config *configtypes.Config) *MbClient {
 	if err != nil {
 		panic(err)
 	}
-	chainClient := chain.NewChainClient("genesis") // TODO: refactor hard code
+	var chainClient chain.ChainClient
+	if privateKey != "" {
+		chainClient = chain.NewChainClientFromPrivateKey(privateKey)
+	} else {
+		chainClient = chain.NewChainClient("genesis")
+
+	}
+
 	return &MbClient{
 		ExchangeClient: exchangeClient,
 		ChainClient:    &chainClient,

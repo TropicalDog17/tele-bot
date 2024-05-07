@@ -38,8 +38,8 @@ func InitExchangeClient() *exchange.MbClient {
 	return exchangeClient
 }
 
-func NewClient() *Client {
-	client := exchange.NewMbClient("local", configtypes.DefaultConfig())
+func NewClient(privateKey string) *Client {
+	client := exchange.NewMbClient("local", privateKey, configtypes.DefaultConfig())
 	client.ChainClient.AdjustKeyring("user4")
 	redisClient := database.NewRedisInstance()
 
@@ -308,4 +308,8 @@ func (c *Client) GetActiveMarkets() (map[string]string, error) {
 		return nil, err
 	}
 	return markets, nil
+}
+
+func (c *Client) GetExchangeClient() *exchange.MbClient {
+	return c.client
 }

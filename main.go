@@ -32,7 +32,6 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	client := internal.NewClient()
 	menu, menuSendToken, menuLimitOrder, menuCreateLimitOrder, menuConfirmOrder, menuActiveOrders := types.InitializeUI()[0], types.InitializeUI()[1], types.InitializeUI()[2], types.InitializeUI()[3], types.InitializeUI()[4], types.InitializeUI()[5]
 	pref := config.NewBotPref(os.Getenv("TELEGRAM_TOKEN"))
 	b, err := tele.NewBot(pref)
@@ -40,6 +39,7 @@ func main() {
 		log.Fatal(err)
 		return
 	}
+	client := internal.NewClient()
 
 	// On start command
 	handler.HandleOnboard(b, client, &currentStep)

@@ -6,6 +6,7 @@ require (
 	github.com/InjectiveLabs/sdk-go v1.50.2-0.20240308032359-b70213c28dde
 	github.com/TropicalDog17/orderbook-go-sdk v0.1.6
 	github.com/awnumar/memguard v0.22.5
+	github.com/brianium/mnemonic v0.0.0-20180124190051-72af92c51f88
 	github.com/cosmos/cosmos-sdk v0.47.5
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/go-redis/redismock/v9 v9.2.0

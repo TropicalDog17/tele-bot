@@ -12,13 +12,13 @@ import (
 // from: pony glide frown crisp unfold lawn cup loan trial govern usual matrix theory wash fresh address pioneer between meadow visa buffalo keep gallery swear
 // public address: inj1wfawuv6fslzjlfa4v7exv27mk6rpfeyvhvxchc
 var privateKey = "6C212553111B370A8FFDC682954495B7B90A73CEDAB7106323646A4F2C4E668F"
-var mnemonic = "pony glide frown crisp unfold lawn cup loan trial govern usual matrix theory wash fresh address pioneer between meadow visa buffalo keep gallery swear"
+var testMnemonic = "pony glide frown crisp unfold lawn cup loan trial govern usual matrix theory wash fresh address pioneer between meadow visa buffalo keep gallery swear"
 var password = "1234567890123456"
 var injectiveAddress = "inj1wfawuv6fslzjlfa4v7exv27mk6rpfeyvhvxchc"
 
 func TestDeriveAddressFromMnemonic(t *testing.T) {
 
-	address, err := DerivePublicKeyFromMnemonic(mnemonic)
+	address, err := DerivePublicKeyFromMnemonic(testMnemonic)
 	if err != nil {
 		t.Errorf("Error deriving address from mnemonic: %v", err)
 	}
@@ -42,7 +42,7 @@ func TestDerivePrivateKeyFromMnemonic(t *testing.T) {
 }
 
 func TestEncryptAndDecryptPrivateKey(t *testing.T) {
-	exportedPrivateKey, err := ExportEncryptedPrivateKeyFromMnemonicAndPassphrase(mnemonic, password)
+	exportedPrivateKey, err := ExportEncryptedPrivateKeyFromMnemonicAndPassphrase(testMnemonic, password)
 	require.NoError(t, err)
 
 	derivedPrivateKey, err := DerivePrivateKeyFromEncryptedAndPassphrase(exportedPrivateKey, password)

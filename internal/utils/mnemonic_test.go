@@ -29,10 +29,10 @@ func TestGetEncrpytedMnemonicAndDecrypt(t *testing.T) {
 }
 
 func TestGetRandomIndexesForTesting(t *testing.T) {
-	indexes := GetRandomIndexesForTesting(len(SplitMnemonic(mnemonic)))
+	indexes := GetRandomIndexesForTesting(len(SplitMnemonic(testMnemonic)))
 	require.Len(t, indexes, 3)
 	for _, index := range indexes {
-		require.True(t, index >= 0 && index < len(SplitMnemonic(mnemonic)))
+		require.True(t, index >= 0 && index < len(SplitMnemonic(testMnemonic)))
 	}
 }
 
@@ -40,7 +40,14 @@ func TestChallengeMnemonic(t *testing.T) {
 	mockIndexes := [3]int{2, 4, 7}
 	// frown unfold loan
 	mockProvidedWords := [3]string{"frown", "unfold", "loan"}
-	result, err := MnemonicChallenge(mnemonic, mockIndexes, mockProvidedWords)
+	result, err := MnemonicChallenge(testMnemonic, mockIndexes, mockProvidedWords)
 	require.NoError(t, err)
 	require.True(t, result)
+}
+
+func TestGenerateMnemonic(t *testing.T) {
+	mnemonic, err := Generate24wordsRandomMnemonic()
+	require.NoError(t, err)
+	require.NotEmpty(t, mnemonic)
+	require.Len(t, SplitMnemonic(mnemonic), 24)
 }

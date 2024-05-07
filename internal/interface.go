@@ -7,6 +7,7 @@ import (
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 	"github.com/TropicalDog17/orderbook-go-sdk/pkg/chain"
+	"github.com/TropicalDog17/orderbook-go-sdk/pkg/exchange"
 	customsdktypes "github.com/TropicalDog17/orderbook-go-sdk/pkg/types"
 	"github.com/TropicalDog17/tele-bot/internal/types"
 	"github.com/redis/go-redis/v9"
@@ -38,6 +39,7 @@ type BotClient interface {
 	CancelOrder(marketID, orderHash string) (string, error)
 	ToMessage(order types.LimitOrderInfo, showDetail bool) string
 	GetRedisInstance() RedisClient
+	GetExchangeClient() *exchange.MbClient
 	GetActiveMarkets() (map[string]string, error)
 }
 

@@ -20,14 +20,15 @@ func (c *ChainClient) TransferToken(toAddress string, amount float64, denom stri
 	default:
 		decimals = 6
 	}
-	amountStr := utils.QuantityToChainFormat(decimal.NewFromFloat(amount), int32(decimals)).String()
+	amountDec := utils.QuantityToChainFormat(decimal.NewFromFloat(amount), int32(decimals))
+	// Trim trailing zeros
 
 	// prepare tx msg
 	msg := &banktypes.MsgSend{
 		FromAddress: c.SenderAddress.String(),
 		ToAddress:   toAddress,
 		Amount: []sdktypes.Coin{{
-			Denom: "inj", Amount: math.Int(math.LegacyMustNewDecFromStr(amountStr))},
+			Denom: "inj", Amount: math.NewInt(amountDec.RoundInt64())},
 		},
 	}
 	//AsyncBroadcastMsg, SyncBroadcastMsg, QueueBroadcastMsg

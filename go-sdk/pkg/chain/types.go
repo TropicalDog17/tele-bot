@@ -73,6 +73,50 @@ func (c *ChainClient) GetInjectiveChainClient() chainclient.ChainClient {
 	return c.chainClient
 }
 
+func NewChainClientFromPrivateKey(privateKey string) ChainClient {
+	network := config.DefaultNetwork()
+	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
+		"",
+		"",
+		"",
+		"",
+		"",
+		privateKey,
+		false,
+	)
+	if err != nil {
+		panic(err)
+	}
+	clientCtx, err := chainclient.NewClientContext(
+		"injective-1", // TODO: refactor hard code
+		senderAddress.String(),
+		cosmosKeyring,
+	)
+	if err != nil {
+		panic(err)
+	}
+	tmClient, err := rpchttp.New("http://localhost:26657", "/websocket")
+	if err != nil {
+		panic(err)
+	}
+
+	clientCtx = clientCtx.WithNodeURI("http://localhost:26657").WithClient(tmClient)
+	chainClient, err := chainclient.NewChainClient(
+		clientCtx,
+		network,
+		common.OptionGasPrices(DefaultLocalGasPrice),
+	)
+	if err != nil {
+		panic(err)
+	}
+	return ChainClient{
+		chainClient:   chainClient,
+		SenderAddress: senderAddress,
+		CosmosKeyring: cosmosKeyring,
+		ClientCtx:     clientCtx,
+	}
+}
+
 func (c *ChainClient) AdjustKeyring(keyName string) {
 	network := config.DefaultNetwork()
 	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
@@ -126,6 +170,11 @@ func (c *ChainClient) AdjustKeyringFromPrivateKey(privateKey string) {
 		privateKey, // keyring will be used if pk not provided
 		false,
 	)
+	if err != nil {
+		panic(err)
+	}
+	// fund the account with some dust tokens
+	_, err = c.TransferToken(senderAddress.String(), 0.00001, "inj")
 	if err != nil {
 		panic(err)
 	}

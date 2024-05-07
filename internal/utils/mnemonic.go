@@ -4,6 +4,8 @@ import (
 	"math/rand"
 	"slices"
 	"strings"
+
+	"github.com/cosmos/go-bip39"
 )
 
 // Store the mnemonic encrypted by a password
@@ -65,4 +67,18 @@ func GenerateMissedWordsMnemonicFromIndexes(mnemonic string, indexes [3]int) str
 	words[indexes[1]] = "______"
 	words[indexes[2]] = "______"
 	return strings.Join(words, " ")
+}
+
+func Generate24wordsRandomMnemonic() (string, error) {
+	entropy, err := bip39.NewEntropy(256)
+	if err != nil {
+		return "", err
+	}
+
+	mnemonic, err := bip39.NewMnemonic(entropy)
+	if err != nil {
+		return "", err
+	}
+
+	return mnemonic, nil
 }

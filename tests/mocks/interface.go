@@ -17,6 +17,7 @@ import (
 	types "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	injective_spot_exchange_rpcpb "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 	chain "github.com/TropicalDog17/orderbook-go-sdk/pkg/chain"
+	exchange "github.com/TropicalDog17/orderbook-go-sdk/pkg/exchange"
 	types0 "github.com/TropicalDog17/orderbook-go-sdk/pkg/types"
 	internal "github.com/TropicalDog17/tele-bot/internal"
 	types1 "github.com/TropicalDog17/tele-bot/internal/types"
@@ -295,6 +296,20 @@ func (m *MockBotClient) GetDecimal(denom string) int32 {
 func (mr *MockBotClientMockRecorder) GetDecimal(denom any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDecimal", reflect.TypeOf((*MockBotClient)(nil).GetDecimal), denom)
+}
+
+// GetExchangeClient mocks base method.
+func (m *MockBotClient) GetExchangeClient() *exchange.MbClient {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetExchangeClient")
+	ret0, _ := ret[0].(*exchange.MbClient)
+	return ret0
+}
+
+// GetExchangeClient indicates an expected call of GetExchangeClient.
+func (mr *MockBotClientMockRecorder) GetExchangeClient() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExchangeClient", reflect.TypeOf((*MockBotClient)(nil).GetExchangeClient))
 }
 
 // GetPrice mocks base method.
