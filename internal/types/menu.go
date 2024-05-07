@@ -15,9 +15,9 @@ var (
 
 func InitializeUI() []*tele.ReplyMarkup {
 	Menu.Reply(
-		Menu.Row(BtnViewBalances, BtnSettings),
-		Menu.Row(BtnSendToken, BtnShowAccount),
-		Menu.Row(BtnLimitOrder, BtnSpotOrder),
+		Menu.Row(BtnShowAccount, BtnSettings),
+		Menu.Row(BtnSendToken, BtnLimitOrder),
+		Menu.Row(BtnViewMarket, BtnPriceAlert),
 	)
 	MenuSendToken.Inline(
 		MenuSendToken.Row(BtnBack, BtnMenu),

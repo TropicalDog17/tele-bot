@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/TropicalDog17/tele-bot/internal"
 	"github.com/TropicalDog17/tele-bot/internal/types"
@@ -50,7 +51,7 @@ func HandleAddressQr(b *tele.Bot, clients map[string]internal.BotClient) {
 func HandleAccountDetails(b *tele.Bot, clients map[string]internal.BotClient) {
 	// Show account
 	b.Handle(&types.BtnShowAccount, func(c tele.Context) error {
-		client, ok := clients[c.Callback().Sender.Username]
+		client, ok := clients[c.Message().Sender.Username]
 		if !ok {
 			return c.Send("Client not found", types.Menu)
 		}
@@ -71,10 +72,10 @@ func HandleAccountDetails(b *tele.Bot, clients map[string]internal.BotClient) {
 				balanceInUsd = balance * usdPrice
 			}
 			totalBalanceInUsd += balanceInUsd
-			rows = append(rows, accountDetails.Row(accountDetails.Data(fmt.Sprintf("%s: %.3f(%.3f $)", denom, balance, balanceInUsd), "balance", "balance")))
+			rows = append(rows, accountDetails.Row(accountDetails.Data(fmt.Sprintf("💰💰 %s: %.3f(%.3f $)", strings.ToUpper(denom), balance, balanceInUsd), "balance", "balance")))
 		}
-		rows = append(rows, accountDetails.Row(accountDetails.Data(fmt.Sprintf("Total Balance: %.3f $", totalBalanceInUsd), "totalBalance", "totalBalance")))
-		rows = append(rows, accountDetails.Row(accountDetails.Data("Show QR for address", "qr", "qr")))
+		rows = append(rows, accountDetails.Row(accountDetails.Data(fmt.Sprintf("💸💸 Total Balance: %.3f $ 💸💸", totalBalanceInUsd), "totalBalance", "totalBalance")))
+		rows = append(rows, accountDetails.Row(accountDetails.Data("📱 Show QR for address", "qr", "qr")))
 		accountDetails.Inline(rows...)
 		// Message contain the account address
 

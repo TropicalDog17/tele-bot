@@ -113,13 +113,12 @@ func HandlerTransferToken(b *tele.Bot, clients map[string]internal.BotClient, me
 	})
 	// Handle the "Send" button click
 	b.Handle(&types.BtnSend, func(c tele.Context) error {
-		client := clients[c.Message().Sender.Username]
+		client := clients[c.Callback().Sender.Username]
 		// Sanity check to ensure all required fields are filled
 		if *selectedToken == "" || *selectedAmount == "" || *recipientAddress == "" {
 			return c.Send("Please fill in all required fields", menuSendToken)
 		}
 		selectedAmount, err := strconv.ParseFloat(*selectedAmount, 64)
-		fmt.Println(selectedAmount)
 		if err != nil {
 			return c.Send("Invalid amount", menuSendToken)
 		}
