@@ -53,7 +53,6 @@ func NewMbClient(networkType string, privateKey string, config *configtypes.Conf
 		chainClient = chain.NewChainClientFromPrivateKey(privateKey)
 	} else {
 		chainClient = chain.NewChainClient("genesis")
-
 	}
 
 	return &MbClient{

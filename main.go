@@ -6,9 +6,11 @@ import (
 
 	"github.com/TropicalDog17/tele-bot/config"
 	"github.com/TropicalDog17/tele-bot/internal"
+	clienttypes "github.com/TropicalDog17/tele-bot/internal/client"
 	"github.com/TropicalDog17/tele-bot/internal/handler"
 	"github.com/TropicalDog17/tele-bot/internal/types"
 	"github.com/TropicalDog17/tele-bot/internal/utils"
+	memguard "github.com/awnumar/memguard"
 	"github.com/joho/godotenv"
 	tele "gopkg.in/telebot.v3"
 )
@@ -69,15 +71,54 @@ func main() {
 	b.Start()
 }
 
+var notWaitingForPassword = make(map[string]bool)
+
 func clientMiddleware(next tele.HandlerFunc) tele.HandlerFunc {
 	return func(c tele.Context) error {
 		username := c.Sender().Username
 		_, ok := clients[username]
 		if !ok {
+			// Client doesn't exist, check if waiting for password
+			if notWaitingForPassword[username] {
+				// User has provided the password
+				password := c.Text()
 
-			client := internal.NewClient(username)
-			clients[username] = client
+				// Create a new LockedBuffer with the password
+				pwdBuffer := memguard.NewBufferFromBytes([]byte(password))
+
+				// Create a new Client with the provided password
+				client, err := clienttypes.NewClient(c.Bot(), username, pwdBuffer, &currentStep)
+				if err != nil {
+					// Password is invalid
+					_, _ = c.Bot().Send(c.Recipient(), "Invalid password")
+				}
+				clients[username] = client
+
+				// Reset the waiting flag
+				notWaitingForPassword[username] = true
+
+				// Clean up the password buffer
+				pwdBuffer.Destroy()
+
+				// Proceed with the next handler
+				return c.Send("Password accepted", types.Menu)
+			} else {
+				// Client doesn't exist and not waiting for password
+				// Send password request message
+				_, _ = c.Bot().Send(c.Recipient(), "Please enter your password")
+
+				// Set the waiting flag for the user
+				notWaitingForPassword[username] = true
+
+				// Initialize the current step for the user
+				currentStep = "askPassword"
+
+				// Stop further processing
+				return nil
+			}
 		}
+
+		// Client exists, proceed with the next handler
 		return next(c)
 	}
 }

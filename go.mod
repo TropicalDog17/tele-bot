@@ -6,8 +6,8 @@ require (
 	github.com/InjectiveLabs/sdk-go v1.50.2-0.20240308032359-b70213c28dde
 	github.com/TropicalDog17/orderbook-go-sdk v0.1.6
 	github.com/awnumar/memguard v0.22.5
-	github.com/brianium/mnemonic v0.0.0-20180124190051-72af92c51f88
 	github.com/cosmos/cosmos-sdk v0.47.5
+	github.com/cosmos/go-bip39 v1.0.0
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/go-redis/redismock/v9 v9.2.0
 	github.com/joho/godotenv v1.5.1
@@ -58,7 +58,6 @@ require (
 	github.com/confio/ics23/go v0.9.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3 // indirect
-	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogoproto v1.4.10 // indirect
 	github.com/cosmos/iavl v0.20.1 // indirect
 	github.com/cosmos/ibc-go/v7 v7.3.0 // indirect
@@ -142,6 +141,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.16.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/tendermint/go-amino v0.16.0 // indirect

@@ -203,7 +203,6 @@ func (c *ChainClientStruct) AdjustKeyringFromPrivateKey(privateKey string) {
 	}
 
 	clientCtx = clientCtx.WithNodeURI("http://localhost:26657").WithClient(tmClient)
-
 	chainClient, err := chainclient.NewChainClient(
 		clientCtx,
 		network,

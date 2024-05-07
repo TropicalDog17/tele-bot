@@ -100,7 +100,7 @@ func DeleteInputMessage(b *tele.Bot, c tele.Context) error {
 }
 
 // RetrievePrivateKeyFromRedis retrieves the private key from Redis and returns it as a LockedBuffer.
-func RetrievePrivateKeyFromRedis(redisClient RedisClient, username string) (*memguard.LockedBuffer, error) {
+func RetrievePrivateKeyFromRedis(redisClient RedisClient, username string, password *memguard.LockedBuffer) (*memguard.LockedBuffer, error) {
 	// retrieve mnemonic
 	ctx := context.Background()
 	encryptedMnemonic, err := redisClient.HGet(ctx, username, "encryptedMnemonic").Result()
@@ -112,14 +112,10 @@ func RetrievePrivateKeyFromRedis(redisClient RedisClient, username string) (*mem
 		return nil, err
 	}
 
-	// Create a LockedBuffer for the password
-	password := memguard.NewBufferFromBytes([]byte("tropical"))
-	defer password.Destroy()
-
 	// Decrypt mnemonic
 	key, err := utils.DeriveKeyFromSalt(password.String(), []byte(salt))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to derive key from salt: %w", err)
 	}
 	password.Destroy()
 

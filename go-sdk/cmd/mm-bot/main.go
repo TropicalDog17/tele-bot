@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	configtypes "github.com/TropicalDog17/orderbook-go-sdk/config"
@@ -12,7 +13,7 @@ import (
 )
 
 func main() {
-	exchangeClient := exchange.NewMbClient("local", "", configtypes.DefaultConfig())
+	exchangeClient := exchange.NewMbClient("local", strings.ToUpper("f7356863262652e2e9640f9641dba58fb741998e5b8d838f14612473cc1defcc"), configtypes.DefaultConfig())
 	err := godotenv.Load()
 	if err != nil {
 		panic(err)
@@ -30,17 +31,17 @@ func main() {
 	fmt.Printf("Price: %f\n", price)
 
 	// Create a spot order
-	chainClient := exchangeClient.GetChainClient()
-	chainClient.AdjustKeyring("user3")
+	// chainClient := chain.NewChainClientFromPrivateKey("6C212553111B370A8FFDC682954495B7B90A73CEDAB7106323646A4F2C4E668F")
 	spotOrder := types.SpotOrder{
 		OrderType: exchangetypes.OrderType_BUY,
 		MarketId:  "0xfbd55f13641acbb6e69d7b59eb335dabe2ecbfea136082ce2eedaba8a0c917a3",
 		Price:     decimal.NewFromFloat(0.48),
 		Quantity:  decimal.NewFromFloat(0.01),
 	}
-	_, err = exchangeClient.PlaceSpotOrder(spotOrder)
+	tx, err := exchangeClient.PlaceSpotOrder(spotOrder)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Printf("Transaction: %+v\n", tx)
 
 }
