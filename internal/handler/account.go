@@ -11,8 +11,12 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-func HandleAddressQr(b *tele.Bot, client *internal.Client) {
+func HandleAddressQr(b *tele.Bot, clients map[string]internal.BotClient) {
 	b.Handle(&tele.Btn{Unique: "qr"}, func(c tele.Context) error {
+		client, ok := clients[c.Callback().Sender.Username]
+		if !ok {
+			return c.Send("Client not found", types.Menu)
+		}
 		// Get the address
 		address := client.GetAddress()
 		// Address
@@ -43,14 +47,18 @@ func HandleAddressQr(b *tele.Bot, client *internal.Client) {
 	})
 }
 
-func HandleAccountDetails(b *tele.Bot, client *internal.Client) {
+func HandleAccountDetails(b *tele.Bot, clients map[string]internal.BotClient) {
 	// Show account
 	b.Handle(&types.BtnShowAccount, func(c tele.Context) error {
+		client, ok := clients[c.Callback().Sender.Username]
+		if !ok {
+			return c.Send("Client not found", types.Menu)
+		}
 		accountDetails := &tele.ReplyMarkup{}
 		address := client.GetAddress()
 		balances, err := client.GetBalances(address, []string{"atom", "inj"})
 		if err != nil {
-			return c.Send("Error fetching balances")
+			return c.Send("Error fetching balances" + err.Error())
 		}
 		rows := []tele.Row{}
 		totalBalanceInUsd := 0.0

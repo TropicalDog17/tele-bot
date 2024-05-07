@@ -5,13 +5,19 @@ go 1.22.1
 require (
 	github.com/InjectiveLabs/sdk-go v1.50.2-0.20240308032359-b70213c28dde
 	github.com/TropicalDog17/orderbook-go-sdk v0.1.6
+	github.com/awnumar/memguard v0.22.5
+	github.com/cosmos/cosmos-sdk v0.47.5
+	github.com/cosmos/go-bip39 v1.0.0
+	github.com/ethereum/go-ethereum v1.11.5
 	github.com/go-redis/redismock/v9 v9.2.0
 	github.com/joho/godotenv v1.5.1
+	github.com/miguelmota/go-ethereum-hdwallet v0.1.2
 	github.com/redis/go-redis/v9 v9.5.1
 	github.com/stretchr/testify v1.8.4
 	github.com/yeqown/go-qrcode/v2 v2.2.3
 	github.com/yeqown/go-qrcode/writer/standard v1.2.3
 	go.uber.org/mock v0.4.0
+	golang.org/x/crypto v0.16.0
 	gopkg.in/telebot.v3 v3.2.1
 )
 
@@ -29,6 +35,7 @@ require (
 	github.com/CosmWasm/wasmvm v1.5.0 // indirect
 	github.com/InjectiveLabs/suplog v1.3.3 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
+	github.com/awnumar/memcall v0.2.0 // indirect
 	github.com/aws/aws-sdk-go v1.44.203 // indirect
 	github.com/bandprotocol/bandchain-packet v0.0.4 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -37,6 +44,7 @@ require (
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
 	github.com/btcsuite/btcd/btcutil v1.1.3 // indirect
 	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2 // indirect
+	github.com/btcsuite/btcutil v1.0.3-0.20201208143702-a53e38424cce // indirect
 	github.com/bugsnag/bugsnag-go v2.1.2+incompatible // indirect
 	github.com/bugsnag/panicwrap v1.3.4 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
@@ -50,8 +58,6 @@ require (
 	github.com/confio/ics23/go v0.9.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3 // indirect
-	github.com/cosmos/cosmos-sdk v0.47.5 // indirect
-	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogoproto v1.4.10 // indirect
 	github.com/cosmos/iavl v0.20.1 // indirect
 	github.com/cosmos/ibc-go/v7 v7.3.0 // indirect
@@ -67,7 +73,6 @@ require (
 	github.com/docker/distribution v2.8.2+incompatible // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
-	github.com/ethereum/go-ethereum v1.11.5 // indirect
 	github.com/fogleman/gg v1.3.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/getsentry/sentry-go v0.23.0 // indirect
@@ -136,6 +141,7 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.16.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/tendermint/go-amino v0.16.0 // indirect
@@ -145,13 +151,12 @@ require (
 	github.com/zondax/hid v0.9.1 // indirect
 	github.com/zondax/ledger-go v0.14.1 // indirect
 	go.etcd.io/bbolt v1.3.7 // indirect
-	golang.org/x/crypto v0.11.0 // indirect
 	golang.org/x/exp v0.0.0-20230711153332-06a737ee72cb // indirect
 	golang.org/x/image v0.10.0 // indirect
 	golang.org/x/net v0.12.0 // indirect
-	golang.org/x/sys v0.11.0 // indirect
-	golang.org/x/term v0.10.0 // indirect
-	golang.org/x/text v0.12.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/term v0.15.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto v0.0.0-20230706204954-ccb25ca9f130 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230629202037-9506855d4529 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230711160842-782d3b101e98 // indirect
@@ -167,14 +172,16 @@ require (
 replace (
 	cosmossdk.io/math => github.com/InjectiveLabs/cosmos-sdk/math v0.47.3-inj-1
 	github.com/CosmWasm/wasmd => github.com/InjectiveLabs/wasmd v0.45.0-inj
-	github.com/TropicalDog17/orderbook-go-sdk => ../go-sdk
-	github.com/TropicalDog17/orderbook-go-sdk/pkg => ../go-sdk/pkg
-	github.com/TropicalDog17/orderbook-go-sdk/pkg/exchange => ../go-sdk/pkg/exchange
-	github.com/TropicalDog17/orderbook-go-sdk/pkg/types => ../go-sdk/pkg/types
+	github.com/TropicalDog17/orderbook-go-sdk => ./go-sdk
+	github.com/TropicalDog17/orderbook-go-sdk/pkg => ./go-sdk/pkg
+	github.com/TropicalDog17/orderbook-go-sdk/pkg/exchange => ./go-sdk/pkg/exchange
+	github.com/TropicalDog17/orderbook-go-sdk/pkg/types => ./go-sdk/pkg/types
 
 	github.com/bandprotocol/bandchain-packet => github.com/InjectiveLabs/bandchain-packet v0.0.4-inj-1
+	github.com/btcsuite/btcd => github.com/btcsuite/btcd v0.22.1
 	github.com/cometbft/cometbft => github.com/InjectiveLabs/cometbft v0.37.2-inj
 	github.com/cosmos/cosmos-sdk => github.com/InjectiveLabs/cosmos-sdk v0.47.3-inj-9
 	github.com/cosmos/ibc-go/v7 => github.com/InjectiveLabs/ibc-go/v7 v7.2.0-inj
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
+
 )

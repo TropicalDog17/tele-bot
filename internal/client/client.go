@@ -1,4 +1,4 @@
-package internal
+package client
 
 import (
 	"context"
@@ -14,14 +14,19 @@ import (
 	configtypes "github.com/TropicalDog17/orderbook-go-sdk/config"
 	"github.com/TropicalDog17/orderbook-go-sdk/pkg/exchange"
 	"github.com/TropicalDog17/orderbook-go-sdk/pkg/utils"
+	"github.com/TropicalDog17/tele-bot/internal"
 	"github.com/TropicalDog17/tele-bot/internal/database"
 	"github.com/TropicalDog17/tele-bot/internal/types"
+	"github.com/awnumar/memguard"
+	tele "gopkg.in/telebot.v3"
 )
+
+var pwdChan = make(chan *memguard.LockedBuffer)
 
 type Client struct {
 	client          *exchange.MbClient
-	coinGeckoClient CoinGecko
-	redisClient     RedisClient
+	coinGeckoClient internal.CoinGecko
+	redisClient     internal.RedisClient
 }
 
 type CoinGeckoClient struct {
@@ -33,37 +38,45 @@ func NewCoinGeckoClient() *CoinGeckoClient {
 		apiKey: os.Getenv("COINGECKO_API_KEY"),
 	}
 }
-func InitExchangeClient() *exchange.MbClient {
-	exchangeClient := exchange.NewMbClient("local", configtypes.DefaultConfig())
-	return exchangeClient
+
+type RecipentWrapper struct {
+	Username string
 }
 
-func NewClient() *Client {
-	client := exchange.NewMbClient("local", configtypes.DefaultConfig())
-	client.ChainClient.AdjustKeyring("user4")
-	redisClient := database.NewRedisInstance()
+func (r *RecipentWrapper) Recipient() string {
+	return r.Username
+}
 
+func NewClient(b internal.Bot, username string, pwdBuffer *memguard.LockedBuffer, currentStep *string) (*Client, error) {
+	redisClient := database.NewRedisInstance()
+	pkBuffer, err := internal.RetrievePrivateKeyFromRedis(redisClient, username, pwdBuffer)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("pkBuffer: ", pkBuffer.String())
+	client := exchange.NewMbClient("local", pkBuffer.String(), configtypes.DefaultConfig())
+	defer pkBuffer.Destroy()
 	cgClient := NewCoinGeckoClient()
-	go FetchDataWithTimeout(redisClient, cgClient, client)
+	go internal.FetchDataWithTimeout(redisClient, cgClient, client)
 	c := &Client{
 		client:          client,
 		coinGeckoClient: cgClient,
 		redisClient:     redisClient,
 	}
 	go func() {
-		ticker := time.NewTicker(10 * time.Second)
+		ticker := time.NewTicker(60 * time.Second)
 		defer ticker.Stop()
 
 		for range ticker.C {
 			fmt.Println("Sync orders to redis")
-			err := SyncOrdersToRedis(c, c.redisClient)
+			err := internal.SyncOrdersToRedis(c, c.redisClient)
 			if err != nil {
 				fmt.Println(err)
 			}
 		}
 	}()
 
-	return c
+	return c, nil
 }
 
 func (c *Client) GetPrice(ticker string) (float64, bool) {
@@ -113,7 +126,7 @@ func (c *Client) TransferToken(to string, amount float64, denom string) (string,
 }
 
 func (c *Client) GetAddress() string {
-	return c.client.ChainClient.SenderAddress.String()
+	return c.client.ChainClient.GetSenderAddress().String()
 }
 
 // This works for most of the tokens
@@ -297,7 +310,7 @@ func (c *Client) CancelOrder(marketID, orderHash string) (string, error) {
 	return txhash, nil
 }
 
-func (c *Client) GetRedisInstance() RedisClient {
+func (c *Client) GetRedisInstance() internal.RedisClient {
 	return c.redisClient
 }
 
@@ -308,4 +321,21 @@ func (c *Client) GetActiveMarkets() (map[string]string, error) {
 		return nil, err
 	}
 	return markets, nil
+}
+
+func (c *Client) GetExchangeClient() *exchange.MbClient {
+	return c.client
+}
+
+func HandleAskForPassword(b internal.Bot, recp tele.Recipient, pwdChan chan *memguard.LockedBuffer, step *string) error {
+	*step = "askPassword"
+	_, _ = b.Send(recp, "Please enter your password")
+
+	b.Handle(tele.OnText, func(c tele.Context) error {
+		pwdChan <- memguard.NewBufferFromBytes([]byte(c.Text()))
+		return nil
+	})
+
+	return nil
+
 }

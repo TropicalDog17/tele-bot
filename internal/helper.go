@@ -1,11 +1,14 @@
 package internal
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/TropicalDog17/tele-bot/internal/types"
+	"github.com/TropicalDog17/tele-bot/internal/utils"
+	"github.com/awnumar/memguard"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -94,4 +97,39 @@ func DeleteInputMessage(b *tele.Bot, c tele.Context) error {
 		return err
 	}
 	return c.Delete()
+}
+
+// RetrievePrivateKeyFromRedis retrieves the private key from Redis and returns it as a LockedBuffer.
+func RetrievePrivateKeyFromRedis(redisClient RedisClient, username string, password *memguard.LockedBuffer) (*memguard.LockedBuffer, error) {
+	// retrieve mnemonic
+	ctx := context.Background()
+	encryptedMnemonic, err := redisClient.HGet(ctx, username, "encryptedMnemonic").Result()
+	if err != nil {
+		return nil, err
+	}
+	salt, err := redisClient.HGet(ctx, username, "salt").Result()
+	if err != nil {
+		return nil, err
+	}
+
+	// Decrypt mnemonic
+	key, err := utils.DeriveKeyFromSalt(password.String(), []byte(salt))
+	if err != nil {
+		return nil, fmt.Errorf("failed to derive key from salt: %w", err)
+	}
+	password.Destroy()
+
+	decryptedMnemonic, err := utils.GetDecryptedMnemonic(key, encryptedMnemonic)
+	if err != nil {
+		memguard.WipeBytes(key)
+		return nil, err
+	}
+	memguard.WipeBytes(key)
+
+	// Create a LockedBuffer for the decrypted mnemonic
+	mnemonicBuffer := memguard.NewBufferFromBytes([]byte(decryptedMnemonic))
+	defer mnemonicBuffer.Destroy()
+
+	// Derive the private key bytes from the mnemonic
+	return utils.DerivePrivateKeyBufferFromMnemonic(mnemonicBuffer)
 }

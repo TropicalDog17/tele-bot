@@ -18,7 +18,7 @@ type OrderMaker interface {
 
 func (c *MbClient) PlaceSpotOrder(order types.SpotOrder) (string, error) {
 	chainClient := c.ChainClient.GetInjectiveChainClient()
-	senderAddress := c.ChainClient.SenderAddress
+	senderAddress := c.ChainClient.GetSenderAddress()
 	ctx := context.Background()
 
 	defaultSubaccountID := chainClient.DefaultSubaccount(senderAddress)
@@ -74,11 +74,10 @@ func (c *MbClient) NewSpotOrder(orderType exchangetypes.OrderType, marketId stri
 
 func (c *MbClient) CancelOrder(ctx context.Context, marketID, orderID string) (string, error) {
 	chainClient := c.ChainClient.GetInjectiveChainClient()
-	marketId := "0xfbd55f13641acbb6e69d7b59eb335dabe2ecbfea136082ce2eedaba8a0c917a3"
-	defaultSubaccountID := chainClient.DefaultSubaccount(c.ChainClient.SenderAddress)
+	defaultSubaccountID := chainClient.DefaultSubaccount(c.ChainClient.GetSenderAddress())
 	msg := &exchangetypes.MsgCancelSpotOrder{
-		Sender:       c.ChainClient.SenderAddress.String(),
-		MarketId:     marketId,
+		Sender:       c.ChainClient.GetSenderAddress().String(),
+		MarketId:     marketID,
 		SubaccountId: defaultSubaccountID.String(),
 		OrderHash:    orderID,
 	}

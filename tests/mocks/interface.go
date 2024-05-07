@@ -17,6 +17,7 @@ import (
 	types "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	injective_spot_exchange_rpcpb "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 	chain "github.com/TropicalDog17/orderbook-go-sdk/pkg/chain"
+	exchange "github.com/TropicalDog17/orderbook-go-sdk/pkg/exchange"
 	types0 "github.com/TropicalDog17/orderbook-go-sdk/pkg/types"
 	internal "github.com/TropicalDog17/tele-bot/internal"
 	types1 "github.com/TropicalDog17/tele-bot/internal/types"
@@ -295,6 +296,20 @@ func (m *MockBotClient) GetDecimal(denom string) int32 {
 func (mr *MockBotClientMockRecorder) GetDecimal(denom any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDecimal", reflect.TypeOf((*MockBotClient)(nil).GetDecimal), denom)
+}
+
+// GetExchangeClient mocks base method.
+func (m *MockBotClient) GetExchangeClient() *exchange.MbClient {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetExchangeClient")
+	ret0, _ := ret[0].(*exchange.MbClient)
+	return ret0
+}
+
+// GetExchangeClient indicates an expected call of GetExchangeClient.
+func (mr *MockBotClientMockRecorder) GetExchangeClient() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetExchangeClient", reflect.TypeOf((*MockBotClient)(nil).GetExchangeClient))
 }
 
 // GetPrice mocks base method.
@@ -619,10 +634,10 @@ func (mr *MockExchangeClientMockRecorder) GetActiveMarkets(ctx, req any) *gomock
 }
 
 // GetChainClient mocks base method.
-func (m *MockExchangeClient) GetChainClient() *chain.ChainClient {
+func (m *MockExchangeClient) GetChainClient() chain.ChainClient {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetChainClient")
-	ret0, _ := ret[0].(*chain.ChainClient)
+	ret0, _ := ret[0].(chain.ChainClient)
 	return ret0
 }
 
@@ -749,4 +764,629 @@ func (m *MockExchangeClient) PlaceSpotOrder(order types0.SpotOrder) (string, err
 func (mr *MockExchangeClientMockRecorder) PlaceSpotOrder(order any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlaceSpotOrder", reflect.TypeOf((*MockExchangeClient)(nil).PlaceSpotOrder), order)
+}
+
+// MockTeleContext is a mock of TeleContext interface.
+type MockTeleContext struct {
+	ctrl     *gomock.Controller
+	recorder *MockTeleContextMockRecorder
+}
+
+// MockTeleContextMockRecorder is the mock recorder for MockTeleContext.
+type MockTeleContextMockRecorder struct {
+	mock *MockTeleContext
+}
+
+// NewMockTeleContext creates a new mock instance.
+func NewMockTeleContext(ctrl *gomock.Controller) *MockTeleContext {
+	mock := &MockTeleContext{ctrl: ctrl}
+	mock.recorder = &MockTeleContextMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockTeleContext) EXPECT() *MockTeleContextMockRecorder {
+	return m.recorder
+}
+
+// Accept mocks base method.
+func (m *MockTeleContext) Accept(errorMessage ...string) error {
+	m.ctrl.T.Helper()
+	varargs := []any{}
+	for _, a := range errorMessage {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Accept", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Accept indicates an expected call of Accept.
+func (mr *MockTeleContextMockRecorder) Accept(errorMessage ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Accept", reflect.TypeOf((*MockTeleContext)(nil).Accept), errorMessage...)
+}
+
+// Answer mocks base method.
+func (m *MockTeleContext) Answer(resp *telebot.QueryResponse) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Answer", resp)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Answer indicates an expected call of Answer.
+func (mr *MockTeleContextMockRecorder) Answer(resp any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Answer", reflect.TypeOf((*MockTeleContext)(nil).Answer), resp)
+}
+
+// Args mocks base method.
+func (m *MockTeleContext) Args() []string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Args")
+	ret0, _ := ret[0].([]string)
+	return ret0
+}
+
+// Args indicates an expected call of Args.
+func (mr *MockTeleContextMockRecorder) Args() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Args", reflect.TypeOf((*MockTeleContext)(nil).Args))
+}
+
+// Bot mocks base method.
+func (m *MockTeleContext) Bot() *telebot.Bot {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Bot")
+	ret0, _ := ret[0].(*telebot.Bot)
+	return ret0
+}
+
+// Bot indicates an expected call of Bot.
+func (mr *MockTeleContextMockRecorder) Bot() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Bot", reflect.TypeOf((*MockTeleContext)(nil).Bot))
+}
+
+// Callback mocks base method.
+func (m *MockTeleContext) Callback() *telebot.Callback {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Callback")
+	ret0, _ := ret[0].(*telebot.Callback)
+	return ret0
+}
+
+// Callback indicates an expected call of Callback.
+func (mr *MockTeleContextMockRecorder) Callback() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Callback", reflect.TypeOf((*MockTeleContext)(nil).Callback))
+}
+
+// Chat mocks base method.
+func (m *MockTeleContext) Chat() *telebot.Chat {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Chat")
+	ret0, _ := ret[0].(*telebot.Chat)
+	return ret0
+}
+
+// Chat indicates an expected call of Chat.
+func (mr *MockTeleContextMockRecorder) Chat() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Chat", reflect.TypeOf((*MockTeleContext)(nil).Chat))
+}
+
+// ChatJoinRequest mocks base method.
+func (m *MockTeleContext) ChatJoinRequest() *telebot.ChatJoinRequest {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ChatJoinRequest")
+	ret0, _ := ret[0].(*telebot.ChatJoinRequest)
+	return ret0
+}
+
+// ChatJoinRequest indicates an expected call of ChatJoinRequest.
+func (mr *MockTeleContextMockRecorder) ChatJoinRequest() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChatJoinRequest", reflect.TypeOf((*MockTeleContext)(nil).ChatJoinRequest))
+}
+
+// ChatMember mocks base method.
+func (m *MockTeleContext) ChatMember() *telebot.ChatMemberUpdate {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ChatMember")
+	ret0, _ := ret[0].(*telebot.ChatMemberUpdate)
+	return ret0
+}
+
+// ChatMember indicates an expected call of ChatMember.
+func (mr *MockTeleContextMockRecorder) ChatMember() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ChatMember", reflect.TypeOf((*MockTeleContext)(nil).ChatMember))
+}
+
+// Data mocks base method.
+func (m *MockTeleContext) Data() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Data")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Data indicates an expected call of Data.
+func (mr *MockTeleContextMockRecorder) Data() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Data", reflect.TypeOf((*MockTeleContext)(nil).Data))
+}
+
+// Delete mocks base method.
+func (m *MockTeleContext) Delete() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockTeleContextMockRecorder) Delete() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockTeleContext)(nil).Delete))
+}
+
+// DeleteAfter mocks base method.
+func (m *MockTeleContext) DeleteAfter(d time.Duration) *time.Timer {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteAfter", d)
+	ret0, _ := ret[0].(*time.Timer)
+	return ret0
+}
+
+// DeleteAfter indicates an expected call of DeleteAfter.
+func (mr *MockTeleContextMockRecorder) DeleteAfter(d any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAfter", reflect.TypeOf((*MockTeleContext)(nil).DeleteAfter), d)
+}
+
+// Edit mocks base method.
+func (m *MockTeleContext) Edit(what any, opts ...any) error {
+	m.ctrl.T.Helper()
+	varargs := []any{what}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Edit", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Edit indicates an expected call of Edit.
+func (mr *MockTeleContextMockRecorder) Edit(what any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{what}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Edit", reflect.TypeOf((*MockTeleContext)(nil).Edit), varargs...)
+}
+
+// EditCaption mocks base method.
+func (m *MockTeleContext) EditCaption(caption string, opts ...any) error {
+	m.ctrl.T.Helper()
+	varargs := []any{caption}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "EditCaption", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// EditCaption indicates an expected call of EditCaption.
+func (mr *MockTeleContextMockRecorder) EditCaption(caption any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{caption}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditCaption", reflect.TypeOf((*MockTeleContext)(nil).EditCaption), varargs...)
+}
+
+// EditOrReply mocks base method.
+func (m *MockTeleContext) EditOrReply(what any, opts ...any) error {
+	m.ctrl.T.Helper()
+	varargs := []any{what}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "EditOrReply", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// EditOrReply indicates an expected call of EditOrReply.
+func (mr *MockTeleContextMockRecorder) EditOrReply(what any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{what}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditOrReply", reflect.TypeOf((*MockTeleContext)(nil).EditOrReply), varargs...)
+}
+
+// EditOrSend mocks base method.
+func (m *MockTeleContext) EditOrSend(what any, opts ...any) error {
+	m.ctrl.T.Helper()
+	varargs := []any{what}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "EditOrSend", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// EditOrSend indicates an expected call of EditOrSend.
+func (mr *MockTeleContextMockRecorder) EditOrSend(what any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{what}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditOrSend", reflect.TypeOf((*MockTeleContext)(nil).EditOrSend), varargs...)
+}
+
+// Entities mocks base method.
+func (m *MockTeleContext) Entities() telebot.Entities {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Entities")
+	ret0, _ := ret[0].(telebot.Entities)
+	return ret0
+}
+
+// Entities indicates an expected call of Entities.
+func (mr *MockTeleContextMockRecorder) Entities() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Entities", reflect.TypeOf((*MockTeleContext)(nil).Entities))
+}
+
+// Forward mocks base method.
+func (m *MockTeleContext) Forward(msg telebot.Editable, opts ...any) error {
+	m.ctrl.T.Helper()
+	varargs := []any{msg}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Forward", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Forward indicates an expected call of Forward.
+func (mr *MockTeleContextMockRecorder) Forward(msg any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{msg}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Forward", reflect.TypeOf((*MockTeleContext)(nil).Forward), varargs...)
+}
+
+// ForwardTo mocks base method.
+func (m *MockTeleContext) ForwardTo(to telebot.Recipient, opts ...any) error {
+	m.ctrl.T.Helper()
+	varargs := []any{to}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "ForwardTo", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ForwardTo indicates an expected call of ForwardTo.
+func (mr *MockTeleContextMockRecorder) ForwardTo(to any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{to}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ForwardTo", reflect.TypeOf((*MockTeleContext)(nil).ForwardTo), varargs...)
+}
+
+// Get mocks base method.
+func (m *MockTeleContext) Get(key string) any {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get", key)
+	ret0, _ := ret[0].(any)
+	return ret0
+}
+
+// Get indicates an expected call of Get.
+func (mr *MockTeleContextMockRecorder) Get(key any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockTeleContext)(nil).Get), key)
+}
+
+// InlineResult mocks base method.
+func (m *MockTeleContext) InlineResult() *telebot.InlineResult {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "InlineResult")
+	ret0, _ := ret[0].(*telebot.InlineResult)
+	return ret0
+}
+
+// InlineResult indicates an expected call of InlineResult.
+func (mr *MockTeleContextMockRecorder) InlineResult() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InlineResult", reflect.TypeOf((*MockTeleContext)(nil).InlineResult))
+}
+
+// Message mocks base method.
+func (m *MockTeleContext) Message() *telebot.Message {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Message")
+	ret0, _ := ret[0].(*telebot.Message)
+	return ret0
+}
+
+// Message indicates an expected call of Message.
+func (mr *MockTeleContextMockRecorder) Message() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Message", reflect.TypeOf((*MockTeleContext)(nil).Message))
+}
+
+// Migration mocks base method.
+func (m *MockTeleContext) Migration() (int64, int64) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Migration")
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(int64)
+	return ret0, ret1
+}
+
+// Migration indicates an expected call of Migration.
+func (mr *MockTeleContextMockRecorder) Migration() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Migration", reflect.TypeOf((*MockTeleContext)(nil).Migration))
+}
+
+// Notify mocks base method.
+func (m *MockTeleContext) Notify(action telebot.ChatAction) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Notify", action)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Notify indicates an expected call of Notify.
+func (mr *MockTeleContextMockRecorder) Notify(action any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Notify", reflect.TypeOf((*MockTeleContext)(nil).Notify), action)
+}
+
+// Poll mocks base method.
+func (m *MockTeleContext) Poll() *telebot.Poll {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Poll")
+	ret0, _ := ret[0].(*telebot.Poll)
+	return ret0
+}
+
+// Poll indicates an expected call of Poll.
+func (mr *MockTeleContextMockRecorder) Poll() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Poll", reflect.TypeOf((*MockTeleContext)(nil).Poll))
+}
+
+// PollAnswer mocks base method.
+func (m *MockTeleContext) PollAnswer() *telebot.PollAnswer {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PollAnswer")
+	ret0, _ := ret[0].(*telebot.PollAnswer)
+	return ret0
+}
+
+// PollAnswer indicates an expected call of PollAnswer.
+func (mr *MockTeleContextMockRecorder) PollAnswer() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PollAnswer", reflect.TypeOf((*MockTeleContext)(nil).PollAnswer))
+}
+
+// PreCheckoutQuery mocks base method.
+func (m *MockTeleContext) PreCheckoutQuery() *telebot.PreCheckoutQuery {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PreCheckoutQuery")
+	ret0, _ := ret[0].(*telebot.PreCheckoutQuery)
+	return ret0
+}
+
+// PreCheckoutQuery indicates an expected call of PreCheckoutQuery.
+func (mr *MockTeleContextMockRecorder) PreCheckoutQuery() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PreCheckoutQuery", reflect.TypeOf((*MockTeleContext)(nil).PreCheckoutQuery))
+}
+
+// Query mocks base method.
+func (m *MockTeleContext) Query() *telebot.Query {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Query")
+	ret0, _ := ret[0].(*telebot.Query)
+	return ret0
+}
+
+// Query indicates an expected call of Query.
+func (mr *MockTeleContextMockRecorder) Query() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Query", reflect.TypeOf((*MockTeleContext)(nil).Query))
+}
+
+// Recipient mocks base method.
+func (m *MockTeleContext) Recipient() telebot.Recipient {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Recipient")
+	ret0, _ := ret[0].(telebot.Recipient)
+	return ret0
+}
+
+// Recipient indicates an expected call of Recipient.
+func (mr *MockTeleContextMockRecorder) Recipient() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Recipient", reflect.TypeOf((*MockTeleContext)(nil).Recipient))
+}
+
+// Reply mocks base method.
+func (m *MockTeleContext) Reply(what any, opts ...any) error {
+	m.ctrl.T.Helper()
+	varargs := []any{what}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Reply", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Reply indicates an expected call of Reply.
+func (mr *MockTeleContextMockRecorder) Reply(what any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{what}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Reply", reflect.TypeOf((*MockTeleContext)(nil).Reply), varargs...)
+}
+
+// Respond mocks base method.
+func (m *MockTeleContext) Respond(resp ...*telebot.CallbackResponse) error {
+	m.ctrl.T.Helper()
+	varargs := []any{}
+	for _, a := range resp {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Respond", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Respond indicates an expected call of Respond.
+func (mr *MockTeleContextMockRecorder) Respond(resp ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Respond", reflect.TypeOf((*MockTeleContext)(nil).Respond), resp...)
+}
+
+// Send mocks base method.
+func (m *MockTeleContext) Send(what any, opts ...any) error {
+	m.ctrl.T.Helper()
+	varargs := []any{what}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Send", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Send indicates an expected call of Send.
+func (mr *MockTeleContextMockRecorder) Send(what any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{what}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Send", reflect.TypeOf((*MockTeleContext)(nil).Send), varargs...)
+}
+
+// SendAlbum mocks base method.
+func (m *MockTeleContext) SendAlbum(a telebot.Album, opts ...any) error {
+	m.ctrl.T.Helper()
+	varargs := []any{a}
+	for _, a_2 := range opts {
+		varargs = append(varargs, a_2)
+	}
+	ret := m.ctrl.Call(m, "SendAlbum", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SendAlbum indicates an expected call of SendAlbum.
+func (mr *MockTeleContextMockRecorder) SendAlbum(a any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{a}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendAlbum", reflect.TypeOf((*MockTeleContext)(nil).SendAlbum), varargs...)
+}
+
+// Sender mocks base method.
+func (m *MockTeleContext) Sender() *telebot.User {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Sender")
+	ret0, _ := ret[0].(*telebot.User)
+	return ret0
+}
+
+// Sender indicates an expected call of Sender.
+func (mr *MockTeleContextMockRecorder) Sender() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Sender", reflect.TypeOf((*MockTeleContext)(nil).Sender))
+}
+
+// Set mocks base method.
+func (m *MockTeleContext) Set(key string, val any) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "Set", key, val)
+}
+
+// Set indicates an expected call of Set.
+func (mr *MockTeleContextMockRecorder) Set(key, val any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockTeleContext)(nil).Set), key, val)
+}
+
+// Ship mocks base method.
+func (m *MockTeleContext) Ship(what ...any) error {
+	m.ctrl.T.Helper()
+	varargs := []any{}
+	for _, a := range what {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Ship", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Ship indicates an expected call of Ship.
+func (mr *MockTeleContextMockRecorder) Ship(what ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ship", reflect.TypeOf((*MockTeleContext)(nil).Ship), what...)
+}
+
+// ShippingQuery mocks base method.
+func (m *MockTeleContext) ShippingQuery() *telebot.ShippingQuery {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ShippingQuery")
+	ret0, _ := ret[0].(*telebot.ShippingQuery)
+	return ret0
+}
+
+// ShippingQuery indicates an expected call of ShippingQuery.
+func (mr *MockTeleContextMockRecorder) ShippingQuery() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShippingQuery", reflect.TypeOf((*MockTeleContext)(nil).ShippingQuery))
+}
+
+// Text mocks base method.
+func (m *MockTeleContext) Text() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Text")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Text indicates an expected call of Text.
+func (mr *MockTeleContextMockRecorder) Text() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Text", reflect.TypeOf((*MockTeleContext)(nil).Text))
+}
+
+// Topic mocks base method.
+func (m *MockTeleContext) Topic() *telebot.Topic {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Topic")
+	ret0, _ := ret[0].(*telebot.Topic)
+	return ret0
+}
+
+// Topic indicates an expected call of Topic.
+func (mr *MockTeleContextMockRecorder) Topic() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Topic", reflect.TypeOf((*MockTeleContext)(nil).Topic))
+}
+
+// Update mocks base method.
+func (m *MockTeleContext) Update() telebot.Update {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update")
+	ret0, _ := ret[0].(telebot.Update)
+	return ret0
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockTeleContextMockRecorder) Update() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockTeleContext)(nil).Update))
 }

@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/TropicalDog17/tele-bot/internal"
 	"github.com/TropicalDog17/tele-bot/internal/handler"
 	"github.com/TropicalDog17/tele-bot/internal/types"
 	mock_internal "github.com/TropicalDog17/tele-bot/tests/mocks"
@@ -18,6 +19,8 @@ func TestHandleLimitOrder_BtnLimitOrder(t *testing.T) {
 	// Create mock instances
 	mockBot := mock_internal.NewMockBot(ctrl)
 	mockBotClient := mock_internal.NewMockBotClient(ctrl)
+	mockClients := make(map[string]internal.BotClient)
+	mockClients["sender"] = mockBotClient
 
 	mockStoredMessages := GetStoredMessagesForTest(10)
 	mockLimitOrderInfo := GetMockLimitOrderInfo()
@@ -25,8 +28,7 @@ func TestHandleLimitOrder_BtnLimitOrder(t *testing.T) {
 
 	// Create the handler instance
 	mockBot.EXPECT().Handle(gomock.Any(), gomock.Any()).Times(10)
-	mockBotClient.EXPECT().GetRedisInstance().Return(nil).MinTimes(1)
-	handler.HandleLimitOrder(mockBot, mockBotClient, &mockStoredMessages[0], &mockStoredMessages[1], &mockLimitOrderInfo, &mockCurrentStep, GetMockReplyMarkup(), GetMockReplyMarkup(), GetMockReplyMarkup(), GetMockReplyMarkup())
+	handler.HandleLimitOrder(mockBot, mockClients, &mockStoredMessages[0], &mockStoredMessages[1], &mockLimitOrderInfo, &mockCurrentStep, GetMockReplyMarkup(), GetMockReplyMarkup(), GetMockReplyMarkup(), GetMockReplyMarkup())
 
 	// Call the function
 
