@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strings"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	configtypes "github.com/TropicalDog17/orderbook-go-sdk/config"
@@ -13,7 +12,7 @@ import (
 )
 
 func main() {
-	exchangeClient := exchange.NewMbClient("local", strings.ToUpper("f7356863262652e2e9640f9641dba58fb741998e5b8d838f14612473cc1defcc"), configtypes.DefaultConfig())
+	exchangeClient := exchange.NewMbClient("local", "F7356863262652E2E9640F9641DBA58FB741998E5B8D838F14612473CC1DEFCC", configtypes.DefaultConfig())
 	err := godotenv.Load()
 	if err != nil {
 		panic(err)
@@ -35,7 +34,7 @@ func main() {
 	spotOrder := types.SpotOrder{
 		OrderType: exchangetypes.OrderType_BUY,
 		MarketId:  "0xfbd55f13641acbb6e69d7b59eb335dabe2ecbfea136082ce2eedaba8a0c917a3",
-		Price:     decimal.NewFromFloat(0.48),
+		Price:     decimal.NewFromFloat(0.70),
 		Quantity:  decimal.NewFromFloat(0.01),
 	}
 	tx, err := exchangeClient.PlaceSpotOrder(spotOrder)

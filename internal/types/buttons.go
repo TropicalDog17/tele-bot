@@ -50,3 +50,11 @@ var (
 	BtnFiveHundredDollar = MenuSendToken.Data("💶 $500", "btnFiveHundredDollar", "500")
 	BtnCustomAmount      = MenuSendToken.Data("🎛️ Custom Amount", "btnCustomAmount", "")
 )
+
+// View market button
+
+var (
+	BtnBiggestVolume24h = MenuViewMarket.Data("📊 Biggest Volume 24h", "biggestVolume24h", "biggestVolume24h")
+	BtnBiggestGainer24h = MenuViewMarket.Data("🚀 Biggest Gainer 24h", "biggestGainer24h", "biggestGainer24h")
+	BtnBiggestLoser24h  = MenuViewMarket.Data("📉 Biggest Loser 24h", "biggestLoser24h", "biggestLoser24h")
+)

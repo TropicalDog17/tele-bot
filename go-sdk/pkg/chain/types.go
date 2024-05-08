@@ -14,7 +14,7 @@ import (
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 )
 
-const DefaultLocalGasPrice = "100000000000000inj"
+const DefaultLocalGasPrice = "500000000inj"
 
 type ChainClient interface {
 	GetInjectiveChainClient() chainclient.ChainClient
@@ -47,6 +47,7 @@ func NewChainClient(keyName string) ChainClient {
 	if err != nil {
 		panic(err)
 	}
+
 	clientCtx, err := chainclient.NewClientContext(
 		"injective-1", // TODO: refactor hard code
 		senderAddress.String(),
@@ -101,6 +102,7 @@ func NewChainClientFromPrivateKey(privateKey string) ChainClient {
 		senderAddress.String(),
 		cosmosKeyring,
 	)
+	fmt.Println("senderAddress: ", senderAddress.String())
 	if err != nil {
 		panic(err)
 	}

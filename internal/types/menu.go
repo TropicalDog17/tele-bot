@@ -10,6 +10,7 @@ var (
 	MenuCreateLimitOrder = &tele.ReplyMarkup{ResizeKeyboard: true}
 	MenuConfirmOrder     = &tele.ReplyMarkup{ResizeKeyboard: true}
 	MenuActiveOrders     = &tele.ReplyMarkup{ResizeKeyboard: true}
+	MenuViewMarket       = &tele.ReplyMarkup{ResizeKeyboard: true}
 	Selector             = &tele.ReplyMarkup{}
 )
 
@@ -47,6 +48,11 @@ func InitializeUI() []*tele.ReplyMarkup {
 	)
 	MenuConfirmOrder.Inline(
 		MenuConfirmOrder.Row(BtnConfirmLimitOrder, BtnClose),
+	)
+	MenuViewMarket.Inline(
+		MenuViewMarket.Row(BtnBiggestGainer24h),
+		MenuViewMarket.Row(BtnBiggestLoser24h),
+		MenuViewMarket.Row(BtnBiggestVolume24h),
 	)
 
 	return []*tele.ReplyMarkup{Menu, MenuSendToken, MenuLimitOrder, MenuCreateLimitOrder, MenuConfirmOrder, MenuActiveOrders}

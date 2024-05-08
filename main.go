@@ -65,9 +65,9 @@ func main() {
 
 	// Handle the transfer token flow
 	handler.HandlerTransferToken(b, clients, menuSendToken, &types.BtnInlineAtom, &types.BtnInlineInj, &types.BtnTenDollar, &types.BtnFiftyDollar, &types.BtnHundredDollar, &types.BtnTwoHundredDollar, &types.BtnFiveHundredDollar, &types.BtnCustomAmount, &types.BtnRecipientSection, &types.BtnCustomToken, &selectedToken, &selectedAmount, &currentStep, &recipientAddress, &globalMenu)
+	handler.HandleViewMarket(b)
 
 	handler.HandleStep(b, clients, utils.Utils{}, &currentStep, menuSendToken, menuLimitOrder, menuCreateLimitOrder, globalLimitOrder, &selectedAmount, &selectedToken, &recipientAddress, &globalMenu, &createOrderMenu)
-
 	b.Start()
 }
 
@@ -90,7 +90,8 @@ func clientMiddleware(next tele.HandlerFunc) tele.HandlerFunc {
 				client, err := clienttypes.NewClient(c.Bot(), username, pwdBuffer, &currentStep)
 				if err != nil {
 					// Password is invalid
-					_, _ = c.Bot().Send(c.Recipient(), "Invalid password")
+					_, _ = c.Bot().Send(c.Recipient(), "Invalid password. Please re-enter your password")
+					return nil
 				}
 				clients[username] = client
 
@@ -99,7 +100,7 @@ func clientMiddleware(next tele.HandlerFunc) tele.HandlerFunc {
 
 				// Clean up the password buffer
 				pwdBuffer.Destroy()
-
+				_ = c.Delete()
 				// Proceed with the next handler
 				return c.Send("Password accepted. You can perform your action again", types.Menu)
 			} else {
