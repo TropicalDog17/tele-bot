@@ -25,7 +25,6 @@ type Bot interface {
 	Send(to telebot.Recipient, what interface{}, opts ...interface{}) (*telebot.Message, error)
 	Handle(endpoint interface{}, h telebot.HandlerFunc, m ...telebot.MiddlewareFunc)
 	ProcessUpdate(u telebot.Update)
-	
 }
 
 type BotClient interface {
@@ -55,6 +54,7 @@ type RedisClient interface {
 	SRem(ctx context.Context, key string, members ...interface{}) *redis.IntCmd
 	HKeys(ctx context.Context, key string) *redis.StringSliceCmd
 	HDel(ctx context.Context, key string, fields ...string) *redis.IntCmd
+	HExists(ctx context.Context, key, field string) *redis.BoolCmd
 }
 
 type ExchangeClient interface {

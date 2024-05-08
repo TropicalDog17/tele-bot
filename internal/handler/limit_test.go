@@ -28,7 +28,7 @@ func TestHandleLimitOrder_BtnLimitOrder(t *testing.T) {
 
 	// Create the handler instance
 	mockBot.EXPECT().Handle(gomock.Any(), gomock.Any()).Times(10)
-	handler.HandleLimitOrder(mockBot, mockClients, &mockStoredMessages[0], &mockStoredMessages[1], &mockLimitOrderInfo, &mockCurrentStep, GetMockReplyMarkup(), GetMockReplyMarkup(), GetMockReplyMarkup(), GetMockReplyMarkup())
+	handler.HandleLimitOrder(mockBot, &tele.Group{}, mockClients, &mockStoredMessages[0], &mockStoredMessages[1], &mockLimitOrderInfo, &mockCurrentStep, GetMockReplyMarkup(), GetMockReplyMarkup(), GetMockReplyMarkup(), GetMockReplyMarkup())
 
 	// Call the function
 

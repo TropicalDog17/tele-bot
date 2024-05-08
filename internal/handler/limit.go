@@ -12,8 +12,8 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-func HandleLimitOrder(b internal.Bot, clients map[string]internal.BotClient, limitOrderMenu, createOrderMenu *tele.StoredMessage, globalLimitOrder *types.LimitOrderInfo, currentStep *string, menu, menuCreateLimitOrder, menuConfirmOrder, menuActiveOrders *tele.ReplyMarkup) {
-	b.Handle(&types.BtnLimitOrder, func(c tele.Context) error {
+func HandleLimitOrder(b internal.Bot, authRoute *tele.Group, clients map[string]internal.BotClient, limitOrderMenu, createOrderMenu *tele.StoredMessage, globalLimitOrder *types.LimitOrderInfo, currentStep *string, menu, menuCreateLimitOrder, menuConfirmOrder, menuActiveOrders *tele.ReplyMarkup) {
+	authRoute.Handle(&types.BtnLimitOrder, func(c tele.Context) error {
 		client, ok := clients[c.Message().Sender.Username]
 		if !ok {
 			return c.Send("Client not found", types.Menu)
@@ -42,7 +42,7 @@ func HandleLimitOrder(b internal.Bot, clients map[string]internal.BotClient, lim
 
 		return nil
 	})
-	b.Handle(&types.BtnBuyLimitOrder, func(ctx tele.Context) error {
+	authRoute.Handle(&types.BtnBuyLimitOrder, func(ctx tele.Context) error {
 		text := "Place a buy limit order"
 		client := clients[ctx.Callback().Sender.Username]
 		rdb := client.GetRedisInstance()
@@ -73,7 +73,7 @@ func HandleLimitOrder(b internal.Bot, clients map[string]internal.BotClient, lim
 
 		return nil
 	})
-	b.Handle(&types.BtnSellLimitOrder, func(ctx tele.Context) error {
+	authRoute.Handle(&types.BtnSellLimitOrder, func(ctx tele.Context) error {
 		text := "Place a buy limit order"
 		client := clients[ctx.Callback().Sender.Username]
 		rdb := client.GetRedisInstance()
@@ -103,26 +103,26 @@ func HandleLimitOrder(b internal.Bot, clients map[string]internal.BotClient, lim
 
 		return nil
 	})
-	b.Handle(&types.BtnAmount, func(c tele.Context) error {
+	authRoute.Handle(&types.BtnAmount, func(c tele.Context) error {
 		*currentStep = "limitAmount"
 		return c.Send("Enter the amount to buy", tele.ForceReply)
 	})
-	b.Handle(&types.BtnPrice, func(c tele.Context) error {
+	authRoute.Handle(&types.BtnPrice, func(c tele.Context) error {
 		*currentStep = "limitPrice"
 		return c.Send("Enter the price to buy", tele.ForceReply)
 	})
-	b.Handle(&types.BtnToken, func(c tele.Context) error {
+	authRoute.Handle(&types.BtnToken, func(c tele.Context) error {
 		*currentStep = "limitToken"
 		return c.Send("Enter the token to buy", tele.ForceReply)
 	})
-	b.Handle(&types.BtnConfirmOrder, func(c tele.Context) error {
+	authRoute.Handle(&types.BtnConfirmOrder, func(c tele.Context) error {
 		*currentStep = "confirmOrder"
 		client := clients[c.Callback().Sender.Username]
 
 		orderOverview := client.ToMessage(*globalLimitOrder, true)
 		return c.Send(orderOverview, menuConfirmOrder)
 	})
-	b.Handle(&types.BtnConfirmLimitOrder, func(c tele.Context) error {
+	authRoute.Handle(&types.BtnConfirmLimitOrder, func(c tele.Context) error {
 		client := clients[c.Callback().Sender.Username]
 		rdb := client.GetRedisInstance()
 		txHash, err := client.PlaceSpotOrder(globalLimitOrder.DenomIn, globalLimitOrder.DenomOut, globalLimitOrder.Amount, globalLimitOrder.Price)
@@ -142,7 +142,7 @@ func HandleLimitOrder(b internal.Bot, clients map[string]internal.BotClient, lim
 		return c.Send("Successfully send order, check txhash here: "+txHash, menu)
 	})
 	// Handle active orders
-	b.Handle(&types.BtnActiveOrders, func(c tele.Context) error {
+	authRoute.Handle(&types.BtnActiveOrders, func(c tele.Context) error {
 		client, ok := clients[c.Callback().Sender.Username]
 		if !ok {
 			return c.Send("Client not found", types.Menu)

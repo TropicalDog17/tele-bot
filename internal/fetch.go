@@ -9,11 +9,10 @@ import (
 	"time"
 
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
-	"github.com/redis/go-redis/v9"
 )
 
 // Fetch market data, market id, and market summary from the exchange client
-func FetchDataWithTimeout(redisClient *redis.Client, coinGeckoClient CoinGecko, exchangeClient ExchangeClient) {
+func FetchDataWithTimeout(redisClient RedisClient, coinGeckoClient CoinGecko, exchangeClient ExchangeClient) {
 	// Create a ticker that ticks every 30 minutes
 	ticker := time.NewTicker(30 * time.Minute)
 	defer ticker.Stop()

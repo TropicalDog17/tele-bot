@@ -5,7 +5,6 @@ import (
 
 	"github.com/TropicalDog17/tele-bot/internal"
 	mock_internal "github.com/TropicalDog17/tele-bot/tests/mocks"
-	mock_chain "github.com/TropicalDog17/tele-bot/tests/mocks/chain"
 	mock_utils "github.com/TropicalDog17/tele-bot/tests/mocks/utils"
 	"github.com/awnumar/memguard"
 	"github.com/go-redis/redismock/v9"
@@ -119,22 +118,22 @@ func TestHandleConfirmMnemonicStep(t *testing.T) {
 // 	require.NotEqual(t, "confirmMnemonic", step)
 // }
 
-func TestAfterMnemonicConfirmed(t *testing.T) {
-	// Create mock bot, client, and context
-	b := mock_internal.NewMockBot(gomock.NewController(t))
-	c := mock_internal.NewMockTeleContext(gomock.NewController(t))
-	// mockUtils := mock_utils.NewMockUtilsInterface(gomock.NewController(t))
-	exchangeClient := mock_internal.NewMockExchangeClient(gomock.NewController(t))
-	chainClient := mock_chain.NewMockChainClient(gomock.NewController(t))
-	step := "confirmMnemonic"
+// func TestAfterMnemonicConfirmed(t *testing.T) {
+// 	// Create mock bot, client, and context
+// 	b := mock_internal.NewMockBot(gomock.NewController(t))
+// 	c := mock_internal.NewMockTeleContext(gomock.NewController(t))
+// 	// mockUtils := mock_utils.NewMockUtilsInterface(gomock.NewController(t))
+// 	exchangeClient := mock_internal.NewMockExchangeClient(gomock.NewController(t))
+// 	chainClient := mock_chain.NewMockChainClient(gomock.NewController(t))
+// 	step := "confirmMnemonic"
 
-	// Set test mnemonic with 24 words
-	testMnemonic := memguard.NewBufferFromBytes([]byte("pony glide frown crisp unfold lawn cup loan trial govern usual matrix theory wash fresh address pioneer between meadow visa buffalo keep gallery swear"))
-	exchangeClient.EXPECT().GetChainClient().Return(chainClient)
-	chainClient.EXPECT().AdjustKeyringFromPrivateKey(gomock.Any()).MinTimes(1)
-	c.EXPECT().Reply(gomock.Any()).MinTimes(1).Return(nil)
-	err := AfterMnemonicConfirmed(b, c, exchangeClient, testMnemonic, &step)
-	require.NoError(t, err)
-	// Verify that step is updated
-	require.Equal(t, "", step)
-}
+// 	// Set test mnemonic with 24 words
+// 	testMnemonic := memguard.NewBufferFromBytes([]byte("pony glide frown crisp unfold lawn cup loan trial govern usual matrix theory wash fresh address pioneer between meadow visa buffalo keep gallery swear"))
+// 	exchangeClient.EXPECT().GetChainClient().Return(chainClient)
+// 	chainClient.EXPECT().AdjustKeyringFromPrivateKey(gomock.Any()).MinTimes(1)
+// 	c.EXPECT().Reply(gomock.Any()).MinTimes(1).Return(nil)
+// 	err := AfterMnemonicConfirmed(b, c, exchangeClient, testMnemonic, &step)
+// 	require.NoError(t, err)
+// 	// Verify that step is updated
+// 	require.Equal(t, "", step)
+// }

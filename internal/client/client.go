@@ -47,8 +47,7 @@ func (r *RecipentWrapper) Recipient() string {
 	return r.Username
 }
 
-func NewClient(b internal.Bot, username string, pwdBuffer *memguard.LockedBuffer, currentStep *string) (*Client, error) {
-	redisClient := database.NewRedisInstance()
+func NewClient(b internal.Bot, username string, pwdBuffer *memguard.LockedBuffer, redisClient internal.RedisClient, currentStep *string) (*Client, error) {
 	pkBuffer, err := internal.RetrievePrivateKeyFromRedis(redisClient, username, pwdBuffer)
 	if err != nil {
 		return nil, err
@@ -77,6 +76,26 @@ func NewClient(b internal.Bot, username string, pwdBuffer *memguard.LockedBuffer
 	}()
 
 	return c, nil
+}
+
+func NewClientFromPrivateKey(b internal.Bot, username string, pkBuffer *memguard.LockedBuffer, redisClient internal.RedisClient, currentStep *string) (*Client, error) {
+	client := exchange.NewMbClient("local", pkBuffer.String(), configtypes.DefaultConfig())
+	cgClient := NewCoinGeckoClient()
+	return &Client{
+		client:          client,
+		coinGeckoClient: cgClient,
+		redisClient:     redisClient,
+	}, nil
+}
+func NewTempClient() *Client {
+	exchangeClient := exchange.NewMbClient("local", "", configtypes.DefaultConfig())
+	cgClient := NewCoinGeckoClient()
+	return &Client{
+		client:          exchangeClient,
+		coinGeckoClient: cgClient,
+		redisClient:     database.NewRedisInstance(),
+	}
+
 }
 
 func (c *Client) GetPrice(ticker string) (float64, bool) {
