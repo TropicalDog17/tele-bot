@@ -73,7 +73,7 @@ func HandleLimitOrder(b internal.Bot, clients map[string]internal.BotClient, lim
 
 		return nil
 	})
-	b.Handle(&types.BtnBuyLimitOrder, func(ctx tele.Context) error {
+	b.Handle(&types.BtnSellLimitOrder, func(ctx tele.Context) error {
 		text := "Place a buy limit order"
 		client := clients[ctx.Callback().Sender.Username]
 		rdb := client.GetRedisInstance()
@@ -143,7 +143,7 @@ func HandleLimitOrder(b internal.Bot, clients map[string]internal.BotClient, lim
 	})
 	// Handle active orders
 	b.Handle(&types.BtnActiveOrders, func(c tele.Context) error {
-		client, ok := clients[c.Message().Sender.Username]
+		client, ok := clients[c.Callback().Sender.Username]
 		if !ok {
 			return c.Send("Client not found", types.Menu)
 		}
