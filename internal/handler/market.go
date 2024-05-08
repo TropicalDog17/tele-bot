@@ -200,7 +200,7 @@ func DisplayDataToString(data []MarketData) string {
 }
 func MockFetchData24h() ([]MarketData, error) {
 	// read from tests/markets.json
-	buffer, err := os.Open("/Users/tuan/personal/tele-bot/internal/handler/tests/markets.json")
+	buffer, err := os.Open("./tests/markets.json")
 	if err != nil {
 		return nil, err
 	}
