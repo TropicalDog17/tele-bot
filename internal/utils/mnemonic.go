@@ -33,13 +33,21 @@ func GetDecryptedMnemonic(key []byte, encryptedMnemonic string) (decryptedMnemon
 	return decryptedMnemonic, nil
 }
 
-// get 3 random indexes for challenge, ascending order
+// get 3 random indexes for challenge, ascending order, unique
 func GetRandomIndexesForTesting(mnemonicLen int) (indexes [3]int) {
-	// Generate 3 random indexes
-	for i := 0; i < 3; i++ {
-		indexes[i] = rand.Intn(mnemonicLen)
-	}
+	// Get 3 random indexes
+	indexes[0] = rand.Intn(mnemonicLen)
+	indexes[1] = rand.Intn(mnemonicLen)
+	indexes[2] = rand.Intn(mnemonicLen)
+	// Sort indexes
 	slices.Sort(indexes[:])
+	// Check if indexes are unique
+	for i := 0; i < 2; i++ {
+		if indexes[i] == indexes[i+1] {
+			// If not unique, get new indexes
+			return GetRandomIndexesForTesting(mnemonicLen)
+		}
+	}
 	return indexes
 }
 

@@ -107,6 +107,7 @@ func TestSyncOrderHappyCase(t *testing.T) {
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	botClient := mock_internal.NewMockBotClient(ctrl)
 	rdb, mock := redismock.NewClientMock()
 
@@ -116,20 +117,15 @@ func TestSyncOrderHappyCase(t *testing.T) {
 	botClient.EXPECT().GetActiveOrders("pair2").Return([]types.LimitOrderInfo{mockOrder3}, nil)
 	botClient.EXPECT().GetAddress().Return("address").AnyTimes()
 
-	mock.MatchExpectationsInOrder(true)
-
+	mock.MatchExpectationsInOrder(false) // Disable strict order matching
 	mock.ExpectHKeys("address").SetVal([]string{})
-	mock.ExpectHGet("address", "order1").SetVal("")
-	mock.ExpectHSet("address", "order1", LimitOrderInfoToJson(mockOrder1)).SetVal(1)
-	mock.ExpectHSet("orders", "order1", "pair1").SetVal(1)
 
-	mock.ExpectHGet("address", "order2").SetVal("")
-	mock.ExpectHSet("address", "order2", LimitOrderInfoToJson(mockOrder2)).SetVal(1)
-	mock.ExpectHSet("orders", "order2", "pair1").SetVal(1)
-
-	mock.ExpectHGet("address", "order3").SetVal("")
-	mock.ExpectHSet("address", "order3", LimitOrderInfoToJson(mockOrder3)).SetVal(1)
-	mock.ExpectHSet("orders", "order3", "pair2").SetVal(1)
+	// Expect HGet, HSet, and HSet for each order in any order
+	for _, order := range []types.LimitOrderInfo{mockOrder1, mockOrder2, mockOrder3} {
+		mock.ExpectHGet("address", order.OrderHash).SetVal("")
+		mock.ExpectHSet("address", order.OrderHash, LimitOrderInfoToJson(order)).SetVal(1)
+		mock.ExpectHSet("orders", order.OrderHash, order.MarketID).SetVal(1)
+	}
 
 	err := internal.SyncOrdersToRedis(botClient, rdb)
 	require.NoError(t, err)

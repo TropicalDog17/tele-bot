@@ -6,8 +6,8 @@ import (
 )
 
 // Handler for utility buttons like menu, back, close, etc.
-func UtilityHandler(b *tele.Bot, currentStep *string) {
-	b.Handle(&types.BtnBack, func(c tele.Context) error {
+func UtilityHandler(b *tele.Bot, authRoute *tele.Group, currentStep *string) {
+	authRoute.Handle(&types.BtnBack, func(c tele.Context) error {
 		if *currentStep == "confirmOrder" {
 			*currentStep = ""
 		}

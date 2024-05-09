@@ -14,7 +14,7 @@ import (
 	rpchttp "github.com/cometbft/cometbft/rpc/client/http"
 )
 
-const DefaultLocalGasPrice = "100000000000000inj"
+const DefaultLocalGasPrice = "500000000inj"
 
 type ChainClient interface {
 	GetInjectiveChainClient() chainclient.ChainClient
@@ -47,6 +47,7 @@ func NewChainClient(keyName string) ChainClient {
 	if err != nil {
 		panic(err)
 	}
+
 	clientCtx, err := chainclient.NewClientContext(
 		"injective-1", // TODO: refactor hard code
 		senderAddress.String(),
@@ -82,7 +83,7 @@ func (c *ChainClientStruct) GetInjectiveChainClient() chainclient.ChainClient {
 	return c.chainClient
 }
 
-func NewChainClientFromPrivateKey(privateKey string) ChainClient {
+func NewChainClientFromPrivateKey(c ChainClient, privateKey string) ChainClient {
 	network := config.DefaultNetwork()
 	senderAddress, cosmosKeyring, err := chainclient.InitCosmosKeyring(
 		"",
@@ -96,11 +97,19 @@ func NewChainClientFromPrivateKey(privateKey string) ChainClient {
 	if err != nil {
 		panic(err)
 	}
+
+	// fund the account with some dust tokens
+	_, err = c.TransferToken(senderAddress.String(), 0.00001, "inj")
+	if err != nil {
+		panic(err)
+	}
+
 	clientCtx, err := chainclient.NewClientContext(
 		"injective-1", // TODO: refactor hard code
 		senderAddress.String(),
 		cosmosKeyring,
 	)
+	fmt.Println("senderAddress: ", senderAddress.String())
 	if err != nil {
 		panic(err)
 	}
@@ -140,6 +149,12 @@ func (c *ChainClientStruct) AdjustKeyring(keyName string) {
 	if err != nil {
 		panic(err)
 	}
+	// fund the account with some dust tokens
+	_, err = c.TransferToken(senderAddress.String(), 0.00001, "inj")
+	if err != nil {
+		panic(err)
+	}
+
 	c.SenderAddress = senderAddress
 	c.CosmosKeyring = cosmosKeyring
 	clientCtx, err := chainclient.NewClientContext(

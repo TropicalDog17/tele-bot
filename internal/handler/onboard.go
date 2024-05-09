@@ -5,6 +5,8 @@ import (
 	"fmt"
 
 	"github.com/TropicalDog17/tele-bot/internal"
+	"github.com/TropicalDog17/tele-bot/internal/client"
+	"github.com/TropicalDog17/tele-bot/internal/database"
 	"github.com/TropicalDog17/tele-bot/internal/utils"
 	"github.com/awnumar/memguard"
 	tele "gopkg.in/telebot.v3"
@@ -32,11 +34,12 @@ func HandleOnboard(b internal.Bot, clients map[string]internal.BotClient, curren
 func HandleStart(c tele.Context, botClient internal.BotClient, step *string) error {
 	*step = "addPassword"
 	text := "Welcome to the TropicalDog17 bot! 🐶\n\nI am a bot that can help you with your trading needs. I can provide you with the latest cryptocurrency prices, help you place limit orders, and more.\n\nTo get started, type /help to see a list of available commands.\n To start, please provide a password"
+	fmt.Println("step: ", *step)
 	return c.Reply(text)
 
 }
 
-func HandleOnboardStep(b *tele.Bot, c tele.Context, botClient internal.BotClient, utils utils.UtilsInterface, step *string) error {
+func HandleOnboardStep(b *tele.Bot, c tele.Context, botClient internal.BotClient, clients map[string]internal.BotClient, utils utils.UtilsInterface, step *string) error {
 	switch *step {
 	case "addPassword":
 		HandleStorePassword(b, c, botClient, utils, step)
@@ -45,7 +48,7 @@ func HandleOnboardStep(b *tele.Bot, c tele.Context, botClient internal.BotClient
 	case "confirmMnemonic":
 		return HandleConfirmMnemonicStep(b, c, botClient, mnemonic, step)
 	case "receiveMnemonicWords":
-		HandleReceiveMnemonicWords(b, c, botClient, utils, mnemonic, randomIndexes, step)
+		HandleReceiveMnemonicWords(b, c, clients, utils, mnemonic, randomIndexes, step)
 	}
 	return nil
 }
@@ -116,7 +119,7 @@ func HandleConfirmMnemonicStep(b internal.Bot, c tele.Context, botClient interna
 	return c.Reply(text)
 }
 
-func HandleReceiveMnemonicWords(b internal.Bot, c tele.Context, botClient internal.BotClient, utils utils.UtilsInterface, mnemonic *memguard.LockedBuffer, randomIndexes [3]int, step *string) {
+func HandleReceiveMnemonicWords(b internal.Bot, c tele.Context, clients map[string]internal.BotClient, utils utils.UtilsInterface, mnemonic *memguard.LockedBuffer, randomIndexes [3]int, step *string) {
 	providedWords := utils.SplitMnemonic(c.Text())
 	if len(providedWords) != 3 {
 		_, _ = b.Send(c.Chat(), "Please provide 3 words")
@@ -128,7 +131,7 @@ func HandleReceiveMnemonicWords(b internal.Bot, c tele.Context, botClient intern
 	if result {
 		_ = c.Reply("Mnemonic confirmed!")
 		// hooks
-		_ = AfterMnemonicConfirmed(b, c, botClient.GetExchangeClient(), mnemonic, step)
+		_ = AfterMnemonicConfirmed(b, c, clients, mnemonic, step)
 	} else {
 		_ = c.Reply("Mnemonic not confirmed, please try again")
 		*step = "confirmMnemonic"
@@ -136,15 +139,24 @@ func HandleReceiveMnemonicWords(b internal.Bot, c tele.Context, botClient intern
 }
 
 // delete mnemonic from memory
-func AfterMnemonicConfirmed(b internal.Bot, c tele.Context, exchangeClient internal.ExchangeClient, mnemonic *memguard.LockedBuffer, step *string) error {
+func AfterMnemonicConfirmed(b internal.Bot, c tele.Context, clients map[string]internal.BotClient, mnemonic *memguard.LockedBuffer, step *string) error {
 	privateKey, err := utils.DerivePrivateKeyFromMnemonic(mnemonic.String())
+	privateKeyBuffer := memguard.NewBufferFromBytes([]byte(utils.ECDSAToString(privateKey)))
 	if err != nil {
 		_ = c.Reply("Error deriving private key from mnemonic")
 		return err
 	}
 	*step = ""
-	exchangeClient.GetChainClient().AdjustKeyringFromPrivateKey(utils.ECDSAToString(privateKey))
+	username := c.Message().Sender.Username
+	redisInstance := database.NewRedisInstance()
+	client, err := client.NewClientFromPrivateKey(b, username, privateKeyBuffer, redisInstance, step)
+	privateKeyBuffer.Destroy()
+	if err != nil {
+		return c.Reply("Error creating client" + err.Error())
+	}
+	clients[username] = client
+
 	mnemonic.Destroy()
 
-	return c.Reply("Private key derived from mnemonic and set as default keyring!")
+	return c.Reply("Account created successfully! You can now start using the bot. Type /help to see a list of available commands or /menu to see the main menu")
 }
