@@ -262,20 +262,16 @@ func (c *Client) ToMessage(order types.LimitOrderInfo, showDetail bool) string {
 	⬩ Amount: %.3f %s
 	⬩ Limit Price: $%.3f (0.00%%)
 	⬩ Pay Token: %s
-	⬩ OrderID: %s
-	⬩ MarketID: %s
-	`, order.Direction, order.Direction, order.Amount, order.DenomIn, order.Price, order.DenomOut, order.OrderHash, order.MarketID)
+	`, order.Direction, order.Direction, order.Amount, order.DenomIn, order.Price, order.DenomOut)
 	} else {
 		return fmt.Sprintf(`📊 Limit Order - %s
 	⬩ Mode: %s
 	⬩ Amount: %.3f %s
 	⬩ Limit Price: $%.3f (0.00%%)
 	⬩ Pay Token: %s
-	⬩ OrderID: %s
-	⬩ MarketID: %s
 	After the order is filled: 
 	You will receive: %.3f %s ($%.3f)
-	You will pay: %.3f %s ($%.3f)`, order.Direction, order.Direction, order.Amount, order.DenomIn, order.Price, order.DenomOut, order.OrderHash, order.MarketID, order.Amount, order.DenomIn, order.Amount*priceIn, order.Amount*order.Price, order.DenomOut, order.Amount*order.Price*priceOut)
+	You will pay: %.3f %s ($%.3f)`, order.Direction, order.Direction, order.Amount, order.DenomIn, order.Price, order.DenomOut, order.Amount, order.DenomIn, order.Amount*priceIn, order.Amount*order.Price, order.DenomOut, order.Amount*order.Price*priceOut)
 	}
 
 }

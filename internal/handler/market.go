@@ -30,36 +30,38 @@ type DisplayData struct {
 	Volume string `json:"volume"`
 }
 
+var LinkToHelix = "\n\n[View on Helix](https://helixapp.com/markets/?type=spot)"
+
 func HandleViewMarket(b internal.Bot) {
 	b.Handle(&types.BtnViewMarket, func(c tele.Context) error {
 		return c.Send("Here you can have a quick look at the market the last 24h", types.MenuViewMarket)
 	})
 	b.Handle(&types.BtnBiggestGainer24h, func(c tele.Context) error {
-		data, err := MockFetchData24h()
+		data, err := FetchMarketsDataLast24h()
 		if err != nil {
 			return c.Send("Error fetching data"+err.Error(), types.Menu)
 		}
 		gainers := GetTopNBiggestGainer(data, 5)
 		text := "Here are the biggest gainers in the last 24h 📈📈📈 \n "
-		return c.Send(text+DisplayDataToString(gainers), types.Menu, types.MenuViewMarket)
+		return c.Send(text+DisplayDataToString(gainers)+LinkToHelix, types.Menu, types.MenuViewMarket, tele.ModeMarkdown)
 	})
 	b.Handle(&types.BtnBiggestLoser24h, func(c tele.Context) error {
-		data, err := MockFetchData24h()
+		data, err := FetchMarketsDataLast24h()
 		if err != nil {
 			return c.Send("Error fetching data"+err.Error(), types.Menu)
 		}
 		losers := GetTopNBiggestLoser(data, 5)
 		text := "Here are the biggest losers in the last 24h 📉📉📉 \n "
-		return c.Send(text+DisplayDataToString(losers), types.Menu, types.MenuViewMarket)
+		return c.Send(text+DisplayDataToString(losers)+LinkToHelix, types.Menu, types.MenuViewMarket, tele.ModeMarkdown)
 	})
 	b.Handle(&types.BtnBiggestVolume24h, func(c tele.Context) error {
-		data, err := MockFetchData24h()
+		data, err := FetchMarketsDataLast24h()
 		if err != nil {
 			return c.Send("Error fetching data"+err.Error(), types.Menu)
 		}
 		volume := GetTopNBiggestVolume(data, 5)
 		text := "Here are the biggest volume in the last 24h 📊📊📊 \n "
-		return c.Send(text+DisplayDataToString(volume), types.Menu, types.MenuViewMarket)
+		return c.Send(text+DisplayDataToString(volume)+LinkToHelix, types.Menu, types.MenuViewMarket, tele.ModeMarkdown)
 	})
 }
 
@@ -200,7 +202,7 @@ func DisplayDataToString(data []MarketData) string {
 }
 func MockFetchData24h() ([]MarketData, error) {
 	// read from tests/markets.json
-	buffer, err := os.Open("./tests/markets.json")
+	buffer, err := os.Open("internal/handler/tests/markets.json")
 	if err != nil {
 		return nil, err
 	}

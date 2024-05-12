@@ -58,30 +58,30 @@ const (
 
 func formatTokenToBuyButtonLabel(denomIn string) string {
 	if denomIn == "" {
-		return selectTokenToBuyButtonLabel
+		return "🪙 " + selectTokenToBuyButtonLabel
 	}
-	return fmt.Sprintf("Buy: %s", strings.ToUpper(denomIn))
+	return fmt.Sprintf("🛒 Buy: %s", strings.ToUpper(denomIn))
 }
 
 func formatAmountToBuyButtonLabel(amount float64, denomIn string) string {
 	if amount == 0 {
-		return enterAmountToBuyButtonLabel
+		return "💰 " + enterAmountToBuyButtonLabel
 	}
-	return fmt.Sprintf("Buy Amount: %.2f %s", amount, strings.ToUpper(denomIn))
+	return fmt.Sprintf("💸 Buy Amount: %.2f %s", amount, strings.ToUpper(denomIn))
 }
 
 func formatTokenToPayButtonLabel(denomOut string) string {
 	if denomOut == "" {
-		return selectTokenToPayButtonLabel
+		return "💳 " + selectTokenToPayButtonLabel
 	}
-	return fmt.Sprintf("Pay With: %s", strings.ToUpper(denomOut))
+	return fmt.Sprintf("💸 Pay With: %s", strings.ToUpper(denomOut))
 }
 
 func formatPriceButtonLabel(price float64, denomOut, denomIn string) string {
 	if price == 0 {
-		return setPriceButtonLabel
+		return "💲 " + setPriceButtonLabel
 	}
-	return fmt.Sprintf("Price: %.2f %s per %s", price, strings.ToUpper(denomOut), strings.ToUpper(denomIn))
+	return fmt.Sprintf("💰 Price: %.2f %s per %s", price, strings.ToUpper(denomOut), strings.ToUpper(denomIn))
 }
 
 func ModifyLimitOrderMenu(keyboard [][]tele.InlineButton, orderInfo *types.LimitOrderInfo) [][]tele.InlineButton {

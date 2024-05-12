@@ -17,14 +17,14 @@ var (
 
 	BtnSend              = MenuSendToken.Data("Send", "send", "send")
 	BtnBack              = MenuSendToken.Data("Back", "btnBack")
-	BtnToken             = MenuCreateLimitOrder.Data("Token", "limitToken", "token")
-	BtnAmount            = MenuCreateLimitOrder.Data("Amount", "limitAmount", "amount")
-	BtnPrice             = MenuCreateLimitOrder.Data("Price", "limitPrice", "price")
-	BtnConfirmOrder      = MenuCreateLimitOrder.Data("Confirm Order", "confirmOrder", "confirm")
 	BtnConfirmLimitOrder = MenuConfirmOrder.Data("Confirm", "confirmLimitOrder", "confirm")
 	BtnClose             = MenuConfirmOrder.Data("Close", "close", "close")
 	BtnCancelOrder       = MenuActiveOrders.Data("Cancel Order", "cancelOrder", "cancel")
-	BtnPayWith           = MenuCreateLimitOrder.Data("Pay With", "payWith", "payWith")
+	BtnToken             = MenuCreateLimitOrder.Data("🪙 Token", "limitToken", "token")
+	BtnAmount            = MenuCreateLimitOrder.Data("📈 Amount", "limitAmount", "amount")
+	BtnPrice             = MenuCreateLimitOrder.Data("💰 Price", "limitPrice", "price")
+	BtnConfirmOrder      = MenuCreateLimitOrder.Data("✅ Confirm Order", "confirmOrder", "confirm")
+	BtnPayWith           = MenuCreateLimitOrder.Data("💳 Pay With", "payWith", "payWith")
 )
 
 // Limit order buttons.

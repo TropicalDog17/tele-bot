@@ -33,7 +33,7 @@ func HandleOnboard(b internal.Bot, clients map[string]internal.BotClient, curren
 
 func HandleStart(c tele.Context, botClient internal.BotClient, step *string) error {
 	*step = "addPassword"
-	text := "Welcome to the TropicalDog17 bot! 🐶\n\nI am a bot that can help you with your trading needs. I can provide you with the latest cryptocurrency prices, help you place limit orders, and more.\n\nTo get started, type /help to see a list of available commands.\n To start, please provide a password"
+	text := "Welcome to the TropicalDog17 bot! 🐶\n\nI am a bot that can help you with your trading needs. I can provide you with the latest cryptocurrency prices, help you place limit orders, and more.\n\n To start, please provide a password"
 	fmt.Println("step: ", *step)
 	return c.Reply(text)
 
@@ -99,7 +99,7 @@ func HandleStorePrivateKey(b internal.Bot, c tele.Context, botClient internal.Bo
 		_ = c.Reply("Error sending mnemonic")
 	}
 
-	err = c.Send("Mnemonic stored! Please confirm it", &btnOnboard)
+	err = c.Send("Please store it and keep in a safe place", &btnOnboard)
 	if err != nil {
 		_ = c.Reply("Error storing private key")
 	}

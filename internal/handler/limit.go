@@ -139,7 +139,18 @@ func HandleLimitOrder(b internal.Bot, authRoute *tele.Group, clients map[string]
 		if err != nil {
 			return c.Send("Error placing limit order"+err.Error(), menu)
 		}
-		return c.Send("Successfully send order, check txhash here: "+txHash, menu)
+		explorer := fmt.Sprintf("https://0267-2402-800-61c5-784e-4ddd-972f-73a6-f0a2.ngrok-free.app/injective/tx/%s", txHash)
+		button := tele.InlineButton{
+			Text: "View Transaction",
+			URL:  explorer,
+		}
+		menu := &tele.ReplyMarkup{
+			InlineKeyboard: [][]tele.InlineButton{
+				{button},
+			},
+		}
+		text := "Transaction sent successfully."
+		return c.Send(text, menu)
 	})
 	// Handle active orders
 	authRoute.Handle(&types.BtnActiveOrders, func(c tele.Context) error {
@@ -187,7 +198,7 @@ func HandleLimitStep(b *tele.Bot, c tele.Context, createOrderMenu *tele.StoredMe
 			return c.Send("Invalid amount")
 		}
 		globalLimitOrder.Amount = amount
-		menuLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
 		_, err = b.EditReplyMarkup(createOrderMenu, menuCreateLimitOrder)
 		if err != nil {
 			return err
@@ -199,7 +210,7 @@ func HandleLimitStep(b *tele.Bot, c tele.Context, createOrderMenu *tele.StoredMe
 			return c.Send("Invalid price")
 		}
 		globalLimitOrder.Price = price
-		menuLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
 		_, err = b.EditReplyMarkup(createOrderMenu, menuCreateLimitOrder)
 		if err != nil {
 			return err
@@ -207,7 +218,7 @@ func HandleLimitStep(b *tele.Bot, c tele.Context, createOrderMenu *tele.StoredMe
 		return internal.DeleteInputMessage(b, c)
 	case "limitToken":
 		globalLimitOrder.DenomOut = c.Text()
-		menuLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
 		_, err := b.EditReplyMarkup(createOrderMenu, menuCreateLimitOrder)
 		if err != nil {
 			return err
@@ -233,5 +244,5 @@ func HandleCancelLimitOrderStep(b *tele.Bot, c tele.Context, client internal.Bot
 	if err != nil {
 		return c.Send(fmt.Sprintf("Error cancelling order: %s", err), types.Menu)
 	}
-	return c.Send(fmt.Sprintf("Order cancelled with tx hash: %s", txhash), types.Menu)
+	return c.Send(fmt.Sprintf("Order cancelled with tx hash: %s", txhash), types.MenuLimitOrder, types.Menu)
 }

@@ -78,7 +78,7 @@ func HandleAccountDetails(b *tele.Bot, authRoute *tele.Group, clients map[string
 		rows = append(rows, accountDetails.Row(accountDetails.Data("📱 Show QR for address", "qr", "qr")))
 		accountDetails.Inline(rows...)
 		// Message contain the account address
-
-		return c.Send("Account: "+address, accountDetails)
+		message := fmt.Sprintf("Account: [%s](https://0267-2402-800-61c5-784e-4ddd-972f-73a6-f0a2.ngrok-free.app/injective/account/%s)", address, address)
+		return c.Send(message, accountDetails, tele.ModeMarkdown)
 	})
 }
