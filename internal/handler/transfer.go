@@ -8,12 +8,13 @@ import (
 
 	"github.com/TropicalDog17/tele-bot/internal"
 	"github.com/TropicalDog17/tele-bot/internal/types"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	tele "gopkg.in/telebot.v3"
 )
 
-func HandlerTransferToken(b *tele.Bot, authRoute *tele.Group, clients map[string]internal.BotClient, menuSendToken *tele.ReplyMarkup, btnInlineAtom, btnInlineInj, btnTenDollar, btnFiftyDollar, btnHundredDollar, btnTwoHundredDollar, btnFiveHundredDollar, btnCustomAmount, btnRecipientSection, btnCustomToken *tele.Btn, selectedToken, selectedAmount, currentStep, recipientAddress *string, globalMenu *tele.StoredMessage) {
+func HandlerTransferToken(b *tele.Bot, localizer *i18n.Localizer, authRoute *tele.Group, clients map[string]internal.BotClient, menuSendToken *tele.ReplyMarkup, btnSend, btnSendToken, btnInlineAtom, btnInlineInj, btnTenDollar, btnFiftyDollar, btnHundredDollar, btnTwoHundredDollar, btnFiveHundredDollar, btnCustomAmount, btnRecipientSection, btnCustomToken tele.Btn, selectedToken, selectedAmount, currentStep, recipientAddress *string, globalMenu *tele.StoredMessage) {
 	// Handle the "Send Tokens" button click
-	authRoute.Handle(&types.BtnSendToken, func(c tele.Context) error {
+	authRoute.Handle(&btnSendToken, func(c tele.Context) error {
 		client, ok := clients[c.Message().Sender.Username]
 		if !ok {
 			return c.Send("Client not found", types.Menu)
@@ -42,14 +43,14 @@ func HandlerTransferToken(b *tele.Bot, authRoute *tele.Group, clients map[string
 		return nil
 	})
 	// Handle inline button clicks for token selection
-	authRoute.Handle(btnInlineAtom, func(c tele.Context) error {
+	authRoute.Handle(&btnInlineAtom, func(c tele.Context) error {
 		*selectedToken = "atom"
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickToken(menuSendToken.InlineKeyboard)
 		menuSendToken.InlineKeyboard[2][0] = internal.AddGreenTick(*btnInlineAtom.Inline())
 		return c.Edit("Selected token: ATOM", menuSendToken)
 	})
 
-	authRoute.Handle(btnInlineInj, func(c tele.Context) error {
+	authRoute.Handle(&btnInlineInj, func(c tele.Context) error {
 		*selectedToken = "inj"
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickToken(menuSendToken.InlineKeyboard)
 		menuSendToken.InlineKeyboard[2][1] = internal.AddGreenTick(*btnInlineInj.Inline())
@@ -57,7 +58,7 @@ func HandlerTransferToken(b *tele.Bot, authRoute *tele.Group, clients map[string
 	})
 
 	// Handle amount button clicks
-	authRoute.Handle(btnTenDollar, func(c tele.Context) error {
+	authRoute.Handle(&btnTenDollar, func(c tele.Context) error {
 		*selectedAmount = "1"
 		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, *selectedAmount, *selectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
@@ -65,7 +66,7 @@ func HandlerTransferToken(b *tele.Bot, authRoute *tele.Group, clients map[string
 		return c.Edit("Selected amount: 10 "+strings.ToUpper(*selectedToken), menuSendToken)
 	})
 
-	authRoute.Handle(btnFiftyDollar, func(c tele.Context) error {
+	authRoute.Handle(&btnFiftyDollar, func(c tele.Context) error {
 		*selectedAmount = "5"
 		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, *selectedAmount, *selectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
@@ -74,7 +75,7 @@ func HandlerTransferToken(b *tele.Bot, authRoute *tele.Group, clients map[string
 		return c.Edit("Selected amount: 50 "+strings.ToUpper(*selectedToken), menuSendToken)
 	})
 
-	authRoute.Handle(btnHundredDollar, func(c tele.Context) error {
+	authRoute.Handle(&btnHundredDollar, func(c tele.Context) error {
 		*selectedAmount = "10"
 		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, *selectedAmount, *selectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
@@ -82,7 +83,7 @@ func HandlerTransferToken(b *tele.Bot, authRoute *tele.Group, clients map[string
 		return c.Edit("Selected amount: 100 "+strings.ToUpper(*selectedToken), menuSendToken)
 	})
 
-	authRoute.Handle(btnTwoHundredDollar, func(c tele.Context) error {
+	authRoute.Handle(&btnTwoHundredDollar, func(c tele.Context) error {
 		*selectedAmount = "50"
 		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, *selectedAmount, *selectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
@@ -90,7 +91,7 @@ func HandlerTransferToken(b *tele.Bot, authRoute *tele.Group, clients map[string
 		return c.Edit("Selected amount: 50 "+strings.ToUpper(*selectedToken), menuSendToken)
 	})
 
-	authRoute.Handle(btnFiveHundredDollar, func(c tele.Context) error {
+	authRoute.Handle(&btnFiveHundredDollar, func(c tele.Context) error {
 		*selectedAmount = "100"
 		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, *selectedAmount, *selectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
@@ -98,25 +99,28 @@ func HandlerTransferToken(b *tele.Bot, authRoute *tele.Group, clients map[string
 		return c.Edit("Selected amount: 100 "+strings.ToUpper(*selectedToken), menuSendToken)
 	})
 
-	authRoute.Handle(btnCustomAmount, func(c tele.Context) error {
+	authRoute.Handle(&btnCustomAmount, func(c tele.Context) error {
 		// Prompt the user to enter a custom amount
 		*currentStep = "customAmount"
 		return c.Send("Please enter the custom amount:")
 	})
-	authRoute.Handle(btnCustomToken, func(c tele.Context) error {
+	authRoute.Handle(&btnCustomToken, func(c tele.Context) error {
 		// Prompt the user to enter a custom token
 		*currentStep = "customToken"
 		return c.Send("Please enter the custom token:")
 	})
 
-	authRoute.Handle(btnRecipientSection, func(c tele.Context) error {
+	authRoute.Handle(&btnRecipientSection, func(c tele.Context) error {
 		// Prompt the user to enter a recipient address
 		*currentStep = "recipientAddress"
 		return c.Send("Please enter the recipient address:", tele.ForceReply)
 	})
 	// Handle the "Send" button click
-	authRoute.Handle(&types.BtnSend, func(c tele.Context) error {
-		client := clients[c.Callback().Sender.Username]
+	authRoute.Handle(&btnSendToken, func(c tele.Context) error {
+		client, ok := clients[c.Message().Sender.Username]
+		if !ok {
+			return c.Send("Client not found", types.Menu)
+		}
 		// Sanity check to ensure all required fields are filled
 		if *selectedToken == "" || *selectedAmount == "" || *recipientAddress == "" {
 			return c.Send("Please fill in all required fields", menuSendToken)
@@ -138,7 +142,7 @@ func HandlerTransferToken(b *tele.Bot, authRoute *tele.Group, clients map[string
 	})
 }
 
-func HandleTransferStep(b *tele.Bot, client internal.BotClient, c tele.Context, menuSendToken *tele.ReplyMarkup, selectedAmount, selectedToken, recipientAddress *string, globalMenu *tele.StoredMessage, currentStep *string) error {
+func HandleTransferStep(b *tele.Bot, localizer *i18n.Localizer, client internal.BotClient, c tele.Context, menuSendToken *tele.ReplyMarkup, selectedAmount, selectedToken, recipientAddress *string, globalMenu *tele.StoredMessage, currentStep *string) error {
 	switch *currentStep {
 	case "customAmount":
 		*selectedAmount = c.Text()
@@ -155,8 +159,9 @@ func HandleTransferStep(b *tele.Bot, client internal.BotClient, c tele.Context, 
 		if err != nil {
 			return err
 		}
-		types.BtnRecipientSection.Text = "Recipient:" + *recipientAddress
-		menuSendToken.InlineKeyboard[6][0] = *types.BtnRecipientSection.Inline()
+		btnRecipientSection := types.BtnRecipientSection(localizer)
+		btnRecipientSection.Text = "Recipient:" + *recipientAddress
+		menuSendToken.InlineKeyboard[6][0] = *btnRecipientSection.Inline()
 
 		// load the global menu from database
 		redisCtx := context.Background()
@@ -174,6 +179,15 @@ func HandleTransferStep(b *tele.Bot, client internal.BotClient, c tele.Context, 
 			return err
 		}
 		return nil
+	case "customToken":
+		fmt.Println("Custom token: ", c.Text())
+		*selectedToken = strings.ToLower(c.Text())
+		if *selectedToken != "atom" && *selectedToken != "inj" && *selectedToken != "usdt" {
+			return c.Send("Unsupported token", menuSendToken)
+		}
+		menuSendToken.InlineKeyboard = internal.ModifyCustomTokenButton(menuSendToken.InlineKeyboard, *selectedToken)
+		return c.Send(fmt.Sprintf("Selected token: %s", *selectedToken), menuSendToken)
 	}
+
 	return c.Send("Invalid input", types.Menu)
 }

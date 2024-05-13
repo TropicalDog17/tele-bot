@@ -7,6 +7,7 @@ import (
 
 	"github.com/TropicalDog17/tele-bot/internal"
 	"github.com/TropicalDog17/tele-bot/internal/types"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/yeqown/go-qrcode/v2"
 	"github.com/yeqown/go-qrcode/writer/standard"
 	tele "gopkg.in/telebot.v3"
@@ -48,9 +49,9 @@ func HandleAddressQr(b *tele.Bot, authRoute *tele.Group, clients map[string]inte
 	})
 }
 
-func HandleAccountDetails(b *tele.Bot, authRoute *tele.Group, clients map[string]internal.BotClient) {
+func HandleAccountDetails(b *tele.Bot, localizer *i18n.Localizer, authRoute *tele.Group, clients map[string]internal.BotClient, btnShowAccount tele.Btn) {
 	// Show account
-	authRoute.Handle(&types.BtnShowAccount, func(c tele.Context) error {
+	authRoute.Handle(&btnShowAccount, func(c tele.Context) error {
 		client, ok := clients[c.Message().Sender.Username]
 		if !ok {
 			return c.Send("Client not found", types.Menu)
@@ -78,7 +79,8 @@ func HandleAccountDetails(b *tele.Bot, authRoute *tele.Group, clients map[string
 		rows = append(rows, accountDetails.Row(accountDetails.Data("📱 Show QR for address", "qr", "qr")))
 		accountDetails.Inline(rows...)
 		// Message contain the account address
-		message := fmt.Sprintf("Account: [%s](https://0267-2402-800-61c5-784e-4ddd-972f-73a6-f0a2.ngrok-free.app/injective/account/%s)", address, address)
+		explorerUrl := os.Getenv("EXPLORER_URL")
+		message := fmt.Sprintf("Account: [%s](%s/injective/account/%s)", address, explorerUrl, address)
 		return c.Send(message, accountDetails, tele.ModeMarkdown)
 	})
 }

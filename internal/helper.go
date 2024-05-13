@@ -9,6 +9,7 @@ import (
 	"github.com/TropicalDog17/tele-bot/internal/types"
 	"github.com/TropicalDog17/tele-bot/internal/utils"
 	"github.com/awnumar/memguard"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -45,6 +46,22 @@ func ModifyAmountToTransferButton(keyboard [][]tele.InlineButton, amount, denom 
 	if denom != "" {
 		keyboard[3][0].Text = "Transfer " + amount + " " + denom
 		return keyboard
+	}
+	return keyboard
+}
+
+func ModifyCustomTokenButton(keyboard [][]tele.InlineButton, denom string) [][]tele.InlineButton {
+	keyboard = RemoveGreenTickToken(keyboard)
+	if denom == "ATOM" {
+		keyboard[2][0] = AddGreenTick(*types.BtnInlineAtom(&i18n.Localizer{}).Inline())
+		return keyboard
+	} else if denom == "INJ" {
+		keyboard[2][1] = AddGreenTick(*types.BtnInlineInj(&i18n.Localizer{}).Inline())
+	} else {
+		if denom != "" {
+			keyboard[2][2].Text = "Custom token: " + denom
+			return keyboard
+		}
 	}
 	return keyboard
 }

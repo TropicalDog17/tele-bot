@@ -1,0 +1,133 @@
+[ActiveOrders]
+hash = "sha1-bdc3d7a55cdb06ed1240d52e35c43b399a3bb7fb"
+other = "💸 Đơn hàng đang hoạt động"
+[Amount]
+hash = "sha1-2991f746c94ed74ad3a5cefe3d1580547242b954"
+
+other = "📈 Số lượng"
+[AmountSection]
+hash = "sha1-a66a3db52ee3eebb8645c0f42c30e45f32ac377d"
+other = "💰 Phần số lượng 💰"
+[Back]
+hash = "sha1-b52b36b7269fbfc58ec24bb724691951a3decbe8"
+other = "Quay lại"
+[BiggestGainer24h]
+hash = "sha1-2fef0cf0f95fbb7e8c0494f1bfb05e5915909d65"
+other = "🚀 Tăng mạnh nhất trong 24h"
+[BiggestLoser24h]
+hash = "sha1-2986b77d863b8e11a37fc8f717b07d68159228bf"
+other = "📉 Giảm mạnh nhất trong 24h"
+[BiggestVolume24h]
+hash = "sha1-601fe41fd51d7d18b4a0e0c4a136c53f8dae1e1a"
+
+other = "📊 Khối lượng giao dịch lớn nhất trong 24h"
+[BuyLimitOrder]
+hash = "sha1-2ad43f233e8159b4bdfcb28004c75bf0d6910c87"
+other = "📈 Mua"
+[CancelOrder]
+hash = "sha1-87125442f43bbc46421d0b1ab33926a65ce15170"
+other = "Hủy đơn hàng"
+[ChangeDefaultLimitPair]
+hash = "sha1-1a8d9cf49c4881e5db17f4f5a0ece7db51759d87"
+other = "🪙 Thay đổi cặp giới hạn mặc định"
+[ChangeLanguage]
+hash = "sha1-dd2b5dda42509ad3af1bd2a139b6fdc3152152ad"
+other = "🌐 Thay đổi ngôn ngữ"
+[ChangePassword]
+hash = "sha1-b5b43b2ebbddd619bf55a994d4e7d29026f67969"
+other = "🔑 Đổi mật khẩu"
+[Close]
+hash = "sha1-bbfa773e5a63a5ea58c9b6207e608ca0120e592a"
+other = "Đóng"
+[ConfirmLimitOrder]
+hash = "sha1-04a212215ef9fbf686d280802eb81ee7a6e681cd"
+other = "Xác nhận"
+[ConfirmOrder]
+hash = "sha1-1c45b72a1a9c0f4ecf7b56ee74e7d85096203c21"
+other = "✅ Xác nhận đơn hàng"
+[CustomAmount]
+hash = "sha1-e7f3c6cbe8b5b281be2a1421f9521170d1f4b40f"
+other = "🎛️ Số lượng tùy chỉnh"
+[CustomToken]
+hash = "sha1-3188c9973ff55da480980a4b977fbb7a7a125563"
+other = "Token tùy chỉnh"
+[DisablePassword]
+hash = "sha1-64727003c8df52d45498d635de7bbd3b10db96da"
+other = "🔒 Tắt mật khẩu"
+[FiftyDollar]
+hash = "sha1-a9a0d84de3ce0e685a5c5b17410d0a5cb8fd5ff6"
+other = "💰 $50"
+[FiveHundredDollar]
+hash = "sha1-6986c70f83c82e2a2c9d36bf8ccd45e0ae97fbcd"
+other = "💶 $500"
+[HundredDollar]
+hash = "sha1-a10c1bb5944a78284b710bd02b88b08a10aea86e"
+other = "💸 $100"
+[InlineAtom]
+hash = "sha1-cae061a530cef71c477f974034de1fd1d9b43ecb"
+other = "ATOM"
+[InlineInj]
+hash = "sha1-3be5bffea6848d347c762ee093a71d9ac12565d2"
+other = "INJ"
+[LimitOrder]
+hash = "sha1-e3a98c0c9bf1d28f6dcfe60acf7d48dfc0f55720"
+other = "🚀 Đơn hàng giới hạn"
+[Menu]
+hash = "sha1-57f5f5efbc5990f5230aa95359042338b856707b"
+other = "Menu"
+[PayWith]
+hash = "sha1-3042edc58ff225bb170f36f3b6b7074dbb4f41e6"
+other = "💳 Thanh toán bằng"
+[Price]
+hash = "sha1-aa897c5b15197311bf5c27a8a9d03307a4b450c7"
+other = "💰 Giá"
+[PriceAlert]
+hash = "sha1-e227d2d2e0720d944f51645187fe9d78be5af6c3"
+other = "🔔 Cảnh báo giá"
+[RecipientSection]
+hash = "sha1-b1842017cf6b366ac45f3d7b0ae0512fb657d98d"
+other = "📨 Nhập địa chỉ người nhận: 📨 "
+[SellLimitOrder]
+hash = "sha1-501239964b7b655a71bcc8189720a43a93ba784f"
+other = "📉 Bán"
+[Send]
+hash = "sha1-9bc2575c3930437e80555f78757b783c842e8e66"
+other = "Gửi"
+[SendToken]
+hash = "sha1-42081cf4a6ea243a9e4078e2b24a55a5d00f481c"
+other = "💸 Gửi token"
+[Settings]
+hash = "sha1-9249b284db863d58f6e68e37edcc28ba67a79006"
+other = "⚙ Cài đặt"
+[ShowAccount]
+hash = "sha1-5f259162ae66a5ccf200e172a4df9a7d86a8af9f"
+other = "👤 Xem tài khoản"
+[SpotOrder]
+hash = "sha1-a70f4423b196325aac67abc795ea22428a485636"
+other = "📊 Lệnh giao dịch ngay"
+[TenDollar]
+hash = "sha1-484cd16b4b4a6285fd437c549d5971f5797e1de3"
+other = "💵 $10"
+[Token]
+hash = "sha1-3728b0d79c2c7d16c99b8006c30cf00d715fd180"
+other = "🪙 Token"
+[TokenSection]
+hash = "sha1-16bb8778c98aeadddc06363737a5a9d6ac912dd5"
+other = "💠 Phần Token 💠 "
+[TwoHundredDollar]
+hash = "sha1-f676dfc7ad41baa5bfda25eb08a3ceb4f51dd2a7"
+other = "🪙 $200"
+[ViewBalances]
+hash = "sha1-ad52c60627ecd8004c1b6d4e83afcac0a911555e"
+other = "ℹ Xem số dư"
+[ViewMarket]
+hash = "sha1-ee24065e4e2510436cf366e16647929a4f5937cf"
+other = "📈 Xem thị trường"
+
+[passwordAccepted]
+hash = "sha1-d8c53c910dbbfef2234af84a2f36a05debbc5294"
+other = "Mật khẩu chính xác. Bạn đã đăng nhập thành công!"
+
+[sessionExpired]
+hash = "sha1-6e0d3fabd35e7f64b800067c3b8607b87059c7c4"
+other = "Phiên làm việc của bạn đã hết hạn. Vui lòng đăng nhập lại."

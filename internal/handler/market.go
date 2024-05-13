@@ -10,6 +10,7 @@ import (
 
 	"github.com/TropicalDog17/tele-bot/internal"
 	"github.com/TropicalDog17/tele-bot/internal/types"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -32,11 +33,11 @@ type DisplayData struct {
 
 var LinkToHelix = "\n\n[View on Helix](https://helixapp.com/markets/?type=spot)"
 
-func HandleViewMarket(b internal.Bot) {
-	b.Handle(&types.BtnViewMarket, func(c tele.Context) error {
+func HandleViewMarket(b internal.Bot, localizer *i18n.Localizer, btnViewMarket, btnBiggestGainer24h, btnBiggestLoser24h tele.Btn, btnBiggestVolume24h tele.Btn) {
+	b.Handle(&btnViewMarket, func(c tele.Context) error {
 		return c.Send("Here you can have a quick look at the market the last 24h", types.MenuViewMarket)
 	})
-	b.Handle(&types.BtnBiggestGainer24h, func(c tele.Context) error {
+	b.Handle(&btnBiggestGainer24h, func(c tele.Context) error {
 		data, err := FetchMarketsDataLast24h()
 		if err != nil {
 			return c.Send("Error fetching data"+err.Error(), types.Menu)
@@ -45,7 +46,7 @@ func HandleViewMarket(b internal.Bot) {
 		text := "Here are the biggest gainers in the last 24h 📈📈📈 \n "
 		return c.Send(text+DisplayDataToString(gainers)+LinkToHelix, types.Menu, types.MenuViewMarket, tele.ModeMarkdown)
 	})
-	b.Handle(&types.BtnBiggestLoser24h, func(c tele.Context) error {
+	b.Handle(&btnBiggestLoser24h, func(c tele.Context) error {
 		data, err := FetchMarketsDataLast24h()
 		if err != nil {
 			return c.Send("Error fetching data"+err.Error(), types.Menu)
@@ -54,7 +55,7 @@ func HandleViewMarket(b internal.Bot) {
 		text := "Here are the biggest losers in the last 24h 📉📉📉 \n "
 		return c.Send(text+DisplayDataToString(losers)+LinkToHelix, types.Menu, types.MenuViewMarket, tele.ModeMarkdown)
 	})
-	b.Handle(&types.BtnBiggestVolume24h, func(c tele.Context) error {
+	b.Handle(&btnBiggestVolume24h, func(c tele.Context) error {
 		data, err := FetchMarketsDataLast24h()
 		if err != nil {
 			return c.Send("Error fetching data"+err.Error(), types.Menu)

@@ -100,7 +100,7 @@ func NewTempClient() *Client {
 
 func (c *Client) GetPrice(ticker string) (float64, bool) {
 	ctx := context.Background()
-	price, found := c.redisClient.Get(ctx, fmt.Sprintf("price:%s", ticker)).Result()
+	price, found := c.redisClient.Get(ctx, fmt.Sprintf("pricenew:%s", strings.ToLower(ticker))).Result()
 	if found != nil {
 		return 0, false
 	}
@@ -113,7 +113,7 @@ func (c *Client) GetPrice(ticker string) (float64, bool) {
 
 func (c *CoinGeckoClient) FetchUsdPriceMap(denoms ...string) (map[string]float64, error) {
 	// TODO: fix the hardcode
-	priceMap, err := c.GetPriceInUsd("inj", "atom")
+	priceMap, err := c.GetPriceInUsd("inj", "atom", "usdt")
 	if err != nil {
 		return nil, err
 	}
@@ -203,6 +203,9 @@ func (c *CoinGeckoClient) GetPriceInUsd(denoms ...string) (map[string]map[string
 			ticker = append(ticker, "injective-protocol")
 		} else if denom == "atom" {
 			ticker = append(ticker, "cosmos")
+
+		} else if denom == "usdt" {
+			ticker = append(ticker, "tether")
 		} else {
 			ticker = append(ticker, denom)
 		}
@@ -262,7 +265,9 @@ func (c *Client) ToMessage(order types.LimitOrderInfo, showDetail bool) string {
 	⬩ Amount: %.3f %s
 	⬩ Limit Price: $%.3f (0.00%%)
 	⬩ Pay Token: %s
-	`, order.Direction, order.Direction, order.Amount, order.DenomIn, order.Price, order.DenomOut)
+	⬩ Order Hash: %s
+	⬩ Market ID: %s
+	`, order.Direction, order.Direction, order.Amount, order.DenomIn, order.Price, order.DenomOut, order.OrderHash, order.MarketID)
 	} else {
 		return fmt.Sprintf(`📊 Limit Order - %s
 	⬩ Mode: %s
@@ -352,5 +357,4 @@ func HandleAskForPassword(b internal.Bot, recp tele.Recipient, pwdChan chan *mem
 	})
 
 	return nil
-
 }

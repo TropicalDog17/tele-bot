@@ -3,6 +3,7 @@ module github.com/TropicalDog17/tele-bot
 go 1.22.1
 
 require (
+	github.com/BurntSushi/toml v1.3.2
 	github.com/InjectiveLabs/sdk-go v1.50.2-0.20240308032359-b70213c28dde
 	github.com/TropicalDog17/orderbook-go-sdk v0.1.6
 	github.com/awnumar/memguard v0.22.5
@@ -12,12 +13,14 @@ require (
 	github.com/go-redis/redismock/v9 v9.2.0
 	github.com/joho/godotenv v1.5.1
 	github.com/miguelmota/go-ethereum-hdwallet v0.1.2
+	github.com/nicksnyder/go-i18n/v2 v2.4.0
 	github.com/redis/go-redis/v9 v9.5.1
 	github.com/stretchr/testify v1.8.4
 	github.com/yeqown/go-qrcode/v2 v2.2.3
 	github.com/yeqown/go-qrcode/writer/standard v1.2.3
 	go.uber.org/mock v0.4.0
 	golang.org/x/crypto v0.16.0
+	golang.org/x/text v0.14.0
 	gopkg.in/telebot.v3 v3.2.1
 )
 
@@ -141,7 +144,6 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.16.0 // indirect
-	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d // indirect
 	github.com/tendermint/go-amino v0.16.0 // indirect
@@ -156,7 +158,6 @@ require (
 	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/term v0.15.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto v0.0.0-20230706204954-ccb25ca9f130 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230629202037-9506855d4529 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230711160842-782d3b101e98 // indirect

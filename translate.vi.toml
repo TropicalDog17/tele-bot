@@ -1,0 +1,7 @@
+[passwordAccepted]
+hash = "sha1-d8c53c910dbbfef2234af84a2f36a05debbc5294"
+other = "Password accepted. You can perform your action again"
+
+[sessionExpired]
+hash = "sha1-6e0d3fabd35e7f64b800067c3b8607b87059c7c4"
+other = "Session expired! Please enter your password"

@@ -1,6 +1,9 @@
 package types
 
-import tele "gopkg.in/telebot.v3"
+import (
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	tele "gopkg.in/telebot.v3"
+)
 
 var (
 	// Universal markup builders.
@@ -11,49 +14,74 @@ var (
 	MenuConfirmOrder     = &tele.ReplyMarkup{ResizeKeyboard: true}
 	MenuActiveOrders     = &tele.ReplyMarkup{ResizeKeyboard: true}
 	MenuViewMarket       = &tele.ReplyMarkup{ResizeKeyboard: true}
+	MenuViewSettings     = &tele.ReplyMarkup{ResizeKeyboard: true}
 	Selector             = &tele.ReplyMarkup{}
 )
 
-func InitializeUI() []*tele.ReplyMarkup {
+func MainMenu(localizer *i18n.Localizer) *tele.ReplyMarkup {
 	Menu.Reply(
-		Menu.Row(BtnShowAccount, BtnSettings),
-		Menu.Row(BtnSendToken, BtnLimitOrder),
-		Menu.Row(BtnViewMarket, BtnPriceAlert),
+		Menu.Row(BtnShowAccount(localizer), BtnSettings(localizer)),
+		Menu.Row(BtnSendToken(localizer), BtnLimitOrder(localizer)),
+		Menu.Row(BtnViewMarket(localizer), BtnPriceAlert(localizer)),
 	)
-	MenuSendToken.Inline(
-		MenuSendToken.Row(BtnBack, BtnMenu),
-		MenuSendToken.Row(BtnTokenSection),
-		MenuSendToken.Row(BtnInlineAtom, BtnInlineInj, BtnCustomToken),
-		MenuSendToken.Row(BtnAmountSection),
-		MenuSendToken.Row(BtnTenDollar, BtnFiftyDollar, BtnHundredDollar),
-		MenuSendToken.Row(BtnTwoHundredDollar, BtnFiveHundredDollar, BtnCustomAmount),
-		MenuSendToken.Row(BtnRecipientSection),
-		MenuSendToken.Row(BtnSend),
-	)
-	MenuLimitOrder.Inline(
-		MenuLimitOrder.Row(BtnActiveOrders),
-		MenuLimitOrder.Row(BtnBuyLimitOrder, BtnSellLimitOrder),
-		MenuLimitOrder.Row(BtnBack),
-	)
-	MenuCreateLimitOrder.Inline(
-		MenuCreateLimitOrder.Row(BtnBack),
-		MenuCreateLimitOrder.Row(BtnToken),
-		MenuCreateLimitOrder.Row(BtnAmount),
-		MenuCreateLimitOrder.Row(BtnPayWith),
-		MenuCreateLimitOrder.Row(BtnPrice),
-		MenuCreateLimitOrder.Row(BtnConfirmOrder),
-	)
-	MenuActiveOrders.Inline(
-		MenuActiveOrders.Row(BtnCancelOrder),
-	)
-	MenuConfirmOrder.Inline(
-		MenuConfirmOrder.Row(BtnConfirmLimitOrder, BtnClose),
-	)
-	MenuViewMarket.Inline(
-		MenuViewMarket.Row(BtnBiggestGainer24h),
-		MenuViewMarket.Row(BtnBiggestLoser24h),
-		MenuViewMarket.Row(BtnBiggestVolume24h),
-	)
+	return Menu
+}
 
-	return []*tele.ReplyMarkup{Menu, MenuSendToken, MenuLimitOrder, MenuCreateLimitOrder, MenuConfirmOrder, MenuActiveOrders}
+func SendTokenMenu(localizer *i18n.Localizer) *tele.ReplyMarkup {
+	MenuSendToken.Inline(
+		MenuSendToken.Row(BtnBack(localizer), BtnMenu(localizer)),
+		MenuSendToken.Row(BtnTokenSection(localizer)),
+		MenuSendToken.Row(BtnInlineAtom(localizer), BtnInlineInj(localizer), BtnCustomToken(localizer)),
+		MenuSendToken.Row(BtnAmountSection(localizer)),
+		MenuSendToken.Row(BtnTenDollar(localizer), BtnFiftyDollar(localizer), BtnHundredDollar(localizer)),
+		MenuSendToken.Row(BtnTwoHundredDollar(localizer), BtnFiveHundredDollar(localizer), BtnCustomAmount(localizer)),
+		MenuSendToken.Row(BtnRecipientSection(localizer)),
+		MenuSendToken.Row(BtnSend(localizer)),
+	)
+	return MenuSendToken
+}
+
+func LimitOrderMenu(localizer *i18n.Localizer) *tele.ReplyMarkup {
+	MenuLimitOrder.Inline(
+		MenuLimitOrder.Row(BtnActiveOrders(localizer)),
+		MenuLimitOrder.Row(BtnBuyLimitOrder(localizer), BtnSellLimitOrder(localizer)),
+		MenuLimitOrder.Row(BtnBack(localizer)),
+	)
+	return MenuLimitOrder
+}
+
+func CreateLimitOrderMenu(localizer *i18n.Localizer) *tele.ReplyMarkup {
+	MenuCreateLimitOrder.Inline(
+		MenuCreateLimitOrder.Row(BtnBack(localizer)),
+		MenuCreateLimitOrder.Row(BtnToken(localizer)),
+		MenuCreateLimitOrder.Row(BtnAmount(localizer)),
+		MenuCreateLimitOrder.Row(BtnPayWith(localizer)),
+		MenuCreateLimitOrder.Row(BtnPrice(localizer)),
+		MenuCreateLimitOrder.Row(BtnConfirmOrder(localizer)),
+	)
+	return MenuCreateLimitOrder
+}
+
+func ActiveOrdersMenu(localizer *i18n.Localizer) *tele.ReplyMarkup {
+	MenuActiveOrders.Inline(
+		MenuActiveOrders.Row(BtnCancelOrder(localizer)),
+	)
+	return MenuActiveOrders
+}
+
+func ConfirmOrderMenu(localizer *i18n.Localizer) *tele.ReplyMarkup {
+	MenuConfirmOrder.Inline(
+		MenuConfirmOrder.Row(BtnConfirmLimitOrder(localizer), BtnClose(localizer)),
+	)
+	return MenuConfirmOrder
+}
+
+func ViewSettingsMenu(localizer *i18n.Localizer) *tele.ReplyMarkup {
+	MenuViewSettings.Inline(
+		MenuViewSettings.Row(BtnChangeLanguage(localizer)),
+		MenuViewSettings.Row(BtnChangeDefaultLimitPair(localizer)),
+		MenuViewSettings.Row(BtnDisablePassword(localizer)),
+		MenuViewSettings.Row(BtnChangePassword(localizer)),
+	)
+	return MenuViewSettings
 }
