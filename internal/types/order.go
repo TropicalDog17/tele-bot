@@ -1,6 +1,8 @@
 package types
 
 import (
+	"fmt"
+
 	"github.com/TropicalDog17/orderbook-go-sdk/config"
 	"github.com/TropicalDog17/orderbook-go-sdk/pkg/exchange"
 )
@@ -31,7 +33,7 @@ func NewLimitOrderInfo() *LimitOrderInfo {
 	} else {
 		defaultPrice = marketSummary.Price
 	}
-
+	fmt.Println("Default price: ", defaultPrice)
 	return &LimitOrderInfo{
 		DenomIn:   "atom",
 		DenomOut:  "inj",

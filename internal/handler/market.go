@@ -35,7 +35,7 @@ var LinkToHelix = "\n\n[View on Helix](https://helixapp.com/markets/?type=spot)"
 
 func HandleViewMarket(b internal.Bot, localizer *i18n.Localizer, btnViewMarket, btnBiggestGainer24h, btnBiggestLoser24h tele.Btn, btnBiggestVolume24h tele.Btn) {
 	b.Handle(&btnViewMarket, func(c tele.Context) error {
-		return c.Send("Here you can have a quick look at the market the last 24h", types.MenuViewMarket)
+		return c.Send("Here you can have a quick look at the market the last 24h", types.ViewMarketMenu(localizer))
 	})
 	b.Handle(&btnBiggestGainer24h, func(c tele.Context) error {
 		data, err := FetchMarketsDataLast24h()
@@ -44,7 +44,7 @@ func HandleViewMarket(b internal.Bot, localizer *i18n.Localizer, btnViewMarket, 
 		}
 		gainers := GetTopNBiggestGainer(data, 5)
 		text := "Here are the biggest gainers in the last 24h 📈📈📈 \n "
-		return c.Send(text+DisplayDataToString(gainers)+LinkToHelix, types.Menu, types.MenuViewMarket, tele.ModeMarkdown)
+		return c.Send(text+DisplayDataToString(gainers)+LinkToHelix, types.Menu, types.ViewMarketMenu(localizer), tele.ModeMarkdown)
 	})
 	b.Handle(&btnBiggestLoser24h, func(c tele.Context) error {
 		data, err := FetchMarketsDataLast24h()
@@ -53,7 +53,7 @@ func HandleViewMarket(b internal.Bot, localizer *i18n.Localizer, btnViewMarket, 
 		}
 		losers := GetTopNBiggestLoser(data, 5)
 		text := "Here are the biggest losers in the last 24h 📉📉📉 \n "
-		return c.Send(text+DisplayDataToString(losers)+LinkToHelix, types.Menu, types.MenuViewMarket, tele.ModeMarkdown)
+		return c.Send(text+DisplayDataToString(losers)+LinkToHelix, types.Menu, types.ViewMarketMenu(localizer), tele.ModeMarkdown)
 	})
 	b.Handle(&btnBiggestVolume24h, func(c tele.Context) error {
 		data, err := FetchMarketsDataLast24h()
@@ -62,7 +62,7 @@ func HandleViewMarket(b internal.Bot, localizer *i18n.Localizer, btnViewMarket, 
 		}
 		volume := GetTopNBiggestVolume(data, 5)
 		text := "Here are the biggest volume in the last 24h 📊📊📊 \n "
-		return c.Send(text+DisplayDataToString(volume)+LinkToHelix, types.Menu, types.MenuViewMarket, tele.ModeMarkdown)
+		return c.Send(text+DisplayDataToString(volume)+LinkToHelix, types.Menu, types.ViewMarketMenu(localizer), tele.ModeMarkdown)
 	})
 }
 

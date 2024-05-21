@@ -219,6 +219,7 @@ func HandleLimitStep(b *tele.Bot, c tele.Context, client internal.BotClient, cre
 		if err != nil {
 			return c.Send("Invalid price")
 		}
+		fmt.Printf("%+v", globalLimitOrder)
 		globalLimitOrder.Price = price
 		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
 		_, err = b.EditReplyMarkup(createOrderMenu, menuCreateLimitOrder)
@@ -228,9 +229,9 @@ func HandleLimitStep(b *tele.Bot, c tele.Context, client internal.BotClient, cre
 		return internal.DeleteInputMessage(b, c)
 	case "limitToken":
 		if globalLimitOrder.Direction == "buy" {
-			globalLimitOrder.DenomIn = c.Text()
+			globalLimitOrder.DenomIn = strings.ToLower(c.Text())
 		} else {
-			globalLimitOrder.DenomOut = c.Text()
+			globalLimitOrder.DenomOut = strings.ToLower(c.Text())
 		}
 		market, err := client.GetExchangeClient().GetMarketSummaryFromTicker(globalLimitOrder.DenomIn + "/" + globalLimitOrder.DenomOut)
 		if err == nil {
@@ -245,13 +246,18 @@ func HandleLimitStep(b *tele.Bot, c tele.Context, client internal.BotClient, cre
 		return internal.DeleteInputMessage(b, c)
 	case "payWithToken":
 		if globalLimitOrder.Direction == "buy" {
-			globalLimitOrder.DenomOut = c.Text()
+			globalLimitOrder.DenomOut = strings.ToLower(c.Text())
 		} else {
-			globalLimitOrder.DenomIn = c.Text()
+			globalLimitOrder.DenomIn = strings.ToLower(c.Text())
 		}
+		fmt.Printf("%+v", globalLimitOrder)
+
 		market, err := client.GetExchangeClient().GetMarketSummaryFromTicker(globalLimitOrder.DenomIn + "/" + globalLimitOrder.DenomOut)
 		if err == nil {
+			fmt.Println("fetched price is: ", market.Price)
 			globalLimitOrder.Price = market.Price
+		} else {
+			fmt.Println("Error getting market summary: ", err)
 		}
 
 		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)

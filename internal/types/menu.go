@@ -85,3 +85,12 @@ func ViewSettingsMenu(localizer *i18n.Localizer) *tele.ReplyMarkup {
 	)
 	return MenuViewSettings
 }
+
+func ViewMarketMenu(localizer *i18n.Localizer) *tele.ReplyMarkup {
+	MenuViewMarket.Inline(
+		MenuViewMarket.Row(BtnBiggestGainer24h(localizer)),
+		MenuViewMarket.Row(BtnBiggestLoser24h(localizer)),
+		MenuViewMarket.Row(BtnBiggestVolume24h(localizer)),
+	)
+	return MenuViewMarket
+}

@@ -40,6 +40,7 @@ var (
 )
 
 var clients = make(map[string]internal.BotClient)
+var globalLimitOrder = types.NewLimitOrderInfo()
 
 func main() {
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
@@ -59,7 +60,6 @@ func main() {
 	}
 	authRoute = b.Group()
 	authRoute.Use(clientMiddleware)
-	globalLimitOrder := types.NewLimitOrderInfo()
 	// On start command
 	b.Use(languageMiddleware)
 	handler.HandleOnboard(b, clients, &currentStep)
@@ -213,7 +213,7 @@ func languageMiddleware(next tele.HandlerFunc) tele.HandlerFunc {
 			localizer = i18n.NewLocalizer(bundle, "vi-VN")
 			fmt.Println("set vi")
 		}
-		SetHandlerForBot(c.Bot(), localizer, authRoute, types.NewLimitOrderInfo())
+		SetHandlerForBot(c.Bot(), localizer, authRoute, globalLimitOrder)
 		// Language is set, proceed with the next handler
 		return next(c)
 	}

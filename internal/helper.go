@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/TropicalDog17/tele-bot/internal/types"
 	"github.com/TropicalDog17/tele-bot/internal/utils"
@@ -38,7 +37,6 @@ func RemoveGreenTickForAmount(keyboard [][]tele.InlineButton) [][]tele.InlineBut
 			keyboard[5][i].Text = keyboard[5][i].Text[3:]
 		}
 	}
-	time.Sleep(1 * time.Second)
 	return keyboard
 }
 
