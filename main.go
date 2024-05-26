@@ -83,6 +83,7 @@ func SetHandlerForBot(b *tele.Bot, localizer *i18n.Localizer, authRoute *tele.Gr
 	handler.HandleViewMarket(b, localizer, types.BtnViewMarket(localizer), types.BtnBiggestGainer24h(localizer), types.BtnBiggestLoser24h(localizer), types.BtnBiggestVolume24h(localizer))
 	handler.HandleSettings(b, localizer, authRoute, clients, types.ViewSettingsMenu(localizer), types.BtnSettings(localizer), types.BtnChangeLanguage(localizer), &currentStep)
 	handler.HandleStep(b, localizer, authRoute, clients, utils.Utils{}, &currentStep, types.SendTokenMenu(localizer, transferInfo), types.LimitOrderMenu(localizer), types.CreateLimitOrderMenu(localizer), globalLimitOrder, transferInfo, &globalMenu, &createOrderMenu)
+	handler.HandlePriceAlert(b, localizer, &currentStep, types.BtnPriceAlert(localizer), types.BtnCreatePriceAlert(localizer), types.BtnViewPriceAlert(localizer), types.BtnDeletePriceAlert(localizer), types.BtnUpdatePriceAlert(localizer))
 }
 
 var authSteps = []string{

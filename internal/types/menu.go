@@ -24,6 +24,7 @@ var (
 	MenuViewMarket       = &tele.ReplyMarkup{ResizeKeyboard: true}
 	MenuViewSettings     = &tele.ReplyMarkup{ResizeKeyboard: true}
 	Selector             = &tele.ReplyMarkup{}
+	MenuPriceAlert       = &tele.ReplyMarkup{ResizeKeyboard: true}
 )
 
 func MainMenu(localizer *i18n.Localizer) *tele.ReplyMarkup {
@@ -190,4 +191,15 @@ func ModifyCustomTokenButton(keyboard [][]tele.InlineButton, localizer *i18n.Loc
 	}
 
 	return keyboard
+}
+
+func PriceAlertMenu(localizer *i18n.Localizer) *tele.ReplyMarkup {
+	MenuPriceAlert.Inline(
+		MenuPriceAlert.Row(BtnCreatePriceAlert(localizer)),
+		MenuPriceAlert.Row(BtnViewPriceAlert(localizer)),
+		MenuPriceAlert.Row(BtnDeletePriceAlert(localizer)),
+		MenuPriceAlert.Row(BtnUpdatePriceAlert(localizer)),
+		MenuPriceAlert.Row(BtnBack(localizer)),
+	)
+	return MenuPriceAlert
 }

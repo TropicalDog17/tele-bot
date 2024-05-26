@@ -381,3 +381,43 @@ func BtnDisablePassword(localizer *i18n.Localizer) telebot.Btn {
 		},
 	}), "disablePassword", "disablePassword")
 }
+
+//////////////////////////
+// Price Alert Section
+//////////////////////////
+
+func BtnCreatePriceAlert(localizer *i18n.Localizer) telebot.Btn {
+	return MenuPriceAlert.Data(localizer.MustLocalize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "CreatePriceAlert",
+			Other: "🔔 Create Price Alert",
+		},
+	}), "createPriceAlert", "createPriceAlert")
+}
+
+func BtnViewPriceAlert(localizer *i18n.Localizer) telebot.Btn {
+	return MenuPriceAlert.Data(localizer.MustLocalize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "ViewPriceAlert",
+			Other: "🔔 View Price Alert",
+		},
+	}), "viewPriceAlert", "viewPriceAlert")
+}
+
+func BtnDeletePriceAlert(localizer *i18n.Localizer) telebot.Btn {
+	return MenuPriceAlert.Data(localizer.MustLocalize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "DeletePriceAlert",
+			Other: "🔔 Delete Price Alert",
+		},
+	}), "deletePriceAlert", "deletePriceAlert")
+}
+
+func BtnUpdatePriceAlert(localizer *i18n.Localizer) telebot.Btn {
+	return MenuPriceAlert.Data(localizer.MustLocalize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{
+			ID:    "UpdatePriceAlert",
+			Other: "🔔 Update Price Alert",
+		},
+	}), "updatePriceAlert", "updatePriceAlert")
+}
