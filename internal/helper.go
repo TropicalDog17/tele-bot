@@ -33,7 +33,6 @@ func RemoveGreenTickForAmount(keyboard [][]tele.InlineButton) [][]tele.InlineBut
 	}
 	for i := 0; i < len(keyboard[5]); i++ {
 		if keyboard[5][i].Text[0:3] == "✅" {
-			fmt.Println(len("✅"))
 			keyboard[5][i].Text = keyboard[5][i].Text[3:]
 		}
 	}

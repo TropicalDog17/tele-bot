@@ -56,13 +56,13 @@ hash = "sha1-64727003c8df52d45498d635de7bbd3b10db96da"
 other = "🔒 Tắt mật khẩu"
 [FiftyDollar]
 hash = "sha1-a9a0d84de3ce0e685a5c5b17410d0a5cb8fd5ff6"
-other = "💰 $50"
+other = "💰 $5"
 [FiveHundredDollar]
 hash = "sha1-6986c70f83c82e2a2c9d36bf8ccd45e0ae97fbcd"
-other = "💶 $500"
+other = "💶 $50"
 [HundredDollar]
 hash = "sha1-a10c1bb5944a78284b710bd02b88b08a10aea86e"
-other = "💸 $100"
+other = "💸 $10"
 [InlineAtom]
 hash = "sha1-cae061a530cef71c477f974034de1fd1d9b43ecb"
 other = "ATOM"
@@ -107,7 +107,7 @@ hash = "sha1-a70f4423b196325aac67abc795ea22428a485636"
 other = "📊 Lệnh giao dịch ngay"
 [TenDollar]
 hash = "sha1-484cd16b4b4a6285fd437c549d5971f5797e1de3"
-other = "💵 $10"
+other = "💵 $1"
 [Token]
 hash = "sha1-3728b0d79c2c7d16c99b8006c30cf00d715fd180"
 other = "🪙 Token"
@@ -116,7 +116,7 @@ hash = "sha1-16bb8778c98aeadddc06363737a5a9d6ac912dd5"
 other = "💠 Phần Token 💠 "
 [TwoHundredDollar]
 hash = "sha1-f676dfc7ad41baa5bfda25eb08a3ceb4f51dd2a7"
-other = "🪙 $200"
+other = "🪙 $20"
 [ViewBalances]
 hash = "sha1-ad52c60627ecd8004c1b6d4e83afcac0a911555e"
 other = "ℹ Xem số dư"

@@ -1,9 +1,17 @@
 package types
 
 import (
+	"fmt"
+
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	tele "gopkg.in/telebot.v3"
 )
+
+type TransferInfo struct {
+	SelectedToken    string
+	SelectedAmount   string
+	RecipientAddress string
+}
 
 var (
 	// Universal markup builders.
@@ -27,17 +35,36 @@ func MainMenu(localizer *i18n.Localizer) *tele.ReplyMarkup {
 	return Menu
 }
 
-func SendTokenMenu(localizer *i18n.Localizer) *tele.ReplyMarkup {
+func SendTokenMenu(localizer *i18n.Localizer, info *TransferInfo) *tele.ReplyMarkup {
 	MenuSendToken.Inline(
 		MenuSendToken.Row(BtnBack(localizer), BtnMenu(localizer)),
-		MenuSendToken.Row(BtnTokenSection(localizer)),
+		MenuSendToken.Row(BtnTokenSection(localizer, info)),
 		MenuSendToken.Row(BtnInlineAtom(localizer), BtnInlineInj(localizer), BtnCustomToken(localizer)),
-		MenuSendToken.Row(BtnAmountSection(localizer)),
+		MenuSendToken.Row(BtnAmountSection(localizer, info)),
 		MenuSendToken.Row(BtnTenDollar(localizer), BtnFiftyDollar(localizer), BtnHundredDollar(localizer)),
 		MenuSendToken.Row(BtnTwoHundredDollar(localizer), BtnFiveHundredDollar(localizer), BtnCustomAmount(localizer)),
-		MenuSendToken.Row(BtnRecipientSection(localizer)),
+		MenuSendToken.Row(BtnRecipientSection(localizer, info)),
 		MenuSendToken.Row(BtnSend(localizer)),
 	)
+	switch info.SelectedToken {
+	case "atom":
+		MenuSendToken.InlineKeyboard = RemoveGreenTickToken(MenuSendToken.InlineKeyboard)
+		fmt.Println("Selected token: ", info.SelectedToken)
+		MenuSendToken.InlineKeyboard[2][0] = AddGreenTick(*BtnInlineAtom(localizer).Inline())
+	case "inj":
+		MenuSendToken.InlineKeyboard = RemoveGreenTickToken(MenuSendToken.InlineKeyboard)
+		fmt.Println("Selected token: ", info.SelectedToken)
+		MenuSendToken.InlineKeyboard[2][1] = AddGreenTick(*BtnInlineInj(localizer).Inline())
+	}
+
+	if info.SelectedAmount != "" {
+		MenuSendToken.InlineKeyboard = RemoveGreenTickForAmount(MenuSendToken.InlineKeyboard)
+		MenuSendToken.InlineKeyboard = ModifyAmountToTransferButton(MenuSendToken.InlineKeyboard, localizer, info)
+	}
+	if info.RecipientAddress != "" {
+		MenuSendToken.InlineKeyboard[6][0].Text = "Recipient: " + info.RecipientAddress
+	}
+
 	return MenuSendToken
 }
 
@@ -93,4 +120,72 @@ func ViewMarketMenu(localizer *i18n.Localizer) *tele.ReplyMarkup {
 		MenuViewMarket.Row(BtnBiggestVolume24h(localizer)),
 	)
 	return MenuViewMarket
+}
+
+func AddGreenTick(btn tele.InlineButton) tele.InlineButton {
+	btn.Text = "✅ " + btn.Text
+	return btn
+}
+func RemoveGreenTickToken(keyboard [][]tele.InlineButton) [][]tele.InlineButton {
+	for i := 0; i < len(keyboard[2]); i++ {
+		if keyboard[2][i].Text[0:3] == "✅" {
+			keyboard[2][i].Text = keyboard[2][i].Text[3:]
+		}
+	}
+	return keyboard
+}
+func RemoveGreenTickForAmount(keyboard [][]tele.InlineButton) [][]tele.InlineButton {
+	for i := 0; i < len(keyboard[4]); i++ {
+
+		if keyboard[4][i].Text[0:3] == "✅" {
+			keyboard[4][i].Text = keyboard[4][i].Text[3:]
+		}
+	}
+	for i := 0; i < len(keyboard[5]); i++ {
+		if keyboard[5][i].Text[0:3] == "✅" {
+			keyboard[5][i].Text = keyboard[5][i].Text[3:]
+		}
+	}
+	return keyboard
+}
+
+func ModifyAmountToTransferButton(keyboard [][]tele.InlineButton, localizer *i18n.Localizer, info *TransferInfo) [][]tele.InlineButton {
+	if info.SelectedToken != "" {
+		keyboard[3][0].Text = localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{ID: "Transfer", Other: "Transfer"}}) + " " + info.SelectedAmount + " " + info.SelectedToken
+	}
+	switch info.SelectedAmount {
+	case "1":
+		keyboard = RemoveGreenTickForAmount(keyboard)
+		keyboard[4][0] = AddGreenTick(*BtnTenDollar(localizer).Inline())
+	case "5":
+		keyboard = RemoveGreenTickForAmount(keyboard)
+		keyboard[4][1] = AddGreenTick(*BtnFiftyDollar(localizer).Inline())
+	case "10":
+		keyboard = RemoveGreenTickForAmount(keyboard)
+		keyboard[4][2] = AddGreenTick(*BtnHundredDollar(localizer).Inline())
+	case "20":
+		keyboard = RemoveGreenTickForAmount(keyboard)
+		keyboard[5][0] = AddGreenTick(*BtnTwoHundredDollar(localizer).Inline())
+	case "50":
+		keyboard = RemoveGreenTickForAmount(keyboard)
+		keyboard[5][1] = AddGreenTick(*BtnFiveHundredDollar(localizer).Inline())
+	default:
+		keyboard[5][2].Text = "Custom amount: " + info.SelectedAmount
+	}
+	return keyboard
+}
+
+func ModifyCustomTokenButton(keyboard [][]tele.InlineButton, localizer *i18n.Localizer, info *TransferInfo) [][]tele.InlineButton {
+	keyboard = RemoveGreenTickToken(keyboard)
+	if info.SelectedToken == "atom" {
+		keyboard[2][0] = AddGreenTick(*BtnInlineAtom(localizer).Inline())
+	} else if info.SelectedToken == "inj" {
+		keyboard[2][1] = AddGreenTick(*BtnInlineInj(localizer).Inline())
+	} else {
+		if info.SelectedToken != "" {
+			keyboard[2][2].Text = "Custom token: " + info.SelectedToken
+		}
+	}
+
+	return keyboard
 }

@@ -24,19 +24,17 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
+var transferInfo = &types.TransferInfo{}
 var redisInstance internal.RedisClient
 var notWaitingForPassword = make(map[string]bool)
 var bundle = i18n.NewBundle(language.English)
 var localizer = i18n.NewLocalizer(bundle, "en")
 var authRoute *tele.Group
 var (
-	selectedToken    string
-	selectedAmount   string
-	recipientAddress string
-	currentStep      string
-	globalMenu       tele.StoredMessage
-	limitOrderMenu   tele.StoredMessage
-	createOrderMenu  tele.StoredMessage
+	currentStep     string
+	globalMenu      tele.StoredMessage
+	limitOrderMenu  tele.StoredMessage
+	createOrderMenu tele.StoredMessage
 )
 
 var clients = make(map[string]internal.BotClient)
@@ -68,11 +66,11 @@ func main() {
 		return c.Send("Menu", types.MainMenu(localizer))
 	})
 
-	SetHandlerForBot(b, localizer, authRoute, globalLimitOrder)
+	SetHandlerForBot(b, localizer, authRoute, globalLimitOrder, transferInfo)
 	b.Start()
 }
 
-func SetHandlerForBot(b *tele.Bot, localizer *i18n.Localizer, authRoute *tele.Group, globalLimitOrder *types.LimitOrderInfo) {
+func SetHandlerForBot(b *tele.Bot, localizer *i18n.Localizer, authRoute *tele.Group, globalLimitOrder *types.LimitOrderInfo, transferInfo *types.TransferInfo) {
 	handler.HandleAccountDetails(b, localizer, authRoute, clients, types.BtnShowAccount(localizer))
 	handler.HandleAddressQr(b, authRoute, clients)
 
@@ -81,15 +79,15 @@ func SetHandlerForBot(b *tele.Bot, localizer *i18n.Localizer, authRoute *tele.Gr
 	// handler.UtilityHandler(b, localizer, authRoute, &currentStep)
 
 	// Handle the transfer token flow
-	handler.HandlerTransferToken(b, localizer, authRoute, clients, types.SendTokenMenu(localizer), types.BtnSend(localizer), types.BtnSendToken(localizer), types.BtnInlineAtom(localizer), types.BtnInlineInj(localizer), types.BtnTenDollar(localizer), types.BtnFiftyDollar(localizer), types.BtnHundredDollar(localizer), types.BtnTwoHundredDollar(localizer), types.BtnFiveHundredDollar(localizer), types.BtnCustomAmount(localizer), types.BtnRecipientSection(localizer), types.BtnCustomToken(localizer), &selectedToken, &selectedAmount, &currentStep, &recipientAddress, &globalMenu)
+	handler.HandlerTransferToken(b, localizer, authRoute, clients, types.SendTokenMenu(localizer, transferInfo), types.BtnSend(localizer), types.BtnSendToken(localizer), types.BtnInlineAtom(localizer), types.BtnInlineInj(localizer), types.BtnTenDollar(localizer), types.BtnFiftyDollar(localizer), types.BtnHundredDollar(localizer), types.BtnTwoHundredDollar(localizer), types.BtnFiveHundredDollar(localizer), types.BtnCustomAmount(localizer), types.BtnRecipientSection(localizer, transferInfo), types.BtnCustomToken(localizer), transferInfo, &currentStep, &globalMenu)
 	handler.HandleViewMarket(b, localizer, types.BtnViewMarket(localizer), types.BtnBiggestGainer24h(localizer), types.BtnBiggestLoser24h(localizer), types.BtnBiggestVolume24h(localizer))
 	handler.HandleSettings(b, localizer, authRoute, clients, types.ViewSettingsMenu(localizer), types.BtnSettings(localizer), types.BtnChangeLanguage(localizer), &currentStep)
-	handler.HandleStep(b, localizer, authRoute, clients, utils.Utils{}, &currentStep, types.SendTokenMenu(localizer), types.LimitOrderMenu(localizer), types.CreateLimitOrderMenu(localizer), globalLimitOrder, &selectedAmount, &selectedToken, &recipientAddress, &globalMenu, &createOrderMenu)
+	handler.HandleStep(b, localizer, authRoute, clients, utils.Utils{}, &currentStep, types.SendTokenMenu(localizer, transferInfo), types.LimitOrderMenu(localizer), types.CreateLimitOrderMenu(localizer), globalLimitOrder, transferInfo, &globalMenu, &createOrderMenu)
 }
 
 var authSteps = []string{
 	"customAmount", "recipientAddress", "limitAmount", "limitPrice", "limitToken", "payWithToken", "cancelOrder", "confirmOrder", types.BtnSendToken(localizer).Text, types.BtnLimitOrder(localizer).Text, types.BtnShowAccount(localizer).Text,
-	types.BtnActiveOrders(localizer).Text, types.BtnCancelOrder(localizer).Text, types.BtnBack(localizer).Text, types.BtnMenu(localizer).Text, types.BtnInlineAtom(localizer).Text, types.BtnInlineInj(localizer).Text, types.BtnTenDollar(localizer).Text, types.BtnFiftyDollar(localizer).Text, types.BtnHundredDollar(localizer).Text, types.BtnTwoHundredDollar(localizer).Text, types.BtnFiveHundredDollar(localizer).Text, types.BtnCustomAmount(localizer).Text, types.BtnRecipientSection(localizer).Text, types.BtnCustomToken(localizer).Text, types.BtnSettings(localizer).Text,
+	types.BtnActiveOrders(localizer).Text, types.BtnCancelOrder(localizer).Text, types.BtnBack(localizer).Text, types.BtnMenu(localizer).Text, types.BtnInlineAtom(localizer).Text, types.BtnInlineInj(localizer).Text, types.BtnTenDollar(localizer).Text, types.BtnFiftyDollar(localizer).Text, types.BtnHundredDollar(localizer).Text, types.BtnTwoHundredDollar(localizer).Text, types.BtnFiveHundredDollar(localizer).Text, types.BtnCustomAmount(localizer).Text, types.BtnRecipientSection(localizer, transferInfo).Text, types.BtnCustomToken(localizer).Text, types.BtnSettings(localizer).Text,
 }
 
 func clientMiddleware(next tele.HandlerFunc) tele.HandlerFunc {
@@ -192,7 +190,7 @@ func clientMiddleware(next tele.HandlerFunc) tele.HandlerFunc {
 func languageMiddleware(next tele.HandlerFunc) tele.HandlerFunc {
 	authSteps = []string{
 		"customAmount", "recipientAddress", "limitAmount", "limitPrice", "limitToken", "payWithToken", "cancelOrder", "confirmOrder", types.BtnSendToken(localizer).Text, types.BtnLimitOrder(localizer).Text, types.BtnShowAccount(localizer).Text,
-		types.BtnActiveOrders(localizer).Text, types.BtnCancelOrder(localizer).Text, types.BtnBack(localizer).Text, types.BtnMenu(localizer).Text, types.BtnInlineAtom(localizer).Text, types.BtnInlineInj(localizer).Text, types.BtnTenDollar(localizer).Text, types.BtnFiftyDollar(localizer).Text, types.BtnHundredDollar(localizer).Text, types.BtnTwoHundredDollar(localizer).Text, types.BtnFiveHundredDollar(localizer).Text, types.BtnCustomAmount(localizer).Text, types.BtnRecipientSection(localizer).Text, types.BtnCustomToken(localizer).Text, types.BtnSettings(localizer).Text,
+		types.BtnActiveOrders(localizer).Text, types.BtnCancelOrder(localizer).Text, types.BtnBack(localizer).Text, types.BtnMenu(localizer).Text, types.BtnInlineAtom(localizer).Text, types.BtnInlineInj(localizer).Text, types.BtnTenDollar(localizer).Text, types.BtnFiftyDollar(localizer).Text, types.BtnHundredDollar(localizer).Text, types.BtnTwoHundredDollar(localizer).Text, types.BtnFiveHundredDollar(localizer).Text, types.BtnCustomAmount(localizer).Text, types.BtnRecipientSection(localizer, transferInfo).Text, types.BtnCustomToken(localizer).Text, types.BtnSettings(localizer).Text,
 	}
 	return func(c tele.Context) error {
 		redisInstance = database.NewRedisInstance()
@@ -213,7 +211,7 @@ func languageMiddleware(next tele.HandlerFunc) tele.HandlerFunc {
 			localizer = i18n.NewLocalizer(bundle, "vi-VN")
 			fmt.Println("set vi")
 		}
-		SetHandlerForBot(c.Bot(), localizer, authRoute, globalLimitOrder)
+		SetHandlerForBot(c.Bot(), localizer, authRoute, globalLimitOrder, transferInfo)
 		// Language is set, proceed with the next handler
 		return next(c)
 	}

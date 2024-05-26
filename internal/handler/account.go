@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/TropicalDog17/tele-bot/internal"
-	"github.com/TropicalDog17/tele-bot/internal/types"
+	types "github.com/TropicalDog17/tele-bot/internal/types"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"github.com/yeqown/go-qrcode/v2"
 	"github.com/yeqown/go-qrcode/writer/standard"

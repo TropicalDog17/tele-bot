@@ -21,8 +21,6 @@ import (
 	tele "gopkg.in/telebot.v3"
 )
 
-var pwdChan = make(chan *memguard.LockedBuffer)
-
 type Client struct {
 	client          *exchange.MbClient
 	coinGeckoClient internal.CoinGecko

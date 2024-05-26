@@ -230,76 +230,84 @@ func BtnSellLimitOrder(localizer *i18n.Localizer) telebot.Btn {
 	}), "sellLimit", "sell")
 }
 
-func BtnTokenSection(localizer *i18n.Localizer) telebot.Btn {
+//////////////////////////
+// Send Token Section
+//////////////////////////
+
+func BtnTokenSection(localizer *i18n.Localizer, info *TransferInfo) telebot.Btn {
+
 	return MenuSendToken.Data(localizer.MustLocalize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "TokenSection",
-			Other: "💠 Token Section 💠 ",
+			Other: "🪙 Token: ",
 		},
 	}), "tokenSection")
 }
 
-func BtnAmountSection(localizer *i18n.Localizer) telebot.Btn {
+func BtnAmountSection(localizer *i18n.Localizer, info *TransferInfo) telebot.Btn {
+
 	return MenuSendToken.Data(localizer.MustLocalize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "AmountSection",
-			Other: "💰 Amount Section 💰",
+			Other: "💰 Amount: ",
 		},
 	}), "amountSection")
+
 }
 
-func BtnRecipientSection(localizer *i18n.Localizer) telebot.Btn {
+func BtnRecipientSection(localizer *i18n.Localizer, info *TransferInfo) telebot.Btn {
 	return MenuSendToken.Data(localizer.MustLocalize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "RecipientSection",
-			Other: "📨 Enter Recipient Address: 📨 ",
+			Other: "👤 Recipient: ",
 		},
-	}), "recipient", "recipient")
+	}), "recipientSection")
+
 }
 
 func BtnTenDollar(localizer *i18n.Localizer) telebot.Btn {
 	return MenuSendToken.Data(localizer.MustLocalize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "TenDollar",
-			Other: "💵 $10",
+			Other: "💵 $1",
 		},
-	}), "btnTenDollar", "10")
+	}), "btnTenDollar", "1")
 }
 
 func BtnFiftyDollar(localizer *i18n.Localizer) telebot.Btn {
 	return MenuSendToken.Data(localizer.MustLocalize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "FiftyDollar",
-			Other: "💰 $50",
+			Other: "💰 $5",
 		},
-	}), "btnFiftyDollar", "50")
+	}), "btnFiftyDollar", "5")
 }
 
 func BtnHundredDollar(localizer *i18n.Localizer) telebot.Btn {
 	return MenuSendToken.Data(localizer.MustLocalize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "HundredDollar",
-			Other: "💸 $100",
+			Other: "💸 $10",
 		},
-	}), "btnHundredDollar", "100")
+	}), "btnHundredDollar", "10")
 }
 
 func BtnTwoHundredDollar(localizer *i18n.Localizer) telebot.Btn {
 	return MenuSendToken.Data(localizer.MustLocalize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "TwoHundredDollar",
-			Other: "🪙 $200",
+			Other: "🪙 $20",
 		},
-	}), "btnTwoHundredDollar", "200")
+	}), "btnTwoHundredDollar", "20")
 }
 
 func BtnFiveHundredDollar(localizer *i18n.Localizer) telebot.Btn {
 	return MenuSendToken.Data(localizer.MustLocalize(&i18n.LocalizeConfig{
 		DefaultMessage: &i18n.Message{
 			ID:    "FiveHundredDollar",
-			Other: "💶 $500",
+			Other: "💶 $50",
 		},
-	}), "btnFiveHundredDollar", "500")
+	}), "btnFiveHundredDollar", "50")
 }
 
 func BtnCustomAmount(localizer *i18n.Localizer) telebot.Btn {
