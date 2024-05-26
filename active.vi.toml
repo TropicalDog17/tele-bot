@@ -58,6 +58,10 @@ other = "Xác nhận"
 hash = "sha1-1c45b72a1a9c0f4ecf7b56ee74e7d85096203c21"
 other = "✅ Xác nhận đơn hàng"
 
+[CreatePriceAlert]
+hash = "sha1-b79b0447bb32a72cea8c9a83b323f631a7ed4213"
+other = "🔔 Tạo cảnh báo giá"
+
 [CustomAmount]
 hash = "sha1-f7219236a0f86266f4daad5fceab2b6bb447b8eb"
 other = "Tuỳ chọn"
@@ -65,6 +69,10 @@ other = "Tuỳ chọn"
 [CustomToken]
 hash = "sha1-5cca3ae612fa2b762cf2f30c637a8463fbad407a"
 other = "Tuỳ chọn"
+
+[DeletePriceAlert]
+hash = "sha1-3dec3258536373474bc4c76994e917e584f98081"
+other = "🔔 Xoá cảnh báo giá"
 
 [DisablePassword]
 hash = "sha1-64727003c8df52d45498d635de7bbd3b10db96da"
@@ -178,6 +186,10 @@ other = "Chuyển"
 hash = "sha1-f5357181a7d93f85cbcb4bb7d0ab154c64045657"
 other = "🪙 $20"
 
+[UpdatePriceAlert]
+hash = "sha1-cfd95e32b0492574ae4723830b94639f5596fb55"
+other = "🔔 Sửa cảnh báo giá"
+
 [ViewBalances]
 hash = "sha1-ad52c60627ecd8004c1b6d4e83afcac0a911555e"
 other = "ℹ Xem số dư"
@@ -185,6 +197,10 @@ other = "ℹ Xem số dư"
 [ViewMarket]
 hash = "sha1-ee24065e4e2510436cf366e16647929a4f5937cf"
 other = "📈 Xem thị trường"
+
+[ViewPriceAlert]
+hash = "sha1-7987b7e03f4e2ee162931e6a29c02dac556f141c"
+other = "🔔 Xem cảnh báo giá"
 
 [passwordAccepted]
 hash = "sha1-d8c53c910dbbfef2234af84a2f36a05debbc5294"

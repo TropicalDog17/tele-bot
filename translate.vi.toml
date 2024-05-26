@@ -1,7 +1,15 @@
-[EnterCancelOrderId]
-hash = "sha1-98b8bd36a927261d0f58a24e430c1950c58c159a"
-other = "Nhập mã lệnh cần hủy"
+[CreatePriceAlert]
+hash = "sha1-b79b0447bb32a72cea8c9a83b323f631a7ed4213"
+other = "🔔 Tạo cảnh báo giá"
 
-[NoActiveOrders]
-hash = "sha1-03574d967abbc2489931876ec919a0f382c33fa4"
-other = "Không có lệnh nào đang hoạt động"
+[DeletePriceAlert]
+hash = "sha1-3dec3258536373474bc4c76994e917e584f98081"
+other = "🔔 Xoá cảnh báo giá"
+
+[UpdatePriceAlert]
+hash = "sha1-cfd95e32b0492574ae4723830b94639f5596fb55"
+other = "🔔 Sửa cảnh báo giá"
+
+[ViewPriceAlert]
+hash = "sha1-7987b7e03f4e2ee162931e6a29c02dac556f141c"
+other = "🔔 Xem cảnh báo giá"

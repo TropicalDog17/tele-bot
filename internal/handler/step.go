@@ -19,6 +19,12 @@ func HandleStep(b *tele.Bot, localizer *i18n.Localizer, authRoute *tele.Group, c
 			client := client.NewTempClient()
 			return HandleOnboardStep(b, c, client, clients, utils, currentStep)
 		}
+		// Don't need client in this case
+		if *currentStep == "createPriceAlert" || *currentStep == "viewPriceAlert" || *currentStep == "deletePriceAlert" || *currentStep == "updatePriceAlert" || *currentStep == "priceAlert" {
+			return HandleCreateAlertStep(b, c, localizer, currentStep)
+		}
+
+		// Need client in this case
 		client, ok := clients[c.Message().Sender.Username]
 		if !ok {
 			return c.Send("Client not found", types.Menu)
