@@ -39,9 +39,9 @@ func RemoveGreenTickForAmount(keyboard [][]tele.InlineButton) [][]tele.InlineBut
 	return keyboard
 }
 
-func ModifyAmountToTransferButton(keyboard [][]tele.InlineButton, amount, denom string) [][]tele.InlineButton {
+func ModifyAmountToTransferButton(localizer *i18n.Localizer, keyboard [][]tele.InlineButton, amount, denom string) [][]tele.InlineButton {
 	if denom != "" {
-		keyboard[3][0].Text = "Transfer " + amount + " " + denom
+		keyboard[3][0].Text = localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{ID: "Transfer", Other: "Transfer"}}) + " " + amount + " " + denom
 		return keyboard
 	}
 	return keyboard

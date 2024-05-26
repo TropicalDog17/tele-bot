@@ -170,7 +170,8 @@ func ModifyAmountToTransferButton(keyboard [][]tele.InlineButton, localizer *i18
 		keyboard = RemoveGreenTickForAmount(keyboard)
 		keyboard[5][1] = AddGreenTick(*BtnFiveHundredDollar(localizer).Inline())
 	default:
-		keyboard[5][2].Text = "Custom amount: " + info.SelectedAmount
+		// keyboard[5][2].Text = "Custom amount: " + info.SelectedAmount
+		keyboard[5][2].Text = localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{ID: "CustomAmount", Other: "Custom amount"}}) + ": " + info.SelectedAmount
 	}
 	return keyboard
 }
@@ -183,7 +184,8 @@ func ModifyCustomTokenButton(keyboard [][]tele.InlineButton, localizer *i18n.Loc
 		keyboard[2][1] = AddGreenTick(*BtnInlineInj(localizer).Inline())
 	} else {
 		if info.SelectedToken != "" {
-			keyboard[2][2].Text = "Custom token: " + info.SelectedToken
+			// keyboard[2][2].Text = "Custom token: " + info.SelectedToken
+			keyboard[2][2].Text = localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{ID: "CustomToken", Other: "Custom token"}}) + ": " + info.SelectedToken
 		}
 	}
 

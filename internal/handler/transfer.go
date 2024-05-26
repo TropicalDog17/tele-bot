@@ -62,7 +62,7 @@ func HandlerTransferToken(b *tele.Bot, localizer *i18n.Localizer, authRoute *tel
 	// Handle amount button clicks
 	authRoute.Handle(&btnTenDollar, func(c tele.Context) error {
 		transferInfo.SelectedAmount = "1"
-		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, transferInfo.SelectedAmount, transferInfo.SelectedToken)
+		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(localizer, menuSendToken.InlineKeyboard, transferInfo.SelectedAmount, transferInfo.SelectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
 		menuSendToken.InlineKeyboard[4][0] = internal.AddGreenTick(*btnTenDollar.Inline())
 		return c.Edit("Selected amount: 1 "+strings.ToUpper(transferInfo.SelectedToken), menuSendToken)
@@ -70,7 +70,7 @@ func HandlerTransferToken(b *tele.Bot, localizer *i18n.Localizer, authRoute *tel
 
 	authRoute.Handle(&btnFiftyDollar, func(c tele.Context) error {
 		transferInfo.SelectedAmount = "5"
-		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, transferInfo.SelectedAmount, transferInfo.SelectedToken)
+		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(localizer, menuSendToken.InlineKeyboard, transferInfo.SelectedAmount, transferInfo.SelectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
 		menuSendToken.InlineKeyboard[4][1] = internal.AddGreenTick(*btnFiftyDollar.Inline())
 
@@ -79,7 +79,7 @@ func HandlerTransferToken(b *tele.Bot, localizer *i18n.Localizer, authRoute *tel
 
 	authRoute.Handle(&btnHundredDollar, func(c tele.Context) error {
 		transferInfo.SelectedAmount = "10"
-		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, transferInfo.SelectedAmount, transferInfo.SelectedToken)
+		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(localizer, menuSendToken.InlineKeyboard, transferInfo.SelectedAmount, transferInfo.SelectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
 		menuSendToken.InlineKeyboard[4][2] = internal.AddGreenTick(*btnHundredDollar.Inline())
 		return c.Edit("Selected amount: 10 "+strings.ToUpper(transferInfo.SelectedToken), menuSendToken)
@@ -87,7 +87,7 @@ func HandlerTransferToken(b *tele.Bot, localizer *i18n.Localizer, authRoute *tel
 
 	authRoute.Handle(&btnTwoHundredDollar, func(c tele.Context) error {
 		transferInfo.SelectedAmount = "20"
-		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, transferInfo.SelectedAmount, transferInfo.SelectedToken)
+		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(localizer, menuSendToken.InlineKeyboard, transferInfo.SelectedAmount, transferInfo.SelectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
 		menuSendToken.InlineKeyboard[5][0] = internal.AddGreenTick(*btnTwoHundredDollar.Inline())
 		return c.Edit("Selected amount: 20 "+strings.ToUpper(transferInfo.SelectedToken), menuSendToken)
@@ -95,7 +95,7 @@ func HandlerTransferToken(b *tele.Bot, localizer *i18n.Localizer, authRoute *tel
 
 	authRoute.Handle(&btnFiveHundredDollar, func(c tele.Context) error {
 		transferInfo.SelectedAmount = "50"
-		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(menuSendToken.InlineKeyboard, transferInfo.SelectedAmount, transferInfo.SelectedToken)
+		menuSendToken.InlineKeyboard = internal.ModifyAmountToTransferButton(localizer, menuSendToken.InlineKeyboard, transferInfo.SelectedAmount, transferInfo.SelectedToken)
 		menuSendToken.InlineKeyboard = internal.RemoveGreenTickForAmount(menuSendToken.InlineKeyboard)
 		menuSendToken.InlineKeyboard[5][1] = internal.AddGreenTick(*btnFiveHundredDollar.Inline())
 		return c.Edit("Selected amount: 50 "+strings.ToUpper(transferInfo.SelectedToken), menuSendToken)
@@ -171,9 +171,12 @@ func HandleTransferStep(b *tele.Bot, localizer *i18n.Localizer, client internal.
 		}
 		btnRecipientSection := types.BtnRecipientSection(localizer, transferInfo)
 		if transferInfo.RecipientAddress == "" {
-			btnRecipientSection.Text = "Recipient: Not set"
+			// btnRecipientSection.Text = "Recipient: Not set"
+			btnRecipientSection.Text = localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{ID: "RecipientNotSet", Other: "Recipient not set"}})
 		} else {
-			btnRecipientSection.Text = "Recipient: " + transferInfo.RecipientAddress
+			// btnRecipientSection.Text = "Recipient: " + transferInfo.RecipientAddress
+			// keyboard[5][2].Text = localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{ID: "CustomAmount", Other: "Custom amount"}}) + ": " + info.SelectedAmount
+			btnRecipientSection.Text = localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{ID: "RecipientSet", Other: "Recipient set"}}) + ": " + transferInfo.RecipientAddress
 		}
 		menuSendToken.InlineKeyboard[6][0] = *btnRecipientSection.Inline()
 		return c.Edit("Recipent set: "+transferInfo.RecipientAddress, menuSendToken)

@@ -23,8 +23,8 @@ func HandleLimitOrder(b internal.Bot, localizer *i18n.Localizer, authRoute *tele
 		}
 		rdb := client.GetRedisInstance()
 
-		text := "📊 Limit Orders\n\nBuy or Sell tokens automatically at your desired price.\n1. Choose to Buy or Sell.\n2. Choose the Token to Buy or Sell.\n3. Select the amount to Buy or Sell.\n4. Set your target buy or sell price.\n5. Pick an expiry time for the order.\n6. Click Create Order and Review, Confirm.\n\nTo manage or view unfilled orders, click Active Orders."
-
+		// text := "📊 Limit Orders\n\nBuy or Sell tokens automatically at your desired price.\n1. Choose to Buy or Sell.\n2. Choose the Token to Buy or Sell.\n3. Select the amount to Buy or Sell.\n4. Set your target buy or sell price.\n5. Click Create Order and Review, Confirm.\n\nTo manage or view unfilled orders, click Active Orders."
+		text := localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{ID: "LimitOrderText", Other: "📊 Limit Orders\n\nBuy or Sell tokens automatically at your desired price.\n1. Choose to Buy or Sell.\n2. Choose the Token to Buy or Sell.\n3. Select the amount to Buy or Sell.\n4. Set your target buy or sell price.\n5. Click Create Order and Review, Confirm.\n\nTo manage or view unfilled orders, click Active Orders."}})
 		msg, err := b.Send(c.Chat(), text, types.MenuLimitOrder)
 		if err != nil {
 			return err
@@ -186,7 +186,7 @@ func HandleLimitOrder(b internal.Bot, localizer *i18n.Localizer, authRoute *tele
 		}
 
 		if len(orders) == 0 {
-			return c.Send("No active orders", menu)
+			return c.Send(localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{ID: "NoActiveOrders", Other: "No active orders"}}), types.Menu)
 		}
 		for _, order := range orders {
 			msgs = append(msgs, client.ToMessage(order, false))
@@ -196,7 +196,7 @@ func HandleLimitOrder(b internal.Bot, localizer *i18n.Localizer, authRoute *tele
 	})
 	b.Handle(&btnCancelOrder, func(c tele.Context) error {
 		*currentStep = "cancelOrder"
-		return c.Send("Enter the order id to cancel", tele.ForceReply)
+		return c.Send(localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{ID: "EnterCancelOrderId", Other: "Enter the order ID to cancel"}}), types.Menu)
 	})
 }
 

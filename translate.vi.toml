@@ -1,7 +1,7 @@
-[passwordAccepted]
-hash = "sha1-d8c53c910dbbfef2234af84a2f36a05debbc5294"
-other = "Password accepted. You can perform your action again"
+[EnterCancelOrderId]
+hash = "sha1-98b8bd36a927261d0f58a24e430c1950c58c159a"
+other = "Nhập mã lệnh cần hủy"
 
-[sessionExpired]
-hash = "sha1-6e0d3fabd35e7f64b800067c3b8607b87059c7c4"
-other = "Session expired! Please enter your password"
+[NoActiveOrders]
+hash = "sha1-03574d967abbc2489931876ec919a0f382c33fa4"
+other = "Không có lệnh nào đang hoạt động"
