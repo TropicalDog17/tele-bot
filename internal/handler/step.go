@@ -21,7 +21,7 @@ func HandleStep(b *tele.Bot, localizer *i18n.Localizer, authRoute *tele.Group, c
 		}
 		// Don't need client in this case
 		if *currentStep == "createPriceAlert" || *currentStep == "viewPriceAlert" || *currentStep == "deletePriceAlert" || *currentStep == "updatePriceAlert" || *currentStep == "priceAlert" {
-			return HandleCreateAlertStep(b, c, localizer, currentStep)
+			return HandleAlertStep(b, c, localizer, currentStep)
 		}
 
 		// Need client in this case

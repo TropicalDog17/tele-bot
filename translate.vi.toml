@@ -1,15 +1,3 @@
-[CreatePriceAlert]
-hash = "sha1-b79b0447bb32a72cea8c9a83b323f631a7ed4213"
-other = "🔔 Tạo cảnh báo giá"
-
-[DeletePriceAlert]
-hash = "sha1-3dec3258536373474bc4c76994e917e584f98081"
-other = "🔔 Xoá cảnh báo giá"
-
-[UpdatePriceAlert]
-hash = "sha1-cfd95e32b0492574ae4723830b94639f5596fb55"
-other = "🔔 Sửa cảnh báo giá"
-
-[ViewPriceAlert]
-hash = "sha1-7987b7e03f4e2ee162931e6a29c02dac556f141c"
-other = "🔔 Xem cảnh báo giá"
+[AlertMessagePercentage]
+hash = "sha1-f8185b94ac850bf3d20dd63fb911192dbfc121d9"
+other = "*🚨 ID Cảnh báo:* {{.AlertID}}\n*📈 {{.Name}} {{.Symbol}}/USDT*\n⏰ Thông báo cho tôi khi giá *{{.Condition}} {{.Value}}% trong 24h qua*\n💰 Giá hiện tại theo USD: ${{.CurrentPrice}}"

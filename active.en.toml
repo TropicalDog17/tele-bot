@@ -1,4 +1,6 @@
 ActiveOrders = "💸 Active Orders"
+AlertMessage = "*🚨 Alert ID:* {{.AlertID}}\n*📈 {{.Name}} {{.Symbol}}/USDT*\n⏰ Alert me when price is *{{.Condition}} ${{.Value}}*\n💰 Current price in USD: ${{.CurrentPrice}}"
+AlertMessagePercentage = "*🚨 Alert ID:* {{.AlertID}}\n*📈 {{.Name}} {{.Symbol}}/USDT*\n⏰ Alert me when price is *{{.Condition}} {{.Value}}% last 24h*\n💰 Current price in USD: ${{.CurrentPrice}}"
 Amount = "📈 Amount"
 AmountSection = "💰 Amount: "
 Back = "Back"

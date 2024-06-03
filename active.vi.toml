@@ -2,6 +2,14 @@
 hash = "sha1-bdc3d7a55cdb06ed1240d52e35c43b399a3bb7fb"
 other = "💸 Lệnh đang hoạt động"
 
+[AlertMessage]
+hash = "sha1-6afd3d9597ae992e0f4bd064ab5e3cde9025e2c2"
+other = "*🚨 ID Cảnh Báo:* {{.AlertID}}\n*📈 {{.Name}} {{.Symbol}}/USDT*\n⏰ Thông báo cho tôi khi giá *{{.Condition}} ${{.Value}}*\n💰 Giá hiện tại bằng USD: ${{.CurrentPrice}}"
+
+[AlertMessagePercentage]
+hash = "sha1-f8185b94ac850bf3d20dd63fb911192dbfc121d9"
+other = "*🚨 ID Cảnh báo:* {{.AlertID}}\n*📈 {{.Name}} {{.Symbol}}/USDT*\n⏰ Thông báo cho tôi khi giá *{{.Condition}} {{.Value}}% trong 24h qua*\n💰 Giá hiện tại theo USD: ${{.CurrentPrice}}"
+
 [Amount]
 hash = "sha1-2991f746c94ed74ad3a5cefe3d1580547242b954"
 other = "📈 Số lượng"
