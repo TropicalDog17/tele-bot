@@ -248,6 +248,10 @@ func ConvertAlertToCreateAlertRequest(alert *Alert, userID string) (*CreateAlert
 		condition = "PRICE_PERCENT_CHANGE_ABOVE"
 	case PercentageLess:
 		condition = "PRICE_PERCENT_CHANGE_BELOW"
+	case Up:
+		condition = "PRICE_UP"
+	case Down:
+		condition = "PRICE_DOWN"
 	default:
 		return nil, errors.New("invalid condition")
 	}
@@ -391,10 +395,7 @@ func FormatAlert(alert *types.Alert, localizer *i18n.Localizer, currentPriceInUS
 // check if valid uuid
 func ParseAlertId(input string) bool {
 	_, err := uuid.Parse(input)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 func DeleteAlert(endpoint, alertId string) error {
