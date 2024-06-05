@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/TropicalDog17/tele-bot/internal/types"
 	"github.com/TropicalDog17/tele-bot/internal/utils"
 	"github.com/awnumar/memguard"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -33,18 +33,32 @@ func RemoveGreenTickForAmount(keyboard [][]tele.InlineButton) [][]tele.InlineBut
 	}
 	for i := 0; i < len(keyboard[5]); i++ {
 		if keyboard[5][i].Text[0:3] == "✅" {
-			fmt.Println(len("✅"))
 			keyboard[5][i].Text = keyboard[5][i].Text[3:]
 		}
 	}
-	time.Sleep(1 * time.Second)
 	return keyboard
 }
 
-func ModifyAmountToTransferButton(keyboard [][]tele.InlineButton, amount, denom string) [][]tele.InlineButton {
+func ModifyAmountToTransferButton(localizer *i18n.Localizer, keyboard [][]tele.InlineButton, amount, denom string) [][]tele.InlineButton {
 	if denom != "" {
-		keyboard[3][0].Text = "Transfer " + amount + " " + denom
+		keyboard[3][0].Text = localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{ID: "Transfer", Other: "Transfer"}}) + " " + amount + " " + denom
 		return keyboard
+	}
+	return keyboard
+}
+
+func ModifyCustomTokenButton(keyboard [][]tele.InlineButton, denom string) [][]tele.InlineButton {
+	keyboard = RemoveGreenTickToken(keyboard)
+	if denom == "ATOM" {
+		keyboard[2][0] = AddGreenTick(*types.BtnInlineAtom(&i18n.Localizer{}).Inline())
+		return keyboard
+	} else if denom == "INJ" {
+		keyboard[2][1] = AddGreenTick(*types.BtnInlineInj(&i18n.Localizer{}).Inline())
+	} else {
+		if denom != "" {
+			keyboard[2][2].Text = "Custom token: " + denom
+			return keyboard
+		}
 	}
 	return keyboard
 }

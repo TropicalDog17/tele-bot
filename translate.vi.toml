@@ -1,0 +1,3 @@
+[CreateAlertMessage]
+hash = "sha1-ac53ad2d94d64dc375c872d526fdfe55c2b35225"
+other = "Vui lòng nhập cảnh báo theo định dạng *<<biểu tượng>> <<điều kiện>> <<giá trị>>*\n*Ví dụ:* BTC up 1000$\nETH down 10%\nATOM over 1000$\nBTC under 50000$\n"

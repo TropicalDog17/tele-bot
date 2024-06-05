@@ -11,36 +11,44 @@ import (
 	spotExchangePB "github.com/InjectiveLabs/sdk-go/exchange/spot_exchange_rpc/pb"
 )
 
-// Fetch market data, market id, and market summary from the exchange client
 func FetchDataWithTimeout(redisClient RedisClient, coinGeckoClient CoinGecko, exchangeClient ExchangeClient) {
+	// Fetch data immediately
+	fetchData(redisClient, coinGeckoClient, exchangeClient)
+
 	// Create a ticker that ticks every 30 minutes
 	ticker := time.NewTicker(30 * time.Minute)
 	defer ticker.Stop()
 
 	for range ticker.C {
-		// Fetch USD price map
-		go func() {
-			err := FetchUsdPriceMap(redisClient, coinGeckoClient, "inj", "atom")
-			if err != nil {
-				fmt.Println(err)
-			}
-		}()
-
-		// Fetch markets
-		go func() {
-			err := FetchMarkets(redisClient, exchangeClient)
-			if err != nil {
-				fmt.Println(err)
-			}
-		}()
+		fetchData(redisClient, coinGeckoClient, exchangeClient)
 	}
+}
+
+func fetchData(redisClient RedisClient, coinGeckoClient CoinGecko, exchangeClient ExchangeClient) {
+	// Fetch USD price map
+	go func() {
+		fmt.Println("Fetching USD price map")
+		err := FetchUsdPriceMap(redisClient, coinGeckoClient, "inj", "atom", "usdt")
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
+
+	// Fetch markets
+	go func() {
+		fmt.Println("Fetching markets")
+		err := FetchMarkets(redisClient, exchangeClient)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}()
 }
 
 func FetchUsdPriceMap(redisClient RedisClient, coinGeckoClient CoinGecko, tokens ...string) error {
 	ctx := context.Background()
 	for _, token := range tokens {
 		// Fetch data from redis
-		tokenKey := fmt.Sprintf("price:%s", token)
+		tokenKey := fmt.Sprintf("pricenew:%s", token)
 		token = ConvertToCoinGeckoTicker(token)
 		// If data is not found in redis, fetch from CoinGecko
 		// If data is found in CoinGecko, store it in redis
@@ -52,7 +60,7 @@ func FetchUsdPriceMap(redisClient RedisClient, coinGeckoClient CoinGecko, tokens
 				return err
 			}
 			// Store in redis
-			err = redisClient.Set(ctx, tokenKey, fmt.Sprintf("%f", fetchedPrice), 0).Err()
+			err = redisClient.Set(ctx, tokenKey, fmt.Sprintf("%f", fetchedPrice), 1*time.Hour).Err()
 			if err != nil {
 				return err
 			}
@@ -67,7 +75,10 @@ func ConvertToCoinGeckoTicker(denom string) string {
 		return "injective-protocol"
 	} else if denom == "atom" {
 		return "cosmos"
+	} else if denom == "usdt" {
+		return "tether"
 	}
+
 	return denom
 }
 
