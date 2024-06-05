@@ -1,3 +1,3 @@
-[AlertMessagePercentage]
-hash = "sha1-f8185b94ac850bf3d20dd63fb911192dbfc121d9"
-other = "*🚨 ID Cảnh báo:* {{.AlertID}}\n*📈 {{.Name}} {{.Symbol}}/USDT*\n⏰ Thông báo cho tôi khi giá *{{.Condition}} {{.Value}}% trong 24h qua*\n💰 Giá hiện tại theo USD: ${{.CurrentPrice}}"
+[CreateAlertMessage]
+hash = "sha1-ac53ad2d94d64dc375c872d526fdfe55c2b35225"
+other = "Vui lòng nhập cảnh báo theo định dạng *<<biểu tượng>> <<điều kiện>> <<giá trị>>*\n*Ví dụ:* BTC up 1000$\nETH down 10%\nATOM over 1000$\nBTC under 50000$\n"

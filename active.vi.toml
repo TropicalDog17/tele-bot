@@ -66,6 +66,10 @@ other = "Xác nhận"
 hash = "sha1-1c45b72a1a9c0f4ecf7b56ee74e7d85096203c21"
 other = "✅ Xác nhận đơn hàng"
 
+[CreateAlertMessage]
+hash = "sha1-ac53ad2d94d64dc375c872d526fdfe55c2b35225"
+other = "Vui lòng nhập cảnh báo theo định dạng *<<biểu tượng>> <<điều kiện>> <<giá trị>>*\n*Ví dụ:* BTC up 1000$\nETH down 10%\nATOM over 1000$\nBTC under 50000$\n"
+
 [CreatePriceAlert]
 hash = "sha1-b79b0447bb32a72cea8c9a83b323f631a7ed4213"
 other = "🔔 Tạo cảnh báo giá"

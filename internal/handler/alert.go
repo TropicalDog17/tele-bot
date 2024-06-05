@@ -18,14 +18,21 @@ import (
 
 func HandlePriceAlert(b internal.Bot, localizer *i18n.Localizer, currentStep *string, btnPriceAlert, btnCreatePriceAlert, btnViewPriceAlert, btnDeletePriceAlert, btnUpdatePriceAlert tele.Btn) {
 	b.Handle(&btnPriceAlert, func(c tele.Context) error {
-		return c.Send("Price alert hihi", types.PriceAlertMenu(localizer))
+		return c.Send("Price alert", types.PriceAlertMenu(localizer))
 	})
 
 	// CRUD operations for price alerts
 	// Create price alert
 	b.Handle(&btnCreatePriceAlert, func(c tele.Context) error {
 		*currentStep = "createPriceAlert"
-		_, err := b.Send(c.Chat(), "Please input the alert in the format <<symbol>> <<condition>> <<value>>", tele.ForceReply)
+		text := localizer.MustLocalize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{
+				ID:    "CreateAlertMessage",
+				Other: "Please input the alert in the format \n *<<symbol>> <<condition>> <<value>>*\n" + "*For example*: BTC up 1000$\n" + "ETH down 10%\n" + "ATOM over 1000$\n" + "BTC under 50000$\n",
+			},
+		})
+
+		_, err := b.Send(c.Chat(), text, tele.ForceReply, tele.ModeMarkdown)
 		if err != nil {
 			return err
 		}
@@ -127,8 +134,10 @@ func HandleAlertStep(b internal.Bot, c tele.Context, localizer *i18n.Localizer, 
 type Condition int
 
 const (
-	Greater Condition = iota
-	Less
+	Up Condition = iota
+	Down
+	Above
+	Below
 	PercentageGreater
 	PercentageLess
 )
@@ -184,7 +193,7 @@ func ParseCreateAlertInput(input string) (*Alert, error) {
 		} else {
 			alert = &Alert{
 				Value:     value,
-				Condition: Greater,
+				Condition: Up,
 				Symbol:    symbol,
 			}
 		}
@@ -199,9 +208,27 @@ func ParseCreateAlertInput(input string) (*Alert, error) {
 		} else {
 			alert = &Alert{
 				Value:     value,
-				Condition: Less,
+				Condition: Down,
 				Symbol:    symbol,
 			}
+		}
+	case "over":
+		if strings.HasSuffix(value, "%") {
+			return nil, errors.New("invalid input")
+		}
+		alert = &Alert{
+			Value:     value,
+			Condition: Above,
+			Symbol:    symbol,
+		}
+	case "under":
+		if strings.HasSuffix(value, "%") {
+			return nil, errors.New("invalid input")
+		}
+		alert = &Alert{
+			Value:     value,
+			Condition: Below,
+			Symbol:    symbol,
 		}
 	default:
 		return nil, errors.New("invalid input")
@@ -213,9 +240,9 @@ func ParseCreateAlertInput(input string) (*Alert, error) {
 func ConvertAlertToCreateAlertRequest(alert *Alert, userID string) (*CreateAlertRequest, error) {
 	var condition string
 	switch alert.Condition {
-	case Greater:
+	case Above:
 		condition = "PRICE_ABOVE"
-	case Less:
+	case Below:
 		condition = "PRICE_BELOW"
 	case PercentageGreater:
 		condition = "PRICE_PERCENT_CHANGE_ABOVE"
@@ -300,12 +327,16 @@ func FormatAlert(alert *types.Alert, localizer *i18n.Localizer, currentPriceInUS
 	condition := ""
 	switch alert.Condition {
 	case types.Condition_PRICE_ABOVE:
-		condition = "over"
+		condition = "above"
 	case types.Condition_PRICE_BELOW:
 		condition = "below"
 	case types.Condition_PRICE_PERCENT_CHANGE_ABOVE:
 		condition = "up"
 	case types.Condition_PRICE_PERCENT_CHANGE_BELOW:
+		condition = "down"
+	case types.Condition_PRICE_UP:
+		condition = "up"
+	case types.Condition_PRICE_DOWN:
 		condition = "down"
 	}
 	fmt.Println("condition: ", condition)
