@@ -10,6 +10,7 @@ import (
 
 	"github.com/TropicalDog17/tele-bot/internal"
 	"github.com/TropicalDog17/tele-bot/internal/types"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -32,36 +33,90 @@ type DisplayData struct {
 
 var LinkToHelix = "\n\n[View on Helix](https://helixapp.com/markets/?type=spot)"
 
-func HandleViewMarket(b internal.Bot) {
-	b.Handle(&types.BtnViewMarket, func(c tele.Context) error {
-		return c.Send("Here you can have a quick look at the market the last 24h", types.MenuViewMarket)
+func HandleViewMarket(b internal.Bot, localizer *i18n.Localizer, btnViewMarket, btnBiggestGainer24h, btnBiggestLoser24h tele.Btn, btnBiggestVolume24h tele.Btn) {
+	b.Handle(&btnViewMarket, func(c tele.Context) error {
+		return c.Send(localizer.MustLocalize(&i18n.LocalizeConfig{
+			MessageID: "market_quick_look",
+			DefaultMessage: &i18n.Message{
+				ID:    "market_quick_look",
+				Other: "Here you can have a quick look at the market the last 24h",
+			},
+		}), types.ViewMarketMenu(localizer))
 	})
-	b.Handle(&types.BtnBiggestGainer24h, func(c tele.Context) error {
+
+	b.Handle(&btnBiggestGainer24h, func(c tele.Context) error {
 		data, err := FetchMarketsDataLast24h()
 		if err != nil {
-			return c.Send("Error fetching data"+err.Error(), types.Menu)
+			return c.Send(localizer.MustLocalize(&i18n.LocalizeConfig{
+				MessageID: "error_fetching_data",
+				DefaultMessage: &i18n.Message{
+					ID:    "error_fetching_data",
+					Other: "Error fetching data: {{.ErrorMessage}}",
+				},
+				TemplateData: map[string]interface{}{
+					"ErrorMessage": err.Error(),
+				},
+			}), types.Menu)
 		}
 		gainers := GetTopNBiggestGainer(data, 5)
-		text := "Here are the biggest gainers in the last 24h 📈📈📈 \n "
-		return c.Send(text+DisplayDataToString(gainers)+LinkToHelix, types.Menu, types.MenuViewMarket, tele.ModeMarkdown)
+		text := localizer.MustLocalize(&i18n.LocalizeConfig{
+			MessageID: "biggest_gainers_24h",
+			DefaultMessage: &i18n.Message{
+				ID:    "biggest_gainers_24h",
+				Other: "Here are the biggest gainers in the last 24h 📈📈📈 \n ",
+			},
+		})
+		return c.Send(text+DisplayDataToString(gainers, localizer)+LinkToHelix, types.Menu, types.ViewMarketMenu(localizer), tele.ModeMarkdown)
 	})
-	b.Handle(&types.BtnBiggestLoser24h, func(c tele.Context) error {
+
+	b.Handle(&btnBiggestLoser24h, func(c tele.Context) error {
 		data, err := FetchMarketsDataLast24h()
 		if err != nil {
-			return c.Send("Error fetching data"+err.Error(), types.Menu)
+			return c.Send(localizer.MustLocalize(&i18n.LocalizeConfig{
+				MessageID: "error_fetching_data",
+				DefaultMessage: &i18n.Message{
+					ID:    "error_fetching_data",
+					Other: "Error fetching data: {{.ErrorMessage}}",
+				},
+				TemplateData: map[string]interface{}{
+					"ErrorMessage": err.Error(),
+				},
+			}), types.Menu)
 		}
 		losers := GetTopNBiggestLoser(data, 5)
-		text := "Here are the biggest losers in the last 24h 📉📉📉 \n "
-		return c.Send(text+DisplayDataToString(losers)+LinkToHelix, types.Menu, types.MenuViewMarket, tele.ModeMarkdown)
+		text := localizer.MustLocalize(&i18n.LocalizeConfig{
+			MessageID: "biggest_losers_24h",
+			DefaultMessage: &i18n.Message{
+				ID:    "biggest_losers_24h",
+				Other: "Here are the biggest losers in the last 24h 📉📉📉 \n ",
+			},
+		})
+		return c.Send(text+DisplayDataToString(losers, localizer)+LinkToHelix, types.Menu, types.ViewMarketMenu(localizer), tele.ModeMarkdown)
 	})
-	b.Handle(&types.BtnBiggestVolume24h, func(c tele.Context) error {
+
+	b.Handle(&btnBiggestVolume24h, func(c tele.Context) error {
 		data, err := FetchMarketsDataLast24h()
 		if err != nil {
-			return c.Send("Error fetching data"+err.Error(), types.Menu)
+			return c.Send(localizer.MustLocalize(&i18n.LocalizeConfig{
+				MessageID: "error_fetching_data",
+				DefaultMessage: &i18n.Message{
+					ID:    "error_fetching_data",
+					Other: "Error fetching data: {{.ErrorMessage}}",
+				},
+				TemplateData: map[string]interface{}{
+					"ErrorMessage": err.Error(),
+				},
+			}), types.Menu)
 		}
 		volume := GetTopNBiggestVolume(data, 5)
-		text := "Here are the biggest volume in the last 24h 📊📊📊 \n "
-		return c.Send(text+DisplayDataToString(volume)+LinkToHelix, types.Menu, types.MenuViewMarket, tele.ModeMarkdown)
+		text := localizer.MustLocalize(&i18n.LocalizeConfig{
+			MessageID: "biggest_volume_24h",
+			DefaultMessage: &i18n.Message{
+				ID:    "biggest_volume_24h",
+				Other: "Here are the biggest volume in the last 24h 📊📊📊 \n ",
+			},
+		})
+		return c.Send(text+DisplayDataToString(volume, localizer)+LinkToHelix, types.Menu, types.ViewMarketMenu(localizer), tele.ModeMarkdown)
 	})
 }
 
@@ -173,15 +228,32 @@ func MarketIDToTicker(marketID string) (string, error) {
 	// Unmarshal the response body
 
 }
-func (d DisplayData) String() string {
+func (d DisplayData) String(localizer *i18n.Localizer) string {
 	icon := "🟢⬆️"
 	if d.Change[0] == '-' {
 		icon = "🔴⬇️"
 	}
-	return fmt.Sprintf("%s \n\n Change: %s%% %s \n\n Price: $%s 📊 Volume: $%s",
-		d.Ticker, d.Change, icon, d.Price, d.Volume)
+
+	return localizer.MustLocalize(&i18n.LocalizeConfig{
+		MessageID: "display_data_string",
+		DefaultMessage: &i18n.Message{
+			ID: "display_data_string",
+			Other: `{{.Ticker}}
+
+Change: {{.Change}}% {{.Icon}}
+
+Price: ${{.Price}} 📊 Volume: ${{.Volume}}`,
+		},
+		TemplateData: map[string]interface{}{
+			"Ticker": d.Ticker,
+			"Change": d.Change,
+			"Icon":   icon,
+			"Price":  d.Price,
+			"Volume": d.Volume,
+		},
+	})
 }
-func DisplayDataToString(data []MarketData) string {
+func DisplayDataToString(data []MarketData, localizer *i18n.Localizer) string {
 	var result string
 	for i, d := range data {
 		var prefix string
@@ -195,7 +267,7 @@ func DisplayDataToString(data []MarketData) string {
 		default:
 			prefix = fmt.Sprintf("%d. ", i+1)
 		}
-		result += prefix + d.Display().String() + "\n\n"
+		result += prefix + d.Display().String(localizer) + "\n\n"
 	}
 	return result
 

@@ -4,11 +4,10 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/TropicalDog17/tele-bot/internal/types"
 	"github.com/TropicalDog17/tele-bot/internal/utils"
-	"github.com/awnumar/memguard"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -33,62 +32,95 @@ func RemoveGreenTickForAmount(keyboard [][]tele.InlineButton) [][]tele.InlineBut
 	}
 	for i := 0; i < len(keyboard[5]); i++ {
 		if keyboard[5][i].Text[0:3] == "✅" {
-			fmt.Println(len("✅"))
 			keyboard[5][i].Text = keyboard[5][i].Text[3:]
 		}
 	}
-	time.Sleep(1 * time.Second)
 	return keyboard
 }
 
-func ModifyAmountToTransferButton(keyboard [][]tele.InlineButton, amount, denom string) [][]tele.InlineButton {
+func ModifyAmountToTransferButton(localizer *i18n.Localizer, keyboard [][]tele.InlineButton, amount, denom string) [][]tele.InlineButton {
 	if denom != "" {
-		keyboard[3][0].Text = "Transfer " + amount + " " + denom
+		keyboard[3][0].Text = localizer.MustLocalize(&i18n.LocalizeConfig{DefaultMessage: &i18n.Message{ID: "Transfer", Other: "Transfer"}}) + " " + amount + " " + denom
 		return keyboard
 	}
 	return keyboard
 }
 
-const (
-	selectTokenToBuyButtonLabel = "Select Token to Buy"
-	enterAmountToBuyButtonLabel = "Enter Amount to Buy"
-	selectTokenToPayButtonLabel = "Select Token to Pay"
-	setPriceButtonLabel         = "Set Price"
-)
+func ModifyCustomTokenButton(keyboard [][]tele.InlineButton, denom string) [][]tele.InlineButton {
+	keyboard = RemoveGreenTickToken(keyboard)
+	if denom == "ATOM" {
+		keyboard[2][0] = AddGreenTick(*types.BtnInlineAtom(&i18n.Localizer{}).Inline())
+		return keyboard
+	} else if denom == "INJ" {
+		keyboard[2][1] = AddGreenTick(*types.BtnInlineInj(&i18n.Localizer{}).Inline())
+	} else {
+		if denom != "" {
+			keyboard[2][2].Text = "Custom token: " + denom
+			return keyboard
+		}
+	}
+	return keyboard
+}
 
-func formatTokenToBuyButtonLabel(denomIn string) string {
+func formatTokenToBuyButtonLabel(localizer *i18n.Localizer, denomIn string) string {
 	if denomIn == "" {
-		return "🪙 " + selectTokenToBuyButtonLabel
+		return "🪙 " + localizer.MustLocalize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{ID: "SelectTokenToBuyButtonLabel", Other: "Select token to buy"},
+		})
 	}
-	return fmt.Sprintf("🛒 Buy: %s", strings.ToUpper(denomIn))
+	return localizer.MustLocalize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{ID: "BuyTokenFormat", Other: "🛒 Buy: {{.Token}}"},
+		TemplateData:   map[string]string{"Token": strings.ToUpper(denomIn)},
+	})
 }
 
-func formatAmountToBuyButtonLabel(amount float64, denomIn string) string {
+func formatAmountToBuyButtonLabel(localizer *i18n.Localizer, amount float64, denomIn string) string {
 	if amount == 0 {
-		return "💰 " + enterAmountToBuyButtonLabel
+		return "💰 " + localizer.MustLocalize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{ID: "EnterAmountToBuyButtonLabel", Other: "Enter amount to buy"},
+		})
 	}
-	return fmt.Sprintf("💸 Buy Amount: %.2f %s", amount, strings.ToUpper(denomIn))
+	return localizer.MustLocalize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{ID: "BuyAmountFormat", Other: "💸 Buy Amount: {{.Amount}} {{.Token}}"},
+		TemplateData: map[string]interface{}{
+			"Amount": fmt.Sprintf("%.2f", amount),
+			"Token":  strings.ToUpper(denomIn),
+		},
+	})
 }
 
-func formatTokenToPayButtonLabel(denomOut string) string {
+func formatTokenToPayButtonLabel(localizer *i18n.Localizer, denomOut string) string {
 	if denomOut == "" {
-		return "💳 " + selectTokenToPayButtonLabel
+		return "💳 " + localizer.MustLocalize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{ID: "SelectTokenToPayButtonLabel", Other: "Select token to pay"},
+		})
 	}
-	return fmt.Sprintf("💸 Pay With: %s", strings.ToUpper(denomOut))
+	return localizer.MustLocalize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{ID: "PayWithTokenFormat", Other: "💸 Pay With: {{.Token}}"},
+		TemplateData:   map[string]string{"Token": strings.ToUpper(denomOut)},
+	})
 }
 
-func formatPriceButtonLabel(price float64, denomOut, denomIn string) string {
+func formatPriceButtonLabel(localizer *i18n.Localizer, price float64, denomOut, denomIn string) string {
 	if price == 0 {
-		return "💲 " + setPriceButtonLabel
+		return "💲 " + localizer.MustLocalize(&i18n.LocalizeConfig{
+			DefaultMessage: &i18n.Message{ID: "SetPriceButtonLabel", Other: "Set price"},
+		})
 	}
-	return fmt.Sprintf("💰 Price: %.2f %s per %s", price, strings.ToUpper(denomOut), strings.ToUpper(denomIn))
+	return localizer.MustLocalize(&i18n.LocalizeConfig{
+		DefaultMessage: &i18n.Message{ID: "PriceFormat", Other: "💰 Price: {{.Price}} {{.DenomOut}} per {{.DenomIn}}"},
+		TemplateData: map[string]interface{}{
+			"Price":    fmt.Sprintf("%.2f", price),
+			"DenomOut": strings.ToUpper(denomOut),
+			"DenomIn":  strings.ToUpper(denomIn),
+		},
+	})
 }
-
-func ModifyLimitOrderMenu(keyboard [][]tele.InlineButton, orderInfo *types.LimitOrderInfo) [][]tele.InlineButton {
-	keyboard[1][0].Text = formatTokenToBuyButtonLabel(orderInfo.DenomIn)
-	keyboard[2][0].Text = formatAmountToBuyButtonLabel(orderInfo.Amount, orderInfo.DenomIn)
-	keyboard[3][0].Text = formatTokenToPayButtonLabel(orderInfo.DenomOut)
-	keyboard[4][0].Text = formatPriceButtonLabel(orderInfo.Price, orderInfo.DenomOut, orderInfo.DenomIn)
+func ModifyLimitOrderMenu(keyboard [][]tele.InlineButton, orderInfo *types.LimitOrderInfo, localizer *i18n.Localizer) [][]tele.InlineButton {
+	keyboard[1][0].Text = formatTokenToBuyButtonLabel(localizer, orderInfo.DenomIn)
+	keyboard[2][0].Text = formatAmountToBuyButtonLabel(localizer, orderInfo.Amount, orderInfo.DenomIn)
+	keyboard[3][0].Text = formatTokenToPayButtonLabel(localizer, orderInfo.DenomOut)
+	keyboard[4][0].Text = formatPriceButtonLabel(localizer, orderInfo.Price, orderInfo.DenomOut, orderInfo.DenomIn)
 	return keyboard
 }
 func DeleteInputMessage(b *tele.Bot, c tele.Context) error {
@@ -100,36 +132,28 @@ func DeleteInputMessage(b *tele.Bot, c tele.Context) error {
 }
 
 // RetrievePrivateKeyFromRedis retrieves the private key from Redis and returns it as a LockedBuffer.
-func RetrievePrivateKeyFromRedis(redisClient RedisClient, username string, password *memguard.LockedBuffer) (*memguard.LockedBuffer, error) {
+func RetrievePrivateKeyFromRedis(redisClient RedisClient, username string, password string) (string, error) {
 	// retrieve mnemonic
 	ctx := context.Background()
 	encryptedMnemonic, err := redisClient.HGet(ctx, username, "encryptedMnemonic").Result()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	salt, err := redisClient.HGet(ctx, username, "salt").Result()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// Decrypt mnemonic
-	key, err := utils.DeriveKeyFromSalt(password.String(), []byte(salt))
+	key, err := utils.DeriveKeyFromSalt(password, []byte(salt))
 	if err != nil {
-		return nil, fmt.Errorf("failed to derive key from salt: %w", err)
+		return "", fmt.Errorf("failed to derive key from salt: %w", err)
 	}
-	password.Destroy()
 
 	decryptedMnemonic, err := utils.GetDecryptedMnemonic(key, encryptedMnemonic)
 	if err != nil {
-		memguard.WipeBytes(key)
-		return nil, err
+		return "", err
 	}
-	memguard.WipeBytes(key)
-
-	// Create a LockedBuffer for the decrypted mnemonic
-	mnemonicBuffer := memguard.NewBufferFromBytes([]byte(decryptedMnemonic))
-	defer mnemonicBuffer.Destroy()
-
 	// Derive the private key bytes from the mnemonic
-	return utils.DerivePrivateKeyBufferFromMnemonic(mnemonicBuffer)
+	return utils.DerivePrivateKeyBufferFromMnemonic(decryptedMnemonic)
 }

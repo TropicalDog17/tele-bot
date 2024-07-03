@@ -8,7 +8,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	configtypes "github.com/TropicalDog17/orderbook-go-sdk/config"
@@ -18,10 +17,7 @@ import (
 	"github.com/TropicalDog17/tele-bot/internal/database"
 	"github.com/TropicalDog17/tele-bot/internal/types"
 	"github.com/awnumar/memguard"
-	tele "gopkg.in/telebot.v3"
 )
-
-var pwdChan = make(chan *memguard.LockedBuffer)
 
 type Client struct {
 	client          *exchange.MbClient
@@ -47,14 +43,13 @@ func (r *RecipentWrapper) Recipient() string {
 	return r.Username
 }
 
-func NewClient(b internal.Bot, username string, pwdBuffer *memguard.LockedBuffer, redisClient internal.RedisClient, currentStep *string) (*Client, error) {
+func NewClient(b internal.Bot, username string, pwdBuffer string, redisClient internal.RedisClient, currentStep *string) (*Client, error) {
 	pkBuffer, err := internal.RetrievePrivateKeyFromRedis(redisClient, username, pwdBuffer)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("pkBuffer: ", pkBuffer.String())
-	client := exchange.NewMbClient("local", pkBuffer.String(), configtypes.DefaultConfig())
-	defer pkBuffer.Destroy()
+	fmt.Println("pkBuffer: ", pkBuffer)
+	client := exchange.NewMbClient("local", pkBuffer, configtypes.DefaultConfig())
 	cgClient := NewCoinGeckoClient()
 	go internal.FetchDataWithTimeout(redisClient, cgClient, client)
 	c := &Client{
@@ -62,18 +57,18 @@ func NewClient(b internal.Bot, username string, pwdBuffer *memguard.LockedBuffer
 		coinGeckoClient: cgClient,
 		redisClient:     redisClient,
 	}
-	go func() {
-		ticker := time.NewTicker(60 * time.Second)
-		defer ticker.Stop()
+	// go func() {
+	// 	ticker := time.NewTicker(60 * time.Second)
+	// 	defer ticker.Stop()
 
-		for range ticker.C {
-			fmt.Println("Sync orders to redis")
-			err := internal.SyncOrdersToRedis(c, c.redisClient)
-			if err != nil {
-				fmt.Println(err)
-			}
-		}
-	}()
+	// 	for range ticker.C {
+	// 		fmt.Println("Sync orders to redis")
+	// 		err := internal.SyncOrdersToRedis(c, c.redisClient)
+	// 		if err != nil {
+	// 			fmt.Println(err)
+	// 		}
+	// 	}
+	// }()
 
 	return c, nil
 }
@@ -100,7 +95,7 @@ func NewTempClient() *Client {
 
 func (c *Client) GetPrice(ticker string) (float64, bool) {
 	ctx := context.Background()
-	price, found := c.redisClient.Get(ctx, fmt.Sprintf("price:%s", ticker)).Result()
+	price, found := c.redisClient.Get(ctx, fmt.Sprintf("pricenew:%s", strings.ToLower(ticker))).Result()
 	if found != nil {
 		return 0, false
 	}
@@ -113,7 +108,7 @@ func (c *Client) GetPrice(ticker string) (float64, bool) {
 
 func (c *CoinGeckoClient) FetchUsdPriceMap(denoms ...string) (map[string]float64, error) {
 	// TODO: fix the hardcode
-	priceMap, err := c.GetPriceInUsd("inj", "atom")
+	priceMap, err := c.GetPriceInUsd("inj", "atom", "usdt")
 	if err != nil {
 		return nil, err
 	}
@@ -203,6 +198,9 @@ func (c *CoinGeckoClient) GetPriceInUsd(denoms ...string) (map[string]map[string
 			ticker = append(ticker, "injective-protocol")
 		} else if denom == "atom" {
 			ticker = append(ticker, "cosmos")
+
+		} else if denom == "usdt" {
+			ticker = append(ticker, "tether")
 		} else {
 			ticker = append(ticker, denom)
 		}
@@ -262,7 +260,9 @@ func (c *Client) ToMessage(order types.LimitOrderInfo, showDetail bool) string {
 	⬩ Amount: %.3f %s
 	⬩ Limit Price: $%.3f (0.00%%)
 	⬩ Pay Token: %s
-	`, order.Direction, order.Direction, order.Amount, order.DenomIn, order.Price, order.DenomOut)
+	⬩ Order Hash: %s
+	⬩ Market ID: %s
+	`, order.Direction, order.Direction, order.Amount, order.DenomIn, order.Price, order.DenomOut, order.OrderHash, order.MarketID)
 	} else {
 		return fmt.Sprintf(`📊 Limit Order - %s
 	⬩ Mode: %s
@@ -340,17 +340,4 @@ func (c *Client) GetActiveMarkets() (map[string]string, error) {
 
 func (c *Client) GetExchangeClient() *exchange.MbClient {
 	return c.client
-}
-
-func HandleAskForPassword(b internal.Bot, recp tele.Recipient, pwdChan chan *memguard.LockedBuffer, step *string) error {
-	*step = "askPassword"
-	_, _ = b.Send(recp, "Please enter your password")
-
-	b.Handle(tele.OnText, func(c tele.Context) error {
-		pwdChan <- memguard.NewBufferFromBytes([]byte(c.Text()))
-		return nil
-	})
-
-	return nil
-
 }

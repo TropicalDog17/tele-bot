@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/awnumar/memguard"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"github.com/ethereum/go-ethereum/crypto"
 	hdwallet "github.com/miguelmota/go-ethereum-hdwallet"
@@ -81,30 +80,26 @@ func DerivePrivateKeyFromMnemonic(mnemonic string) (*ecdsa.PrivateKey, error) {
 	return privateKey, nil
 }
 
-func DerivePrivateKeyBufferFromMnemonic(mnemonic *memguard.LockedBuffer) (*memguard.LockedBuffer, error) {
-	wallet, err := hdwallet.NewFromMnemonic(mnemonic.String())
+func DerivePrivateKeyBufferFromMnemonic(mnemonic string) (string, error) {
+	wallet, err := hdwallet.NewFromMnemonic(mnemonic)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	mnemonic.Destroy()
 
 	path := hdwallet.MustParseDerivationPath(defaultDerivationPath)
 	account, err := wallet.Derive(path, false)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	privateKey, err := wallet.PrivateKey(account)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	// Decode hex string to bytes
-	privateKeyHex := memguard.NewBufferFromBytes([]byte(ECDSAToString(privateKey)))
-	defer privateKeyHex.Destroy()
+	privateKeyHex := ECDSAToString(privateKey)
 
-	privateKeyBuffer := memguard.NewBufferFromBytes([]byte(privateKeyHex.String()))
-	return privateKeyBuffer, nil
+	return privateKeyHex, nil
 }
 
 func ExportEncryptedPrivateKeyFromMnemonicAndPassphrase(mnemonic, passphrase string) (string, error) {

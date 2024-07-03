@@ -55,6 +55,7 @@ type RedisClient interface {
 	HKeys(ctx context.Context, key string) *redis.StringSliceCmd
 	HDel(ctx context.Context, key string, fields ...string) *redis.IntCmd
 	HExists(ctx context.Context, key, field string) *redis.BoolCmd
+	Pipeline() redis.Pipeliner
 }
 
 type ExchangeClient interface {

@@ -1,14 +1,15 @@
 package handler
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"strings"
 
 	"github.com/TropicalDog17/tele-bot/internal"
-	"github.com/TropicalDog17/tele-bot/internal/types"
-	"github.com/yeqown/go-qrcode/v2"
-	"github.com/yeqown/go-qrcode/writer/standard"
+	types "github.com/TropicalDog17/tele-bot/internal/types"
+	"github.com/nicksnyder/go-i18n/v2/i18n"
+	"github.com/skip2/go-qrcode"
 	tele "gopkg.in/telebot.v3"
 )
 
@@ -20,37 +21,38 @@ func HandleAddressQr(b *tele.Bot, authRoute *tele.Group, clients map[string]inte
 		}
 		// Get the address
 		address := client.GetAddress()
-		// Address
-		qrc, err := qrcode.New(address)
+
+		// Generate the QR code in memory
+		qr, err := qrcode.New(address, qrcode.Medium)
 		if err != nil {
 			fmt.Printf("could not generate QRCode: %v", err)
 			return err
 		}
 
-		w, err := standard.New("../temp/repo-qrcode.jpeg")
+		// Convert the QR code to a byte slice
+		qrBytes, err := qr.PNG(256)
 		if err != nil {
-			fmt.Printf("standard.New failed: %v", err)
+			fmt.Printf("could not convert QRCode to PNG: %v", err)
 			return err
 		}
-		defer w.Close()
 
-		// save file
-		if err = qrc.Save(w); err != nil {
-			fmt.Printf("could not save image: %v", err)
-		}
-		photo := &tele.Photo{File: tele.FromDisk("../temp/repo-qrcode.jpeg")}
+		// Create a byte reader from the QR code byte slice
+		reader := bytes.NewReader(qrBytes)
+
+		// Send the QR code directly from memory
+		photo := &tele.Photo{File: tele.FromReader(reader)}
 		_, err = b.Send(c.Chat(), photo)
 		if err != nil {
 			return err
 		}
-		// Remove the file after sending
-		return os.Remove("../temp/repo-qrcode.jpeg")
+
+		return nil
 	})
 }
 
-func HandleAccountDetails(b *tele.Bot, authRoute *tele.Group, clients map[string]internal.BotClient) {
+func HandleAccountDetails(b *tele.Bot, localizer *i18n.Localizer, authRoute *tele.Group, clients map[string]internal.BotClient, btnShowAccount tele.Btn) {
 	// Show account
-	authRoute.Handle(&types.BtnShowAccount, func(c tele.Context) error {
+	authRoute.Handle(&btnShowAccount, func(c tele.Context) error {
 		client, ok := clients[c.Message().Sender.Username]
 		if !ok {
 			return c.Send("Client not found", types.Menu)
@@ -78,7 +80,8 @@ func HandleAccountDetails(b *tele.Bot, authRoute *tele.Group, clients map[string
 		rows = append(rows, accountDetails.Row(accountDetails.Data("📱 Show QR for address", "qr", "qr")))
 		accountDetails.Inline(rows...)
 		// Message contain the account address
-		message := fmt.Sprintf("Account: [%s](https://0267-2402-800-61c5-784e-4ddd-972f-73a6-f0a2.ngrok-free.app/injective/account/%s)", address, address)
+		explorerUrl := os.Getenv("EXPLORER_URL")
+		message := fmt.Sprintf("Account: [%s](%s/injective/account/%s)", address, explorerUrl, address)
 		return c.Send(message, accountDetails, tele.ModeMarkdown)
 	})
 }
