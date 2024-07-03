@@ -7,6 +7,7 @@ import (
 	"os"
 	"slices"
 	"strconv"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -38,7 +39,7 @@ var (
 )
 
 var clients = make(map[string]internal.BotClient)
-var globalLimitOrder = types.NewLimitOrderInfo()
+var globalLimitOrder *types.LimitOrderInfo
 
 func main() {
 	bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
@@ -65,7 +66,7 @@ func main() {
 	authRoute.Handle("/menu", func(c tele.Context) error {
 		return c.Send("Menu", types.MainMenu(localizer))
 	})
-
+	globalLimitOrder = types.NewLimitOrderInfo()
 	SetHandlerForBot(b, localizer, authRoute, globalLimitOrder, transferInfo)
 	b.Start()
 }
@@ -94,96 +95,91 @@ var authSteps = []string{
 func clientMiddleware(next tele.HandlerFunc) tele.HandlerFunc {
 	return func(c tele.Context) error {
 		username := c.Sender().Username
-		_, ok := clients[username]
-		if !ok {
-			// Client doesn't exist, check if waiting for password
+		ctx := context.Background()
+
+		if _, ok := clients[username]; !ok {
 			if notWaitingForPassword[username] && currentStep == "askPassword" {
-				// User has provided the password
 				password := c.Text()
-
-				// Create a new LockedBuffer with the password
 				pwdBuffer := memguard.NewBufferFromBytes([]byte(password))
+				defer pwdBuffer.Destroy()
 
-				// Create a new Client with the provided password
 				client, err := clienttypes.NewClient(c.Bot(), username, pwdBuffer, redisInstance, &currentStep)
 				if err != nil {
-					fmt.Println("Error creating client: ", err)
-					// Password is invalid
-					_, _ = c.Bot().Send(c.Recipient(), "Invalid password. Please re-enter your password")
-					return nil
+					return c.Send("Invalid password. Please re-enter your password")
 				}
 
-				fmt.Println("Client created successfully")
 				clients[username] = client
-
-				// Reset the waiting flag
 				notWaitingForPassword[username] = true
-				redisInstance.HSet(context.Background(), username, "client", true)
-				// Clean up the password buffer
-				pwdBuffer.Destroy()
+
+				pipe := redisInstance.Pipeline()
+				pipe.HSet(ctx, username, "client", "true")
+				chatIDCmd := pipe.HGet(ctx, username, "currentExpiredChatId")
+				msgIDCmd := pipe.HGet(ctx, username, "currentExpiredMsgId")
+				_, err = pipe.Exec(ctx)
+				if err != nil {
+					return fmt.Errorf("Redis pipeline error: %w", err)
+				}
 
 				_ = c.Delete()
-				// Retrieve the Session expired! Please enter your password message
-				chatID := redisInstance.HGet(context.Background(), username, "currentExpiredChatId").Val()
-				msgID := redisInstance.HGet(context.Background(), username, "currentExpiredMsgId").Val()
-
-				chatIDInt, _ := strconv.ParseInt(chatID, 10, 64)
+				chatID, _ := strconv.Atoi(chatIDCmd.Val())
 				_ = c.Bot().Delete(tele.StoredMessage{
-					ChatID:    chatIDInt,
-					MessageID: msgID,
+					ChatID:    int64(chatID),
+					MessageID: msgIDCmd.Val(),
 				})
-				// Proceed with the next handler
-				// "Password accepted. You can perform your action again"
+
 				return c.Send(localizer.MustLocalize(&i18n.LocalizeConfig{
 					DefaultMessage: &i18n.Message{
 						ID:    "passwordAccepted",
 						Other: "Password accepted. You can perform your action again",
 					},
 				}), types.MainMenu(localizer))
-			} else {
-
-				if currentStep != "" && !slices.Contains(authSteps, currentStep) {
-					return next(c)
-				}
-				fmt.Println("Current step: ", currentStep)
-				fmt.Println("Auth steps: ", c.Message().Text)
-				if !slices.Contains(authSteps, c.Message().Text) {
-					return next(c)
-				}
-				// Client doesn't exist and not waiting for password
-				// Check if any credentials exist for the user
-				haveCreds := redisInstance.HExists(context.Background(), username, "salt").Val()
-				fmt.Println(haveCreds)
-				if !haveCreds {
-					isFirstTime := !redisInstance.HExists(context.Background(), username, "client").Val()
-					fmt.Println(c.Message().Text)
-					if isFirstTime && c.Message().Text == "/start" {
-						return next(c)
-					} else if isFirstTime {
-						_, _ = c.Bot().Send(c.Recipient(), "Please type /start to start the bot")
-						return nil
-					}
-				}
-
-				msg, _ := c.Bot().Send(c.Recipient(), localizer.MustLocalize(&i18n.LocalizeConfig{
-					DefaultMessage: &i18n.Message{
-						ID:    "sessionExpired",
-						Other: "Session expired! Please enter your password",
-					},
-				}))
-				redisInstance.HSet(context.Background(), username, "currentExpiredChatId", msg.Chat.ID)
-				redisInstance.HSet(context.Background(), username, "currentExpiredMsgId", msg.ID)
-				// Set the waiting flag for the user
-				notWaitingForPassword[username] = true
-
-				// Initialize the current step for the user
-				currentStep = "askPassword"
-
-				// Stop further processing
-				return nil
 			}
+
+			if currentStep != "" && !slices.Contains(authSteps, currentStep) {
+				return next(c)
+			}
+
+			messageText := c.Message().Text
+			if !slices.Contains(authSteps, messageText) {
+				return next(c)
+			}
+
+			pipe := redisInstance.Pipeline()
+			haveCredsCmd := pipe.HExists(ctx, username, "salt")
+			isFirstTimeCmd := pipe.HExists(ctx, username, "client")
+			_, err := pipe.Exec(ctx)
+			if err != nil {
+				return fmt.Errorf("Redis pipeline error: %w", err)
+			}
+
+			if !haveCredsCmd.Val() {
+				if !isFirstTimeCmd.Val() && strings.EqualFold(messageText, "/start") {
+					return next(c)
+				} else if !isFirstTimeCmd.Val() {
+					return c.Send("Please type /start to start the bot")
+				}
+			}
+
+			msg, _ := c.Bot().Send(c.Recipient(), localizer.MustLocalize(&i18n.LocalizeConfig{
+				DefaultMessage: &i18n.Message{
+					ID:    "sessionExpired",
+					Other: "Session expired! Please enter your password",
+				},
+			}))
+
+			pipe = redisInstance.Pipeline()
+			pipe.HSet(ctx, username, "currentExpiredChatId", msg.Chat.ID)
+			pipe.HSet(ctx, username, "currentExpiredMsgId", msg.ID)
+			_, err = pipe.Exec(ctx)
+			if err != nil {
+				return fmt.Errorf("Redis pipeline error: %w", err)
+			}
+
+			notWaitingForPassword[username] = true
+			currentStep = "askPassword"
+			return nil
 		}
-		// Client exists, proceed with the next handler
+
 		return next(c)
 	}
 }
@@ -193,27 +189,46 @@ func languageMiddleware(next tele.HandlerFunc) tele.HandlerFunc {
 		"customAmount", "recipientAddress", "limitAmount", "limitPrice", "limitToken", "payWithToken", "cancelOrder", "confirmOrder", types.BtnSendToken(localizer).Text, types.BtnLimitOrder(localizer).Text, types.BtnShowAccount(localizer).Text,
 		types.BtnActiveOrders(localizer).Text, types.BtnCancelOrder(localizer).Text, types.BtnBack(localizer).Text, types.BtnMenu(localizer).Text, types.BtnInlineAtom(localizer).Text, types.BtnInlineInj(localizer).Text, types.BtnTenDollar(localizer).Text, types.BtnFiftyDollar(localizer).Text, types.BtnHundredDollar(localizer).Text, types.BtnTwoHundredDollar(localizer).Text, types.BtnFiveHundredDollar(localizer).Text, types.BtnCustomAmount(localizer).Text, types.BtnRecipientSection(localizer, transferInfo).Text, types.BtnCustomToken(localizer).Text, types.BtnSettings(localizer).Text,
 	}
+	var currentLanguage string
+
 	return func(c tele.Context) error {
 		redisInstance = database.NewRedisInstance()
 		username := c.Sender().Username
 
 		// Check if the user has set a language
 		language := redisInstance.HGet(context.Background(), username, "language").Val()
-		if language == "" {
-			// Language is not set
-			localizer = i18n.NewLocalizer(bundle, "en-US")
-			fmt.Println("Language not set")
+
+		// Only set a new localizer if the language has changed
+		if language != currentLanguage {
+			var newLocalizer *i18n.Localizer
+
+			switch language {
+			case "":
+				newLocalizer = i18n.NewLocalizer(bundle, "en-US")
+				currentLanguage = "en"
+				fmt.Println("Language not set, defaulting to English")
+			case "en":
+				newLocalizer = i18n.NewLocalizer(bundle, "en-US")
+				currentLanguage = "en"
+				fmt.Println("Set to English")
+			case "vi":
+				newLocalizer = i18n.NewLocalizer(bundle, "vi-VN")
+				currentLanguage = "vi"
+				fmt.Println("Set to Vietnamese")
+			default:
+				newLocalizer = i18n.NewLocalizer(bundle, "en-US")
+				currentLanguage = "en"
+				fmt.Println("Unexpected language value, defaulting to English")
+			}
+
+			// Only update localizer and set handler if a new localizer was created
+			if newLocalizer != nil {
+				localizer = newLocalizer
+				SetHandlerForBot(c.Bot(), localizer, authRoute, globalLimitOrder, transferInfo)
+			}
 		}
-		if language == "en" {
-			localizer = i18n.NewLocalizer(bundle, "en-US")
-			fmt.Println("set eng")
-		}
-		if language == "vi" {
-			localizer = i18n.NewLocalizer(bundle, "vi-VN")
-			fmt.Println("set vi")
-		}
-		SetHandlerForBot(c.Bot(), localizer, authRoute, globalLimitOrder, transferInfo)
-		// Language is set, proceed with the next handler
+
+		// Proceed with the next handler
 		return next(c)
 	}
 }

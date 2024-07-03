@@ -78,6 +78,9 @@ func HandleLimitOrder(b internal.Bot, localizer *i18n.Localizer, authRoute *tele
 		return nil
 	})
 	authRoute.Handle(&btnSellLimitOrder, func(ctx tele.Context) error {
+		// Adjust global limit order
+		globalLimitOrder.Direction = "sell"
+
 		currentTime := time.Now().Format("2006-01-02 15:04:05")
 		text := "Place a sell limit order\nDefault price updated at: " + currentTime
 		client := clients[ctx.Callback().Sender.Username]
@@ -102,9 +105,6 @@ func HandleLimitOrder(b internal.Bot, localizer *i18n.Localizer, authRoute *tele
 		if err != nil {
 			return err
 		}
-
-		// Adjust global limit order
-		globalLimitOrder.Direction = "sell"
 
 		return nil
 	})

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/BurntSushi/toml"
@@ -50,7 +51,11 @@ func HandleInputChangeLanguage(b *tele.Bot, localizer **i18n.Localizer, c tele.C
 	*currentStep = ""
 	lang := strings.ToLower(c.Text())
 	if lang == "english" || lang == "en" {
-		client.GetRedisInstance().HSet(context.Background(), c.Sender().Username, "language", "en")
+		fmt.Printf("Sender, %v\n", c.Sender().Username)
+		err := client.GetRedisInstance().HSet(context.Background(), c.Sender().Username, "language", "en").Err()
+		if err != nil {
+			return c.Reply(fmt.Sprintf("Error: %v", err))
+		}
 		bundle := i18n.NewBundle(language.English)
 		bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 		bundle.MustLoadMessageFile("active.en.toml")
@@ -60,7 +65,10 @@ func HandleInputChangeLanguage(b *tele.Bot, localizer **i18n.Localizer, c tele.C
 		bundle := i18n.NewBundle(language.Vietnamese)
 		bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 		bundle.MustLoadMessageFile("active.vi.toml")
-		client.GetRedisInstance().HSet(context.Background(), c.Sender().Username, "language", "vi")
+		err := client.GetRedisInstance().HSet(context.Background(), c.Sender().Username, "language", "vi").Err()
+		if err != nil {
+			return c.Reply(fmt.Sprintf("Error: %v", err))
+		}
 		*localizer = i18n.NewLocalizer(bundle, "vi")
 		return c.Reply("Ngôn ngữ chuyển sang Tiếng Việt thành công. Gõ /menu để xem menu")
 	} else {

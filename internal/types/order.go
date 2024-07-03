@@ -29,6 +29,7 @@ func NewLimitOrderInfo() *LimitOrderInfo {
 	marketSummary, err := exchangeClient.GetMarketSummaryFromTicker(ticker)
 	var defaultPrice float64
 	if err != nil {
+		fmt.Println("Error getting market summary: ", err)
 		defaultPrice = 0
 	} else {
 		defaultPrice = marketSummary.Price

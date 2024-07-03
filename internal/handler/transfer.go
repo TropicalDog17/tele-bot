@@ -141,7 +141,7 @@ func HandlerTransferToken(b *tele.Bot, localizer *i18n.Localizer, authRoute *tel
 		}
 		// Trim whitespace from the recipient address
 		transferInfo.RecipientAddress = strings.TrimSpace(transferInfo.RecipientAddress)
-		txHash, err := client.TransferToken(transferInfo.RecipientAddress, selectedAmount/100, transferInfo.SelectedToken)
+		txHash, err := client.TransferToken(transferInfo.RecipientAddress, selectedAmount, transferInfo.SelectedToken)
 		if err != nil {
 			return c.Send("Error sending token", menuSendToken)
 		}

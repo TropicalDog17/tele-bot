@@ -155,7 +155,9 @@ func AfterMnemonicConfirmed(b internal.Bot, c tele.Context, clients map[string]i
 		return c.Reply("Error creating client" + err.Error())
 	}
 	clients[username] = client
-
+	fmt.Println("Client created")
+	fmt.Println("Username: ", username)
+	redisInstance.HSet(context.Background(), username, "client", "true")
 	mnemonic.Destroy()
 
 	return c.Reply("Account created successfully! You can now start using the bot. Type /help to see a list of available commands or /menu to see the main menu")
