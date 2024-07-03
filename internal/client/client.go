@@ -18,7 +18,6 @@ import (
 	"github.com/TropicalDog17/tele-bot/internal/database"
 	"github.com/TropicalDog17/tele-bot/internal/types"
 	"github.com/awnumar/memguard"
-	tele "gopkg.in/telebot.v3"
 )
 
 type Client struct {
@@ -45,14 +44,13 @@ func (r *RecipentWrapper) Recipient() string {
 	return r.Username
 }
 
-func NewClient(b internal.Bot, username string, pwdBuffer *memguard.LockedBuffer, redisClient internal.RedisClient, currentStep *string) (*Client, error) {
+func NewClient(b internal.Bot, username string, pwdBuffer string, redisClient internal.RedisClient, currentStep *string) (*Client, error) {
 	pkBuffer, err := internal.RetrievePrivateKeyFromRedis(redisClient, username, pwdBuffer)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("pkBuffer: ", pkBuffer.String())
-	client := exchange.NewMbClient("local", pkBuffer.String(), configtypes.DefaultConfig())
-	defer pkBuffer.Destroy()
+	fmt.Println("pkBuffer: ", pkBuffer)
+	client := exchange.NewMbClient("local", pkBuffer, configtypes.DefaultConfig())
 	cgClient := NewCoinGeckoClient()
 	go internal.FetchDataWithTimeout(redisClient, cgClient, client)
 	c := &Client{
@@ -343,16 +341,4 @@ func (c *Client) GetActiveMarkets() (map[string]string, error) {
 
 func (c *Client) GetExchangeClient() *exchange.MbClient {
 	return c.client
-}
-
-func HandleAskForPassword(b internal.Bot, recp tele.Recipient, pwdChan chan *memguard.LockedBuffer, step *string) error {
-	*step = "askPassword"
-	_, _ = b.Send(recp, "Please enter your password")
-
-	b.Handle(tele.OnText, func(c tele.Context) error {
-		pwdChan <- memguard.NewBufferFromBytes([]byte(c.Text()))
-		return nil
-	})
-
-	return nil
 }

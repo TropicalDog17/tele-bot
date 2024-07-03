@@ -20,7 +20,6 @@ import (
 	"github.com/TropicalDog17/tele-bot/internal/handler"
 	"github.com/TropicalDog17/tele-bot/internal/types"
 	"github.com/TropicalDog17/tele-bot/internal/utils"
-	memguard "github.com/awnumar/memguard"
 	"github.com/joho/godotenv"
 	tele "gopkg.in/telebot.v3"
 )
@@ -100,10 +99,8 @@ func clientMiddleware(next tele.HandlerFunc) tele.HandlerFunc {
 		if _, ok := clients[username]; !ok {
 			if notWaitingForPassword[username] && currentStep == "askPassword" {
 				password := c.Text()
-				pwdBuffer := memguard.NewBufferFromBytes([]byte(password))
-				defer pwdBuffer.Destroy()
 
-				client, err := clienttypes.NewClient(c.Bot(), username, pwdBuffer, redisInstance, &currentStep)
+				client, err := clienttypes.NewClient(c.Bot(), username, password, redisInstance, &currentStep)
 				if err != nil {
 					return c.Send("Invalid password. Please re-enter your password")
 				}
@@ -185,10 +182,7 @@ func clientMiddleware(next tele.HandlerFunc) tele.HandlerFunc {
 }
 
 func languageMiddleware(next tele.HandlerFunc) tele.HandlerFunc {
-	authSteps = []string{
-		"customAmount", "recipientAddress", "limitAmount", "limitPrice", "limitToken", "payWithToken", "cancelOrder", "confirmOrder", types.BtnSendToken(localizer).Text, types.BtnLimitOrder(localizer).Text, types.BtnShowAccount(localizer).Text,
-		types.BtnActiveOrders(localizer).Text, types.BtnCancelOrder(localizer).Text, types.BtnBack(localizer).Text, types.BtnMenu(localizer).Text, types.BtnInlineAtom(localizer).Text, types.BtnInlineInj(localizer).Text, types.BtnTenDollar(localizer).Text, types.BtnFiftyDollar(localizer).Text, types.BtnHundredDollar(localizer).Text, types.BtnTwoHundredDollar(localizer).Text, types.BtnFiveHundredDollar(localizer).Text, types.BtnCustomAmount(localizer).Text, types.BtnRecipientSection(localizer, transferInfo).Text, types.BtnCustomToken(localizer).Text, types.BtnSettings(localizer).Text,
-	}
+
 	var currentLanguage string
 
 	return func(c tele.Context) error {
@@ -224,6 +218,10 @@ func languageMiddleware(next tele.HandlerFunc) tele.HandlerFunc {
 			// Only update localizer and set handler if a new localizer was created
 			if newLocalizer != nil {
 				localizer = newLocalizer
+				authSteps = []string{
+					"customAmount", "recipientAddress", "limitAmount", "limitPrice", "limitToken", "payWithToken", "cancelOrder", "confirmOrder", types.BtnSendToken(localizer).Text, types.BtnLimitOrder(localizer).Text, types.BtnShowAccount(localizer).Text,
+					types.BtnActiveOrders(localizer).Text, types.BtnCancelOrder(localizer).Text, types.BtnBack(localizer).Text, types.BtnMenu(localizer).Text, types.BtnInlineAtom(localizer).Text, types.BtnInlineInj(localizer).Text, types.BtnTenDollar(localizer).Text, types.BtnFiftyDollar(localizer).Text, types.BtnHundredDollar(localizer).Text, types.BtnTwoHundredDollar(localizer).Text, types.BtnFiveHundredDollar(localizer).Text, types.BtnCustomAmount(localizer).Text, types.BtnRecipientSection(localizer, transferInfo).Text, types.BtnCustomToken(localizer).Text, types.BtnSettings(localizer).Text,
+				}
 				SetHandlerForBot(c.Bot(), localizer, authRoute, globalLimitOrder, transferInfo)
 			}
 		}
