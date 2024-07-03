@@ -34,9 +34,17 @@ other = "📉 Giảm mạnh nhất trong 24h"
 hash = "sha1-601fe41fd51d7d18b4a0e0c4a136c53f8dae1e1a"
 other = "📊 Khối lượng giao dịch lớn nhất trong 24h"
 
+[BuyAmountFormat]
+hash = "sha1-5642e6177f51f515d86cd537f9cbf0bc26efdd93"
+other = "💸 Buy Amount: {{.Amount}} {{.Token}}"
+
 [BuyLimitOrder]
 hash = "sha1-2ad43f233e8159b4bdfcb28004c75bf0d6910c87"
 other = "📈 Mua"
+
+[BuyTokenFormat]
+hash = "sha1-097259808fc4694dfe105ea64971f1b608350165"
+other = "🛒 Buy: {{.Token}}"
 
 [CancelOrder]
 hash = "sha1-87125442f43bbc46421d0b1ab33926a65ce15170"
@@ -93,6 +101,10 @@ other = "🔔 Xoá cảnh báo giá"
 [DisablePassword]
 hash = "sha1-64727003c8df52d45498d635de7bbd3b10db96da"
 other = "🔒 Tắt mật khẩu"
+
+[EnterAmountToBuyButtonLabel]
+hash = "sha1-806817682ee6ac924529e51051c127143f46932f"
+other = "Enter amount to buy"
 
 [EnterCancelOrderId]
 hash = "sha1-98b8bd36a927261d0f58a24e430c1950c58c159a"
@@ -166,6 +178,10 @@ other = "Không có lệnh nào đang hoạt động"
 hash = "sha1-3042edc58ff225bb170f36f3b6b7074dbb4f41e6"
 other = "💳 Thanh toán bằng"
 
+[PayWithTokenFormat]
+hash = "sha1-06e88ea8f471a4a3b93c47d6b8d56c303a5d354b"
+other = "💸 Pay With: {{.Token}}"
+
 [Price]
 hash = "sha1-aa897c5b15197311bf5c27a8a9d03307a4b450c7"
 other = "💰 Giá"
@@ -173,6 +189,10 @@ other = "💰 Giá"
 [PriceAlert]
 hash = "sha1-e227d2d2e0720d944f51645187fe9d78be5af6c3"
 other = "🔔 Cảnh báo giá"
+
+[PriceFormat]
+hash = "sha1-4eb11c103160ffb67d8275cad1c25a1f558f95e6"
+other = "💰 Price: {{.Price}} {{.DenomOut}} per {{.DenomIn}}"
 
 [RecipientAddress]
 hash = "sha1-a74221cba54a8aedff0859751ec4faa3bddeea98"
@@ -189,6 +209,14 @@ other = "👤 Ví nhận: "
 [RecipientSet]
 hash = "sha1-8143e5cecade0c4f38472727a5a34b7e414ee705"
 other = "Ví nhận đã được thiết lập"
+
+[SelectTokenToBuyButtonLabel]
+hash = "sha1-d11d55138ff3b58b0413dfffc2d34834d63245a8"
+other = "Select token to buy"
+
+[SelectTokenToPayButtonLabel]
+hash = "sha1-f9ee9489b1d698c06ebcda443489602604c465cb"
+other = "Select token to pay"
 
 [SelectTokenToSend]
 hash = "sha1-324e18c154b1a850f53357269ef44768fbb49af2"
@@ -213,6 +241,10 @@ other = "Gửi"
 [SendToken]
 hash = "sha1-42081cf4a6ea243a9e4078e2b24a55a5d00f481c"
 other = "💸 Gửi token"
+
+[SetPriceButtonLabel]
+hash = "sha1-a55e2021d46935e2267000b90b7c87a6e35e5dbc"
+other = "Set price"
 
 [Settings]
 hash = "sha1-9249b284db863d58f6e68e37edcc28ba67a79006"

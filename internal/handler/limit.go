@@ -52,7 +52,7 @@ func HandleLimitOrder(b internal.Bot, localizer *i18n.Localizer, authRoute *tele
 		client := clients[ctx.Callback().Sender.Username]
 		rdb := client.GetRedisInstance()
 
-		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(types.MenuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(types.MenuCreateLimitOrder.InlineKeyboard, globalLimitOrder, localizer)
 		msg, err := b.Send(ctx.Chat(), text, menuCreateLimitOrder)
 		if err != nil {
 			return err
@@ -87,7 +87,7 @@ func HandleLimitOrder(b internal.Bot, localizer *i18n.Localizer, authRoute *tele
 		text := "Place a sell limit order\nDefault price updated at: " + currentTime
 		client := clients[ctx.Callback().Sender.Username]
 		rdb := client.GetRedisInstance()
-		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(types.MenuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(types.MenuCreateLimitOrder.InlineKeyboard, globalLimitOrder, localizer)
 		msg, err := b.Send(ctx.Chat(), text, menuCreateLimitOrder)
 		if err != nil {
 			return err
@@ -203,7 +203,7 @@ func HandleLimitOrder(b internal.Bot, localizer *i18n.Localizer, authRoute *tele
 	})
 }
 
-func HandleLimitStep(b *tele.Bot, c tele.Context, client internal.BotClient, createOrderMenu *tele.StoredMessage, menuLimitOrder, menuCreateLimitOrder *tele.ReplyMarkup, globalLimitOrder *types.LimitOrderInfo, step *string) error {
+func HandleLimitStep(b *tele.Bot, c tele.Context, localizer *i18n.Localizer, client internal.BotClient, createOrderMenu *tele.StoredMessage, menuLimitOrder, menuCreateLimitOrder *tele.ReplyMarkup, globalLimitOrder *types.LimitOrderInfo, step *string) error {
 	switch *step {
 	case "limitAmount":
 		amount, err := strconv.ParseFloat(c.Text(), 64)
@@ -211,7 +211,7 @@ func HandleLimitStep(b *tele.Bot, c tele.Context, client internal.BotClient, cre
 			return c.Send("Invalid amount")
 		}
 		globalLimitOrder.Amount = amount
-		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder, localizer)
 		_, err = b.EditReplyMarkup(createOrderMenu, menuCreateLimitOrder)
 		if err != nil {
 			return err
@@ -224,7 +224,7 @@ func HandleLimitStep(b *tele.Bot, c tele.Context, client internal.BotClient, cre
 		}
 		fmt.Printf("%+v", globalLimitOrder)
 		globalLimitOrder.Price = price
-		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder, localizer)
 		_, err = b.EditReplyMarkup(createOrderMenu, menuCreateLimitOrder)
 		if err != nil {
 			return err
@@ -241,7 +241,7 @@ func HandleLimitStep(b *tele.Bot, c tele.Context, client internal.BotClient, cre
 			globalLimitOrder.Price = market.Price
 		}
 
-		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder, localizer)
 		_, err = b.EditReplyMarkup(createOrderMenu, menuCreateLimitOrder)
 		if err != nil {
 			return err
@@ -263,7 +263,7 @@ func HandleLimitStep(b *tele.Bot, c tele.Context, client internal.BotClient, cre
 			fmt.Println("Error getting market summary: ", err)
 		}
 
-		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder)
+		menuCreateLimitOrder.InlineKeyboard = internal.ModifyLimitOrderMenu(menuCreateLimitOrder.InlineKeyboard, globalLimitOrder, localizer)
 		_, err = b.EditReplyMarkup(createOrderMenu, menuCreateLimitOrder)
 		if err != nil {
 			return err

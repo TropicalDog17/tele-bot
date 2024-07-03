@@ -1,23 +1,31 @@
-[biggest_gainers_24h]
-hash = "sha1-7b8ae62791131663b3fa647c3bd083f84f2f4231"
-other = "Here are the biggest gainers in the last 24h 📈📈📈 \n "
+[BuyAmountFormat]
+hash = "sha1-5642e6177f51f515d86cd537f9cbf0bc26efdd93"
+other = "💸 Buy Amount: {{.Amount}} {{.Token}}"
 
-[biggest_losers_24h]
-hash = "sha1-e83ef7ed18f27dc2fcc3d96630f572503b24d8b3"
-other = "Here are the biggest losers in the last 24h 📉📉📉 \n "
+[BuyTokenFormat]
+hash = "sha1-097259808fc4694dfe105ea64971f1b608350165"
+other = "🛒 Buy: {{.Token}}"
 
-[biggest_volume_24h]
-hash = "sha1-65d8acb765e92319381ae3ffdfa935e415fd11e0"
-other = "Here are the biggest volume in the last 24h 📊📊📊 \n "
+[EnterAmountToBuyButtonLabel]
+hash = "sha1-806817682ee6ac924529e51051c127143f46932f"
+other = "Enter amount to buy"
 
-[display_data_string]
-hash = "sha1-88b23a16616b683e5088bf311d860b948d63337f"
-other = "{{.Ticker}}\n\nChange: {{.Change}}% {{.Icon}}\n\nPrice: ${{.Price}} 📊 Volume: ${{.Volume}}"
+[PayWithTokenFormat]
+hash = "sha1-06e88ea8f471a4a3b93c47d6b8d56c303a5d354b"
+other = "💸 Pay With: {{.Token}}"
 
-[error_fetching_data]
-hash = "sha1-b24bcb03e2aa15284dc88b852b18e41f3ab72cbe"
-other = "Error fetching data: {{.ErrorMessage}}"
+[PriceFormat]
+hash = "sha1-4eb11c103160ffb67d8275cad1c25a1f558f95e6"
+other = "💰 Price: {{.Price}} {{.DenomOut}} per {{.DenomIn}}"
 
-[market_quick_look]
-hash = "sha1-127381a30478af61bda37a202e0ef4cf2ee91745"
-other = "Here you can have a quick look at the market the last 24h"
+[SelectTokenToBuyButtonLabel]
+hash = "sha1-d11d55138ff3b58b0413dfffc2d34834d63245a8"
+other = "Select token to buy"
+
+[SelectTokenToPayButtonLabel]
+hash = "sha1-f9ee9489b1d698c06ebcda443489602604c465cb"
+other = "Select token to pay"
+
+[SetPriceButtonLabel]
+hash = "sha1-a55e2021d46935e2267000b90b7c87a6e35e5dbc"
+other = "Set price"

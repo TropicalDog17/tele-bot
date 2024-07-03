@@ -33,7 +33,7 @@ func HandleStep(b *tele.Bot, localizer *i18n.Localizer, authRoute *tele.Group, c
 		if *currentStep == "customAmount" || *currentStep == "recipientAddress" || *currentStep == "customToken" {
 			return HandleTransferStep(b, localizer, client, c, menuSendToken, transferInfo, globalMenu, currentStep)
 		} else if *currentStep == "limitAmount" || *currentStep == "limitPrice" || *currentStep == "limitToken" || *currentStep == "payWithToken" {
-			return HandleLimitStep(b, c, client, createOrderMenu, menuLimitOrder, menuCreateLimitOrder, globalLimitOrder, currentStep)
+			return HandleLimitStep(b, c, localizer, client, createOrderMenu, menuLimitOrder, menuCreateLimitOrder, globalLimitOrder, currentStep)
 		} else if *currentStep == "cancelOrder" {
 			return HandleCancelLimitOrderStep(b, c, client, globalLimitOrder)
 		} else if *currentStep == "changeLanguage" || *currentStep == "userInputLanguage" || *currentStep == "changeCurrency" || *currentStep == "changePassword" || *currentStep == "deletePassword" {
