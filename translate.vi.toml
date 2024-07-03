@@ -1,3 +1,23 @@
-[CreateAlertMessage]
-hash = "sha1-ac53ad2d94d64dc375c872d526fdfe55c2b35225"
-other = "Vui lòng nhập cảnh báo theo định dạng *<<biểu tượng>> <<điều kiện>> <<giá trị>>*\n*Ví dụ:* BTC up 1000$\nETH down 10%\nATOM over 1000$\nBTC under 50000$\n"
+[biggest_gainers_24h]
+hash = "sha1-7b8ae62791131663b3fa647c3bd083f84f2f4231"
+other = "Here are the biggest gainers in the last 24h 📈📈📈 \n "
+
+[biggest_losers_24h]
+hash = "sha1-e83ef7ed18f27dc2fcc3d96630f572503b24d8b3"
+other = "Here are the biggest losers in the last 24h 📉📉📉 \n "
+
+[biggest_volume_24h]
+hash = "sha1-65d8acb765e92319381ae3ffdfa935e415fd11e0"
+other = "Here are the biggest volume in the last 24h 📊📊📊 \n "
+
+[display_data_string]
+hash = "sha1-88b23a16616b683e5088bf311d860b948d63337f"
+other = "{{.Ticker}}\n\nChange: {{.Change}}% {{.Icon}}\n\nPrice: ${{.Price}} 📊 Volume: ${{.Volume}}"
+
+[error_fetching_data]
+hash = "sha1-b24bcb03e2aa15284dc88b852b18e41f3ab72cbe"
+other = "Error fetching data: {{.ErrorMessage}}"
+
+[market_quick_look]
+hash = "sha1-127381a30478af61bda37a202e0ef4cf2ee91745"
+other = "Here you can have a quick look at the market the last 24h"

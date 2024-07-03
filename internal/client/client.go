@@ -8,7 +8,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	exchangetypes "github.com/InjectiveLabs/sdk-go/chain/exchange/types"
 	configtypes "github.com/TropicalDog17/orderbook-go-sdk/config"
@@ -58,18 +57,18 @@ func NewClient(b internal.Bot, username string, pwdBuffer string, redisClient in
 		coinGeckoClient: cgClient,
 		redisClient:     redisClient,
 	}
-	go func() {
-		ticker := time.NewTicker(60 * time.Second)
-		defer ticker.Stop()
+	// go func() {
+	// 	ticker := time.NewTicker(60 * time.Second)
+	// 	defer ticker.Stop()
 
-		for range ticker.C {
-			fmt.Println("Sync orders to redis")
-			err := internal.SyncOrdersToRedis(c, c.redisClient)
-			if err != nil {
-				fmt.Println(err)
-			}
-		}
-	}()
+	// 	for range ticker.C {
+	// 		fmt.Println("Sync orders to redis")
+	// 		err := internal.SyncOrdersToRedis(c, c.redisClient)
+	// 		if err != nil {
+	// 			fmt.Println(err)
+	// 		}
+	// 	}
+	// }()
 
 	return c, nil
 }

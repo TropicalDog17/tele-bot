@@ -54,6 +54,10 @@ other = "🌐 Thay đổi ngôn ngữ"
 hash = "sha1-b5b43b2ebbddd619bf55a994d4e7d29026f67969"
 other = "🔑 Đổi mật khẩu"
 
+[ClientNotFound]
+hash = "sha1-57355ca41269309a524090cd9ff17a305726855e"
+other = "Client not found"
+
 [Close]
 hash = "sha1-bbfa773e5a63a5ea58c9b6207e608ca0120e592a"
 other = "Đóng"
@@ -67,8 +71,8 @@ hash = "sha1-1c45b72a1a9c0f4ecf7b56ee74e7d85096203c21"
 other = "✅ Xác nhận đơn hàng"
 
 [CreateAlertMessage]
-hash = "sha1-ac53ad2d94d64dc375c872d526fdfe55c2b35225"
-other = "Vui lòng nhập cảnh báo theo định dạng *<<biểu tượng>> <<điều kiện>> <<giá trị>>*\n*Ví dụ:* BTC up 1000$\nETH down 10%\nATOM over 1000$\nBTC under 50000$\n"
+hash = "sha1-9c35d883a39ad5034afca7e1b14945854fb712d4"
+other = "Please input the alert in the format \n *<<symbol>> <<condition>> <<value>>*\n*For example*: BTC up 1000$\nETH down 10%\nATOM over 1000$\nBTC under 50000$\n"
 
 [CreatePriceAlert]
 hash = "sha1-b79b0447bb32a72cea8c9a83b323f631a7ed4213"
@@ -94,9 +98,29 @@ other = "🔒 Tắt mật khẩu"
 hash = "sha1-98b8bd36a927261d0f58a24e430c1950c58c159a"
 other = "Nhập mã lệnh cần hủy"
 
+[EnterCustomAmount]
+hash = "sha1-dafbee9072e3025e86e4a58444634c5af7ba49a5"
+other = "Vui lòng nhập số lượng:"
+
+[EnterCustomToken]
+hash = "sha1-30a45ecd4c6665dc89e87d4b9cdb79e381342397"
+other = "Vui lòng nhập token:"
+
+[EnterRecipientAddress]
+hash = "sha1-6d43e09e05c136794c61e8c00542445808a14fac"
+other = "Vui lòng nhập địa chỉ ví người nhận:"
+
+[ErrorSendingToken]
+hash = "sha1-5046f81b4a58360043d83d3bf6145c1be7750e92"
+other = "Error sending token"
+
 [FiftyDollar]
 hash = "sha1-39f38044aff76f8e2a77d0fdb553b9237dc01eed"
 other = "💰 $5"
+
+[FillAllFields]
+hash = "sha1-2fa0b3418be00c0d0a2880839423d3b390441001"
+other = "Please fill in all required fields, missing {{.Field}}"
 
 [FiveHundredDollar]
 hash = "sha1-8458ab3e370a1b32e58f7787df7145e9e6ba6f15"
@@ -114,6 +138,10 @@ other = "ATOM"
 hash = "sha1-3be5bffea6848d347c762ee093a71d9ac12565d2"
 other = "INJ"
 
+[InvalidAmount]
+hash = "sha1-a2f6ca327e4951ef0ecb3108cb10bc28a325b0d1"
+other = "Invalid amount"
+
 [LimitOrder]
 hash = "sha1-e3a98c0c9bf1d28f6dcfe60acf7d48dfc0f55720"
 other = "🚀 Đơn hàng giới hạn"
@@ -125,6 +153,10 @@ other = "Lệnh Giới Hạn\n\nTự động Mua hoặc Bán token ở mức gi�
 [Menu]
 hash = "sha1-57f5f5efbc5990f5230aa95359042338b856707b"
 other = "Menu"
+
+[MissingField]
+hash = "sha1-ecc5c2257a1c7ced2f90fb13f665e7d348c6a73f"
+other = "missing field"
 
 [NoActiveOrders]
 hash = "sha1-03574d967abbc2489931876ec919a0f382c33fa4"
@@ -142,6 +174,10 @@ other = "💰 Giá"
 hash = "sha1-e227d2d2e0720d944f51645187fe9d78be5af6c3"
 other = "🔔 Cảnh báo giá"
 
+[RecipientAddress]
+hash = "sha1-a74221cba54a8aedff0859751ec4faa3bddeea98"
+other = "recipient address"
+
 [RecipientNotSet]
 hash = "sha1-df3042b266fd09435496954dec2f52cef7310502"
 other = "Ví nhận chưa được thiết lập"
@@ -153,6 +189,18 @@ other = "👤 Ví nhận: "
 [RecipientSet]
 hash = "sha1-8143e5cecade0c4f38472727a5a34b7e414ee705"
 other = "Ví nhận đã được thiết lập"
+
+[SelectTokenToSend]
+hash = "sha1-324e18c154b1a850f53357269ef44768fbb49af2"
+other = "Select the token to send:"
+
+[SelectedAmount]
+hash = "sha1-14e3e299112b0a1de4177e4abcd51874fe3a7f4f"
+other = "Selected amount"
+
+[SelectedToken]
+hash = "sha1-4a354e8fbc594173b1e127995b09d2f1400254bb"
+other = "Selected token"
 
 [SellLimitOrder]
 hash = "sha1-501239964b7b655a71bcc8189720a43a93ba784f"
@@ -190,6 +238,10 @@ other = "🪙 Token"
 hash = "sha1-e8973995b626fd397c4ad8ef7b028af4a2c6a26c"
 other = "🪙 Token: "
 
+[TokenSent]
+hash = "sha1-a8126820558d980c1f953c6c407b180c0f2ed8e6"
+other = "Sent {{.Amount}} {{.Token}} to {{.Address}}, with tx hash {{.TxHash}}"
+
 [Transfer]
 hash = "sha1-cbb4cc49824bf79827cde838e005848027ca0a38"
 other = "Chuyển"
@@ -213,6 +265,30 @@ other = "📈 Xem thị trường"
 [ViewPriceAlert]
 hash = "sha1-7987b7e03f4e2ee162931e6a29c02dac556f141c"
 other = "🔔 Xem cảnh báo giá"
+
+[biggest_gainers_24h]
+hash = "sha1-7b8ae62791131663b3fa647c3bd083f84f2f4231"
+other = "Here are the biggest gainers in the last 24h 📈📈📈 \n "
+
+[biggest_losers_24h]
+hash = "sha1-e83ef7ed18f27dc2fcc3d96630f572503b24d8b3"
+other = "Here are the biggest losers in the last 24h 📉📉📉 \n "
+
+[biggest_volume_24h]
+hash = "sha1-65d8acb765e92319381ae3ffdfa935e415fd11e0"
+other = "Here are the biggest volume in the last 24h 📊📊📊 \n "
+
+[display_data_string]
+hash = "sha1-88b23a16616b683e5088bf311d860b948d63337f"
+other = "{{.Ticker}}\n\nChange: {{.Change}}% {{.Icon}}\n\nPrice: ${{.Price}} 📊 Volume: ${{.Volume}}"
+
+[error_fetching_data]
+hash = "sha1-b24bcb03e2aa15284dc88b852b18e41f3ab72cbe"
+other = "Error fetching data: {{.ErrorMessage}}"
+
+[market_quick_look]
+hash = "sha1-127381a30478af61bda37a202e0ef4cf2ee91745"
+other = "Here you can have a quick look at the market the last 24h"
 
 [passwordAccepted]
 hash = "sha1-d8c53c910dbbfef2234af84a2f36a05debbc5294"

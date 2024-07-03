@@ -46,6 +46,7 @@ func HandleLimitOrder(b internal.Bot, localizer *i18n.Localizer, authRoute *tele
 		return nil
 	})
 	authRoute.Handle(&btnBuyLimitOrder, func(ctx tele.Context) error {
+		go updateGlobalLimitOrder(globalLimitOrder)
 		currentTime := time.Now().Format("2006-01-02 15:04:05")
 		text := "Place a buy limit order\n Updated at: " + currentTime
 		client := clients[ctx.Callback().Sender.Username]
@@ -74,11 +75,12 @@ func HandleLimitOrder(b internal.Bot, localizer *i18n.Localizer, authRoute *tele
 
 		// Adjust global limit order
 		globalLimitOrder.Direction = "buy"
-
 		return nil
 	})
 	authRoute.Handle(&btnSellLimitOrder, func(ctx tele.Context) error {
 		// Adjust global limit order
+		go updateGlobalLimitOrder(globalLimitOrder)
+
 		globalLimitOrder.Direction = "sell"
 
 		currentTime := time.Now().Format("2006-01-02 15:04:05")
@@ -160,6 +162,7 @@ func HandleLimitOrder(b internal.Bot, localizer *i18n.Localizer, authRoute *tele
 			},
 		}
 		text := "Transaction sent successfully."
+
 		return c.Send(text, menu)
 	})
 	// Handle active orders
@@ -289,4 +292,8 @@ func HandleCancelLimitOrderStep(b *tele.Bot, c tele.Context, client internal.Bot
 		return c.Send(fmt.Sprintf("Error cancelling order: %s", err), types.Menu)
 	}
 	return c.Send(fmt.Sprintf("Order cancelled with tx hash: %s", txhash), types.MenuLimitOrder, types.Menu)
+}
+
+func updateGlobalLimitOrder(globalLimitOrder *types.LimitOrderInfo) {
+	globalLimitOrder = types.NewLimitOrderInfo()
 }
