@@ -1,31 +1,31 @@
 [BuyAmountFormat]
 hash = "sha1-5642e6177f51f515d86cd537f9cbf0bc26efdd93"
-other = "💸 Buy Amount: {{.Amount}} {{.Token}}"
+other = "💸 Số lượng mua: {{.Amount}} {{.Token}}"
 
 [BuyTokenFormat]
 hash = "sha1-097259808fc4694dfe105ea64971f1b608350165"
-other = "🛒 Buy: {{.Token}}"
+other = "🛒 Mua: {{.Token}}"
 
 [EnterAmountToBuyButtonLabel]
 hash = "sha1-806817682ee6ac924529e51051c127143f46932f"
-other = "Enter amount to buy"
+other = "Nhập số lượng mua"
 
 [PayWithTokenFormat]
 hash = "sha1-06e88ea8f471a4a3b93c47d6b8d56c303a5d354b"
-other = "💸 Pay With: {{.Token}}"
+other = "💸 Trả bằng: {{.Token}}"
 
 [PriceFormat]
 hash = "sha1-4eb11c103160ffb67d8275cad1c25a1f558f95e6"
-other = "💰 Price: {{.Price}} {{.DenomOut}} per {{.DenomIn}}"
+other = "💰 Giá: {{.Price}} {{.DenomOut}} trên {{.DenomIn}}"
 
 [SelectTokenToBuyButtonLabel]
 hash = "sha1-d11d55138ff3b58b0413dfffc2d34834d63245a8"
-other = "Select token to buy"
+other = "Chọn token để mua"
 
 [SelectTokenToPayButtonLabel]
 hash = "sha1-f9ee9489b1d698c06ebcda443489602604c465cb"
-other = "Select token to pay"
+other = "Chọn token để trả"
 
 [SetPriceButtonLabel]
 hash = "sha1-a55e2021d46935e2267000b90b7c87a6e35e5dbc"
-other = "Set price"
+other = "Thiết lập giá"
